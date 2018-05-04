@@ -1,0 +1,13 @@
+version: 1.0
+prototypes:
+  - type: frequency
+    model: PXGMS UPS + EATON 93PM
+    manufacturer: SNMP
+    protocol: SNMP
+    output:
+      - type: frequency
+        data_type: float
+        unit:
+          name: hertz
+          symbol: Hz
+        precision: 3

@@ -26,8 +26,12 @@
 
 
 [[constraint]]
+  name = "github.com/soniah/gosnmp"
   branch = "master"
+
+[[constraint]]
   name = "github.com/vapor-ware/synse-sdk"
+  branch = "master"
 
 [prune]
   go-tests = true

@@ -1,0 +1,13 @@
+version: 1.0
+prototypes:
+  - type: power
+    model: PXGMS UPS + EATON 93PM
+    manufacturer: SNMP
+    protocol: SNMP
+    output:
+      - type: power
+        data_type: float
+        unit:
+          name: watts # TODO: Some power will be watts, some VA. How to differentiate?
+          symbol: W
+        precision: 3

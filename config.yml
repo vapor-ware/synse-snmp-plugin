@@ -5,8 +5,26 @@ network:
   type: unix
   address: snmp.sock
 settings:
-  mode: parallel
+  mode: serial
   read:
     interval: 3s
+    buffer: 1024
   write:
     interval: 1s
+    buffer: 1024
+  transaction:
+    ttl: 30s
+# This should allow for auto enumeration of SNMP devices for the PXGMS_UPS.
+# This is setting up against the emulator.
+# Production parameters are in vec-testbed config.yaml.
+auto_enumerate:
+  - model: PXGMS UPS + EATON 93PM
+    version: v3
+    endpoint: 127.0.0.1
+    port: 1024
+    userName: simulator
+    authenticationProtocol: SHA
+    authenticationPassphrase: auctoritas
+    privacyProtocol: AES
+    privacyPassphrase: privatus
+    contextName: public

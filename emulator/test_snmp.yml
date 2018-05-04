@@ -1,0 +1,9 @@
+# This is the container running the SNMP emulator to test against.
+snmp-emulator-ups:
+  container_name: snmp-emulator-ups
+  build: .
+  dockerfile: Dockerfile
+  # This command will override what is in the dockerfile.
+  command: ./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log
+  ports:
+    - 1024:1024/udp

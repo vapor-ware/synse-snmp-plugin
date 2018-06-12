@@ -1,0 +1,9 @@
+version: 1.0
+prototypes:
+  - type: status
+    model: PXGMS UPS + EATON 93PM # TODO: This is a hack around: prototype and instance config mismatch (model): SNMP != PXGMS UPS + EATON 93PM
+    manufacturer: SNMP # TODO: Check to see that this is overridden.
+    protocol: SNMP
+    output:
+      - type: status
+        data_type: string

@@ -31,15 +31,11 @@ HAS_GOX  := $(shell which gox)
 
 .PHONY: build
 build:  ## Build the plugin Go binary
-	go build -ldflags "${LDFLAGS}" -o build/plugin
-
-.PHONY: ci
-ci:  ## Run CI checks locally (build, lint)
-	@$(MAKE) build lint
+	go build -ldflags "${LDFLAGS}" -o build/plugin || exit
 
 .PHONY: clean
 clean:  ## Remove temporary files
-	go clean -v
+	go clean -v || exit
 
 .PHONY: dep
 dep:  ## Ensure and prune dependencies
@@ -54,9 +50,18 @@ docker:  ## Build the docker image
 		-t $(IMAGE_NAME):latest \
 		-t $(IMAGE_NAME):local .
 
+.PHONY: push
+push:
+	docker rmi vaporio/snmp-plugin:latest || true
+	docker build -f Dockerfile \
+		-t $(IMAGE_NAME):latest \
+		-t $(IMAGE_NAME):local .
+	docker push vaporio/snmp-plugin:latest
+
+
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
-	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file"; done
+	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file" || exit; done
 
 .PHONY: github-tag
 github-tag:  ## Create and push a tag with the current plugin version
@@ -71,22 +76,37 @@ ifndef HAS_LINT
 endif
 	@ # disable gotype: https://github.com/alecthomas/gometalinter/issues/40
 	gometalinter ./... \
-		--disable=gotype --disable=gocyclo \
+		--disable=gotype \
 		--tests \
 		--vendor \
-		--sort=severity \
+		--sort=path --sort=line \
 		--aggregate \
-		--deadline=5m
+		--deadline=5m || exit
 
 .PHONY: setup
 setup:  ## Install the build and development dependencies and set up vendoring
 	go get -u github.com/alecthomas/gometalinter
+	go get -u golang.org/x/tools/cmd/cover
 	go get -u github.com/golang/dep/cmd/dep
 	gometalinter --install
 ifeq (,$(wildcard ./Gopkg.toml))
 	dep init
 endif
 	@$(MAKE) dep
+
+.PHONY: test
+test:  ## Run all tests
+	# Start the SNMP emulator in a docker container in the background.
+	# Tests run on the local machine.
+	docker-compose -f ./emulator/test_snmp.yml down || true
+	docker-compose -f ./emulator/test_snmp.yml build
+	docker-compose -f ./emulator/test_snmp.yml up -d
+	go test -cover -v ./... || (echo TESTS FAILED $$?; docker-compose -f ./emulator/test_snmp.yml kill; exit 1)
+	docker-compose -f ./emulator/test_snmp.yml down
+
+.PHONY: test-local
+test-local: ## Test with a local emulator (stand if up yourself)
+	go test -cover -v ./... || exit
 
 .PHONY: version
 version:  ## Print the version of the plugin
@@ -98,6 +118,9 @@ help:  ## Print usage information
 
 .DEFAULT_GOAL := help
 
+.PHONY: all
+all: ## make clean build fmt lint test push
+	@$(MAKE) clean build fmt lint test push
 
 #
 # CI Targets

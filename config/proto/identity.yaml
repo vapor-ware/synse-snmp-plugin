@@ -1,0 +1,9 @@
+version: 1.0
+prototypes:
+  - type: identity
+    model: PXGMS UPS + EATON 93PM
+    Manufacturer: SNMP
+    protocol: SNMP
+    output:
+      - type: identity
+        data_type: string

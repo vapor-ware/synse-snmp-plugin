@@ -1,0 +1,13 @@
+version: 1.0
+prototypes:
+  - type: temperature
+    model: PXGMS UPS + EATON 93PM
+    manufacturer: SNMP
+    protocol: SNMP
+    output:
+      - type: temperature
+        data_type: float
+        unit:
+          name: degrees celsius
+          symbol: C
+        precision: 3

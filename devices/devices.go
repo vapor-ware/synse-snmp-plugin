@@ -11,6 +11,7 @@ import (
 // FindDeviceConfigsByType returns all elements in a DeviceConfig array where
 // the Type is t.
 // TODO: Could some of these be SDK helper functions? Maybe?
+// FIXME: this is only used in tests - move to a test utility?
 func FindDeviceConfigsByType(devices []*sdk.DeviceConfig, t string) (
 	matches []*sdk.DeviceConfig, err error) {
 	if devices == nil {
@@ -25,21 +26,6 @@ func FindDeviceConfigsByType(devices []*sdk.DeviceConfig, t string) (
 	return matches, err
 }
 
-// FindDeviceConfigsByModel returns all elements in a DeviceConfig array where
-// the Model is model.
-func FindDeviceConfigsByModel(devices []*sdk.DeviceConfig, model string) (
-	matches []*sdk.DeviceConfig, err error) {
-	if devices == nil {
-		return nil, fmt.Errorf("devices is nil")
-	}
-
-	for i := 0; i < len(devices); i++ {
-		if devices[i].Model == model {
-			matches = append(matches, devices[i])
-		}
-	}
-	return matches, err
-}
 
 // DumpDeviceConfigs utility function dumps a slice of DeviceConfig to the
 // console with a header.

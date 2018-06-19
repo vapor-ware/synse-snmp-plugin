@@ -2,67 +2,82 @@ package main
 
 import (
 	"fmt"
-	"log"
+
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
-	"github.com/vapor-ware/synse-sdk/sdk/config"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
 	"github.com/vapor-ware/synse-snmp-plugin/devices"
+	"github.com/vapor-ware/synse-snmp-plugin/outputs"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/servers"
 )
 
-// Build time variables for setting the version info of a Plugin.
-var (
-	BuildDate     string
-	GitCommit     string
-	GitTag        string
-	GoVersion     string
-	VersionString string
+const (
+	pluginName       = "snmp"
+	pluginMaintainer = "vaporio"
+	pluginDesc       = "A general-purpose SNMP plugin"
+	pluginVcs        = "https://github.com/vapor-ware/synse-snmp-plugin"
 )
 
-// DeviceIdentifier defines the SNMP-specific way of uniquely identifying a
+// deviceIdentifier defines the SNMP-specific way of uniquely identifying a
 // device through its device configuration.
 // TODO: This will work for the initial cut. This may change later if/when
 // we need to support the entity mib and entity sensor mib where joins may be
 // required.
-func DeviceIdentifier(data map[string]string) string {
-	return data["oid"]
+func deviceIdentifier(data map[string]interface{}) string {
+	return fmt.Sprint(data["oid"])
 }
 
-// DeviceEnumerator allows the sdk to enumerate devices.
-func DeviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.DeviceConfig, err error) {
+// deviceEnumerator allows the sdk to enumerate devices.
+func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*sdk.DeviceConfig, err error) {
 	// Load the MIB from the configuration still.
-	logger.Info("SNMP Plugin initializing UPS.")
+	log.Info("SNMP Plugin initializing UPS.")
 	pxgmsUps, err := servers.NewPxgmsUps(data)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create NewPxgmUps: %v", err)
 	}
-	logger.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
+	log.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
 
 	// Dump PxgmsUps device configurations.
-	logger.Info("SNMP Plugin Dumping device configs")
+	log.Info("SNMP Plugin Dumping device configs")
 	core.DumpDeviceConfigs(pxgmsUps.DeviceConfigs)
 	return pxgmsUps.DeviceConfigs, nil
 }
 
 func main() {
-	logger.Info("SNMP Plugin start")
+	log.Info("SNMP Plugin start")
+	// Set the plugin metadata
+	sdk.SetPluginMeta(
+		pluginName,
+		pluginMaintainer,
+		pluginDesc,
+		pluginVcs,
+	)
 
-	logger.Info("SNMP Plugin initializing handlers")
-	handlers, err := sdk.NewHandlers(DeviceIdentifier, DeviceEnumerator)
-	if err != nil {
-		log.Fatalf("FATAL SNMP PLUGIN ERROR (NewHandlers): %v", err)
-	}
+	log.Info("SNMP Plugin calling NewPlugin")
+	plugin := sdk.NewPlugin(
+		sdk.CustomDeviceIdentifier(deviceIdentifier),
+		sdk.CustomDynamicDeviceConfigRegistration(deviceEnumerator),
+	)
 
-	logger.Info("SNMP Plugin calling NewPlugin")
-	plugin, err := sdk.NewPlugin(handlers, nil)
+	// Register the supported output types
+	log.Info("SNMP Plugin registering output types")
+	err := plugin.RegisterOutputTypes(
+		&outputs.Current,
+		&outputs.Frequency,
+		&outputs.Identity,
+		&outputs.VAPower,
+		&outputs.WattsPower,
+		&outputs.Status,
+		&outputs.Temperature,
+		&outputs.Voltage,
+	)
 	if err != nil {
-		log.Fatalf("FATAL SNMP PLUGIN ERROR (NewPlugin): %v", err)
+		log.Fatal(err)
 	}
 
 	// Register Device Handlers for all supported devices we interact with over SNMP.
-	logger.Info("SNMP Plugin registering device handlers")
+	log.Info("SNMP Plugin registering device handlers")
 	plugin.RegisterDeviceHandlers(
 		&devices.SnmpCurrent,
 		&devices.SnmpFrequency,
@@ -73,25 +88,14 @@ func main() {
 		&devices.SnmpVoltage,
 	)
 
-	// Set build-time version info.
-	logger.Info("SNMP Plugin setting version")
-	plugin.SetVersion(sdk.VersionInfo{
-		BuildDate:     BuildDate,
-		GitCommit:     GitCommit,
-		GitTag:        GitTag,
-		GoVersion:     GoVersion,
-		VersionString: VersionString,
-	})
-
 	// Trace things out that the sdk is using for device enumeration.
-	logger.Debugf("plugin: %+v", plugin)
-	logger.Debugf("plugin.Config: %+v", plugin.Config)
-	logger.Debugf("plugin.Config.AutoEnumerate: %+v", plugin.Config.AutoEnumerate)
+	log.Debugf("plugin: %+v", plugin)
+	log.Debugf("plugin.Config: %+v", plugin.Config)
+	log.Debugf("plugin.Config.AutoEnumerate: %+v", plugin.Config.AutoEnumerate)
 
 	// Run the plugin.
-	logger.Info("SNMP Plugin running plugin")
-	err = plugin.Run()
-	if err != nil {
+	log.Info("SNMP Plugin running plugin")
+	if err := plugin.Run(); err != nil {
 		log.Fatalf("FATAL SNMP PLUGIN ERROR: %v", err)
 	}
 }

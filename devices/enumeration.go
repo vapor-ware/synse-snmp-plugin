@@ -9,7 +9,7 @@ import (
 // IsEnumeration returns whether or not the SNMP device reading represents an
 // enumeration for a sysne device.
 // data is the map associated with a synse device.
-func IsEnumeration(data map[string]string) (yes bool) {
+func IsEnumeration(data map[string]interface{}) (yes bool) {
 	// Find the enumeration key in the map and check that it is set to true.
 	setting, ok := data["enumeration"]
 	if !ok {

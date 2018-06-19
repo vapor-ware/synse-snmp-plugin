@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 0.1.1-dev
+PLUGIN_VERSION := 0.2.0-dev
 IMAGE_NAME     := vaporio/snmp-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)

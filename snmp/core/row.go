@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
+	log "github.com/Sirupsen/logrus"
 )
 
 // SnmpRow encapsulates one row of an SNMP table.
@@ -46,9 +46,9 @@ func NewSnmpRow(baseOid string, table *SnmpTable, rowData []*ReadResult) (*SnmpR
 
 // Dump the SnmpRow to the debug log.
 func (snmpRow *SnmpRow) Dump() {
-	logger.Debugf("Dumping row for SNMP table %v", snmpRow.Table.Name)
-	logger.Debugf("baseOid: %v", snmpRow.BaseOid)
+	log.Debugf("Dumping row for SNMP table %v", snmpRow.Table.Name)
+	log.Debugf("baseOid: %v", snmpRow.BaseOid)
 	for i := 0; i < len(snmpRow.Table.ColumnList); i++ {
-		logger.Debugf("row[%v] = %v", snmpRow.Table.ColumnList[i], snmpRow.RowData[i])
+		log.Debugf("row[%v] = %v", snmpRow.Table.ColumnList[i], snmpRow.RowData[i])
 	}
 }

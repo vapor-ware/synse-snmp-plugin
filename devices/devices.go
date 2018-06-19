@@ -5,14 +5,14 @@ package devices
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
+	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
 // FindDeviceConfigsByType returns all elements in a DeviceConfig array where
 // the Type is t.
 // TODO: Could some of these be SDK helper functions? Maybe?
-func FindDeviceConfigsByType(devices []*config.DeviceConfig, t string) (
-	matches []*config.DeviceConfig, err error) {
+func FindDeviceConfigsByType(devices []*sdk.DeviceConfig, t string) (
+	matches []*sdk.DeviceConfig, err error) {
 	if devices == nil {
 		return nil, fmt.Errorf("devices is nil")
 	}
@@ -27,8 +27,8 @@ func FindDeviceConfigsByType(devices []*config.DeviceConfig, t string) (
 
 // FindDeviceConfigsByModel returns all elements in a DeviceConfig array where
 // the Model is model.
-func FindDeviceConfigsByModel(devices []*config.DeviceConfig, model string) (
-	matches []*config.DeviceConfig, err error) {
+func FindDeviceConfigsByModel(devices []*sdk.DeviceConfig, model string) (
+	matches []*sdk.DeviceConfig, err error) {
 	if devices == nil {
 		return nil, fmt.Errorf("devices is nil")
 	}
@@ -43,7 +43,7 @@ func FindDeviceConfigsByModel(devices []*config.DeviceConfig, model string) (
 
 // DumpDeviceConfigs utility function dumps a slice of DeviceConfig to the
 // console with a header.
-func DumpDeviceConfigs(devices []*config.DeviceConfig, header string) {
+func DumpDeviceConfigs(devices []*sdk.DeviceConfig, header string) {
 	fmt.Printf("Dumping Devices. ")
 	fmt.Print(header)
 

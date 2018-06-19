@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
-	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/mibs/ups_mib"
 )
@@ -14,20 +13,20 @@ import (
 // ParseProtoypeConfigs is a wrapper around config.ParsePrototyeConfig() that
 // takes a directory parameter for sanity.
 func ParsePrototypeConfigs(prototypeDirectory string) (
-	prototypeConfigs []*config.PrototypeConfig, err error) {
+	prototypeConfigs []*sdk.PrototypeConfig, err error) {
 
 	// Set EnvProtoPath.
-	err = os.Setenv(config.EnvProtoPath, prototypeDirectory)
+	err = os.Setenv(sdk.EnvProtoPath, prototypeDirectory)
 	if err != nil {
 		return nil, err
 	}
 	// Unset env on exit.
 	defer func() {
-		_ = os.Unsetenv(config.EnvProtoPath)
+		_ = os.Unsetenv(sdk.EnvProtoPath)
 	}()
 
 	// Parse the Protoype configuration.
-	prototypeConfigs, err = config.ParsePrototypeConfig()
+	prototypeConfigs, err = sdk.ParsePrototypeConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +39,8 @@ func ParsePrototypeConfigs(prototypeDirectory string) (
 // FindPrototypeConfigByType finds a prototype config in the given set where
 // Type matches t or nil if not found.
 func FindPrototypeConfigByType(
-	prototypeConfigs []*config.PrototypeConfig, t string) (
-	prototypeConfig *config.PrototypeConfig) {
+	prototypeConfigs []*sdk.PrototypeConfig, t string) (
+	prototypeConfig *sdk.PrototypeConfig) {
 	if prototypeConfigs == nil {
 		return nil
 	}
@@ -55,8 +54,8 @@ func FindPrototypeConfigByType(
 
 // Create Device creates the Device structure in test land for now.
 func CreateDevice(
-	deviceConfig *config.DeviceConfig,
-	prototypeConfig *config.PrototypeConfig,
+	deviceConfig *sdk.DeviceConfig,
+	prototypeConfig *sdk.PrototypeConfig,
 	deviceHandler *sdk.DeviceHandler,
 	plugin *sdk.Plugin) (device *sdk.Device, err error) {
 
@@ -218,17 +217,17 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	fmt.Printf("handlers: %+v\n", handlers)
 
 	// Need a plugin config to create a plugin.
-	pluginConfig := config.PluginConfig{
+	pluginConfig := sdk.PluginConfig{
 		Name:    "test config",
 		Version: "test config v1",
-		Network: config.NetworkSettings{
+		Network: sdk.NetworkSettings{
 			Type:    "tcp",
 			Address: "test_config",
 		},
-		Settings: config.Settings{
-			Read:        config.ReadSettings{Buffer: 1024},
-			Write:       config.WriteSettings{Buffer: 1024},
-			Transaction: config.TransactionSettings{TTL: "2s"},
+		Settings: sdk.Settings{
+			Read:        sdk.ReadSettings{Buffer: 1024},
+			Write:       sdk.WriteSettings{Buffer: 1024},
+			Transaction: sdk.TransactionSettings{TTL: "2s"},
 		},
 	}
 	fmt.Printf("pluginConfig: %+v\n", pluginConfig)
@@ -307,7 +306,7 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	for i := 0; i < len(snmpDevices); i++ {
 		fmt.Printf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
 
-		var protoConfig *config.PrototypeConfig
+		var protoConfig *sdk.PrototypeConfig
 		var deviceHandler *sdk.DeviceHandler
 
 		switch typ := snmpDevices[i].Type; typ {

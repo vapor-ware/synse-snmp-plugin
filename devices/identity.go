@@ -9,12 +9,8 @@ import (
 
 // SnmpIdentity is the handler for the snmp-identity device.
 var SnmpIdentity = sdk.DeviceHandler{
-	Type:  "identity",
-	Model: "PXGMS UPS + EATON 93PM",
-
-	Read:     SnmpIdentityRead,
-	Write:    nil, // NYI for V1
-	BulkRead: nil,
+	Name: "identity",
+	Read: SnmpIdentityRead,
 }
 
 // SnmpIdentityRead is the read handler function for snmp-identity devices.
@@ -39,7 +35,7 @@ func SnmpIdentityRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	}
 
 	// Read the SNMP OID in the device config.
-	result, err := snmpClient.Get(data["oid"])
+	result, err := snmpClient.Get(fmt.Sprint(data["oid"]))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +50,7 @@ func SnmpIdentityRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 
 	// Create the reading.
 	readings = []*sdk.Reading{
-		sdk.NewReading("identity", resultString),
+		device.GetOutput("identity").MakeReading(resultString),
 	}
 	return readings, nil
 }

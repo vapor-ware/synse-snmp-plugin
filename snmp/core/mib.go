@@ -3,8 +3,9 @@ package core
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
+	log "github.com/Sirupsen/logrus"
+
+	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
 // SnmpMib is the base class for specific SNMP MIB implementations, a collection
@@ -41,17 +42,17 @@ func NewSnmpMib(name string, snmpTables []*SnmpTable) (*SnmpMib, error) {
 
 // Dump all tables in the MIB to the log as CSV.
 func (snmpMib *SnmpMib) Dump() {
-	logger.Debugf("Dumping SnmpMib %v. %d tables", snmpMib.Name, len(snmpMib.Tables))
+	log.Debugf("Dumping SnmpMib %v. %d tables", snmpMib.Name, len(snmpMib.Tables))
 	fmt.Printf("Dumping SnmpMib %+v\n", snmpMib.Name)
 
 	for i := 0; i < len(snmpMib.Tables); i++ {
 		snmpMib.Tables[i].Dump()
 	}
-	logger.Debugf("End SnmpMib dump %v", snmpMib.Name)
+	log.Debugf("End SnmpMib dump %v", snmpMib.Name)
 }
 
 // EnumerateDevices enumerates all synse devices supported by the mib.
-func (snmpMib *SnmpMib) EnumerateDevices(data map[string]interface{}) (devices []*config.DeviceConfig, err error) {
+func (snmpMib *SnmpMib) EnumerateDevices(data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
 	for i := 0; i < len(snmpMib.Tables); i++ {
 		deviceSet, err := snmpMib.Tables[i].DevEnumerator.DeviceEnumerator(data)
 		if err != nil {

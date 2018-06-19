@@ -2,12 +2,12 @@ package core
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
+
 	"github.com/soniah/gosnmp"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
 )
 
 // AuthenticationProtocol enumeration for authentication algorithms.
@@ -130,46 +130,45 @@ func NewDeviceConfig(
 // that is missing and has a default value defined.
 // This is just a deserializer which creates a DeviceConfig from
 // map[string]string.
-func GetDeviceConfig(instanceData map[string]string) (*DeviceConfig, error) {
+func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error) {
 
-	// Parse out each field. The contructor call will check the parameters.
-	version := instanceData["version"]
-	endpoint := instanceData["endpoint"]
+	// Parse out each field. The constructor call will check the parameters.
+	version := fmt.Sprint(instanceData["version"])
+	endpoint := fmt.Sprint(instanceData["endpoint"])
+	userName := fmt.Sprint(instanceData["userName"])
+	privacyPassphrase := fmt.Sprint(instanceData["privacyPassphrase"])
+	authenticationPassphrase := fmt.Sprint(instanceData["authenticationPassphrase"])
+	contextName := fmt.Sprint(instanceData["contextName"])
 
-	prt, err := strconv.Atoi(instanceData["port"])
-	if err != nil {
-		return nil, err
+	authProtocolString := fmt.Sprint(instanceData["authenticationProtocol"])
+	privProtocolString := fmt.Sprint(instanceData["privacyProtocol"])
+
+	port, ok := instanceData["port"].(uint16)
+	if !ok {
+		return nil, fmt.Errorf("port should be an int")
 	}
-	port := uint16(prt)
 
-	userName := instanceData["userName"]
-
-	authenticationProtocolString := strings.ToUpper(instanceData["authenticationProtocol"])
 	// Only MD5 and SHA are currently supported.
 	var authenticationProtocol AuthenticationProtocol
-	if authenticationProtocolString == "MD5" {
+	switch strings.ToUpper(authProtocolString) {
+	case "MD5":
 		authenticationProtocol = MD5
-	} else if authenticationProtocolString == "SHA" {
+	case "SHA":
 		authenticationProtocol = SHA
-	} else {
-		return nil, fmt.Errorf("Unsupported authentication protocol [%v]", authenticationProtocolString)
+	default:
+		return nil, fmt.Errorf("Unsupported authentication protocol [%v]", authProtocolString)
 	}
 
-	authenticationPassphrase := instanceData["authenticationPassphrase"]
-
-	privacyProtocolString := strings.ToUpper(instanceData["privacyProtocol"])
 	// Only DES and AES are currently supported.
 	var privacyProtocol PrivacyProtocol
-	if privacyProtocolString == "DES" {
+	switch strings.ToUpper(privProtocolString) {
+	case "DES":
 		privacyProtocol = DES
-	} else if privacyProtocolString == "AES" {
+	case "AES":
 		privacyProtocol = AES
-	} else {
-		return nil, fmt.Errorf("Unsupported privacy protocol [%v]", privacyProtocolString)
+	default:
+		return nil, fmt.Errorf("Unsupported privacy protocol [%v]", privProtocolString)
 	}
-
-	privacyPassphrase := instanceData["privacyPassphrase"]
-	contextName := instanceData["contextName"]
 
 	// Create security parameters
 	securityParameters, err := NewSecurityParameters(
@@ -177,7 +176,8 @@ func GetDeviceConfig(instanceData map[string]string) (*DeviceConfig, error) {
 		authenticationProtocol,
 		authenticationPassphrase,
 		privacyProtocol,
-		privacyPassphrase)
+		privacyPassphrase,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -371,7 +371,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 	// Connect
 	err := goSnmp.Connect()
 	if err != nil {
-		logger.Error("gosnmp failed to connect")
+		log.Error("gosnmp failed to connect")
 		return nil, fmt.Errorf("Failed to connect gosnmp: %+v", err)
 	}
 	return goSnmp, err

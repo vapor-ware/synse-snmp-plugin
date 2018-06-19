@@ -3,8 +3,9 @@ package mibs
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
+	log "github.com/Sirupsen/logrus"
+
+	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
@@ -73,13 +74,13 @@ func (table *UpsIdentityTable) loadIdentity() *UpsIdentity { // nolint: gocyclo
 	var ok bool
 
 	if table == nil || len(table.Rows) < 1 {
-		logger.Warn("No identity information.")
+		log.Warn("No identity information.")
 		goto end
 	}
 
 	snmpRow = table.Rows[0]
 	if snmpRow.RowData == nil || len(snmpRow.RowData) < 6 {
-		logger.Warn("No identity information.")
+		log.Warn("No identity information.")
 		goto end
 	}
 
@@ -133,14 +134,14 @@ type UpsIdentityTableDeviceEnumerator struct {
 
 // DeviceEnumerator overrides the default SnmpTable device enumerator.
 func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
-	data map[string]interface{}) (devices []*config.DeviceConfig, err error) {
+	data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
 
 	// Get the rack and board ids. Setup the location.
 	rack, board, err := core.GetRackAndBoard(data)
 	if err != nil {
 		return nil, err
 	}
-	location := config.Location{
+	location := sdk.Location{
 		Rack:  rack,
 		Board: board,
 	}
@@ -174,7 +175,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	// Create the synse device.
-	device := config.DeviceConfig{
+	device := sdk.DeviceConfig{
 		Version:  "1",
 		Type:     "identity",
 		Model:    model,
@@ -197,7 +198,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	device2 := config.DeviceConfig{
+	device2 := sdk.DeviceConfig{
 		Version:  "1",
 		Type:     "identity",
 		Model:    model,
@@ -220,7 +221,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	device3 := config.DeviceConfig{
+	device3 := sdk.DeviceConfig{
 		Version:  "1",
 		Type:     "identity",
 		Model:    model,
@@ -243,7 +244,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	device4 := config.DeviceConfig{
+	device4 := sdk.DeviceConfig{
 		Version:  "1",
 		Type:     "identity",
 		Model:    model,
@@ -266,7 +267,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	device5 := config.DeviceConfig{
+	device5 := sdk.DeviceConfig{
 		Version:  "1",
 		Type:     "identity",
 		Model:    model,
@@ -289,7 +290,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	device6 := config.DeviceConfig{
+	device6 := sdk.DeviceConfig{
 		Version:  "1",
 		Type:     "identity",
 		Model:    model,

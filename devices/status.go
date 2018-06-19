@@ -9,12 +9,8 @@ import (
 
 // SnmpStatus is the handler for the snmp-status device.
 var SnmpStatus = sdk.DeviceHandler{
-	Type:  "status",
-	Model: "PXGMS UPS + EATON 93PM",
-
-	Read:     SnmpStatusRead,
-	Write:    nil, // NYI for V1
-	BulkRead: nil,
+	Name: "status",
+	Read: SnmpStatusRead,
 }
 
 // SnmpStatusRead is the read handler function for snmp-status devices.
@@ -39,7 +35,7 @@ func SnmpStatusRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	}
 
 	// Read the SNMP OID in the device config.
-	result, err := snmpClient.Get(data["oid"])
+	result, err := snmpClient.Get(fmt.Sprint(data["oid"]))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +67,7 @@ func SnmpStatusRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	}
 	// Create the reading.
 	readings = []*sdk.Reading{
-		sdk.NewReading("status", resultString),
+		device.GetOutput("status").MakeReading(resultString),
 	}
 	return readings, nil
 }

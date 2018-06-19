@@ -3,7 +3,7 @@ package mibs
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
+	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
@@ -48,14 +48,14 @@ type UpsBypassTableDeviceEnumerator struct {
 
 // DeviceEnumerator overrides the default SnmpTable device enumerator.
 func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
-	data map[string]interface{}) (devices []*config.DeviceConfig, err error) {
+	data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
 
 	// Get the rack and board ids. Setup the location.
 	rack, board, err := core.GetRackAndBoard(data)
 	if err != nil {
 		return nil, err
 	}
-	location := config.Location{
+	location := sdk.Location{
 		Rack:  rack,
 		Board: board,
 	}
@@ -88,7 +88,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			return nil, err
 		}
 
-		device := config.DeviceConfig{
+		device := sdk.DeviceConfig{
 			Version:  "1",
 			Type:     "voltage",
 			Model:    model,
@@ -111,7 +111,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			return nil, err
 		}
 
-		device2 := config.DeviceConfig{
+		device2 := sdk.DeviceConfig{
 			Version:  "1",
 			Type:     "current",
 			Model:    model,
@@ -135,7 +135,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			return nil, err
 		}
 
-		device3 := config.DeviceConfig{
+		device3 := sdk.DeviceConfig{
 			Version:  "1",
 			Type:     "power",
 			Model:    model,

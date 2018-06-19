@@ -3,8 +3,9 @@ package core
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
+	log "github.com/Sirupsen/logrus"
+
+	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
 // This file contains utility functions. In the future we could put them in
@@ -20,14 +21,14 @@ func CopyMapStringString(m map[string]string) map[string]string {
 }
 
 // DumpDeviceConfigs to stdout.
-func DumpDeviceConfigs(deviceConfigs []*config.DeviceConfig) {
+func DumpDeviceConfigs(deviceConfigs []*sdk.DeviceConfig) {
 	if deviceConfigs == nil {
 		fmt.Printf("No Device Configs to dump\n")
 		return
 	}
-	logger.Infof("Found device %d configs.\n", len(deviceConfigs))
+	log.Infof("Found device %d configs.\n", len(deviceConfigs))
 	for i := 0; i < len(deviceConfigs); i++ {
-		logger.Infof("deviceConfig[%d] %T: %+v\n", i, deviceConfigs[i], deviceConfigs[i])
+		log.Infof("deviceConfig[%d] %T: %+v\n", i, deviceConfigs[i], deviceConfigs[i])
 	}
 }
 

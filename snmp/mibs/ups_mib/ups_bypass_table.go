@@ -61,12 +61,11 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 	mib := table.Mib.(*UpsMib)
 	model := mib.UpsIdentityTable.UpsIdentity.Model
 
-	locationName := "snmp-location"
 	cfg := &sdk.DeviceConfig{
 		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
 		Locations: []*sdk.LocationConfig{
 			{
-				Name:  locationName,
+				Name:  snmpLocation,
 				Rack:  &sdk.LocationData{Name: rack},
 				Board: &sdk.LocationData{Name: board},
 			},
@@ -140,7 +139,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device := &sdk.DeviceInstance{
-			Location: locationName,
+			Location: snmpLocation,
 			Data:     deviceData,
 		}
 		voltageKind.Instances = append(voltageKind.Instances, device)
@@ -160,7 +159,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device = &sdk.DeviceInstance{
-			Location: locationName,
+			Location: snmpLocation,
 			Data:     deviceData,
 		}
 		currentKind.Instances = append(currentKind.Instances, device)
@@ -181,7 +180,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device = &sdk.DeviceInstance{
-			Location: locationName,
+			Location: snmpLocation,
 			Data:     deviceData,
 		}
 		powerKind.Instances = append(powerKind.Instances, device)

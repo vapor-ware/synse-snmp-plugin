@@ -3,6 +3,7 @@ package outputs
 import "github.com/vapor-ware/synse-sdk/sdk"
 
 var (
+	// Voltage describes readings with voltage outputs.
 	Voltage = sdk.OutputType{
 		Name:      "voltage",
 		Precision: 3,
@@ -12,6 +13,7 @@ var (
 		},
 	}
 
+	// Temperature describes readings with temperature (celsius) outputs.
 	Temperature = sdk.OutputType{
 		Name:      "temperature",
 		Precision: 3,
@@ -21,10 +23,12 @@ var (
 		},
 	}
 
+	// Status describes readings with status outputs.
 	Status = sdk.OutputType{
 		Name: "status",
 	}
 
+	// WattsPower describes readings with power (watts) outputs.
 	WattsPower = sdk.OutputType{
 		Name:      "watts.power",
 		Precision: 3,
@@ -34,6 +38,7 @@ var (
 		},
 	}
 
+	// VAPower describes readings with power (volt-ampere) outputs.
 	VAPower = sdk.OutputType{
 		Name:      "va.power",
 		Precision: 3,
@@ -43,10 +48,12 @@ var (
 		},
 	}
 
+	// Identity describes readings with identity outputs.
 	Identity = sdk.OutputType{
 		Name: "identity",
 	}
 
+	// Frequency describes readings with frequency (Hz) outputs.
 	Frequency = sdk.OutputType{
 		Name:      "frequency",
 		Precision: 3,
@@ -56,6 +63,7 @@ var (
 		},
 	}
 
+	// Current describes readings with current (Amps) outputs.
 	Current = sdk.OutputType{
 		Name:      "current",
 		Precision: 3,

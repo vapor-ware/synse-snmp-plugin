@@ -70,12 +70,11 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	locationName := "snmp-location"
 	cfg := &sdk.DeviceConfig{
 		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
 		Locations: []*sdk.LocationConfig{
 			{
-				Name:  locationName,
+				Name:  snmpLocation,
 				Rack:  &sdk.LocationData{Name: rack},
 				Board: &sdk.LocationData{Name: board},
 			},
@@ -163,7 +162,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device := &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	statusKind.Instances = append(statusKind.Instances, device)
@@ -183,7 +182,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	statusKind.Instances = append(statusKind.Instances, device)
@@ -203,7 +202,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	statusKind.Instances = append(statusKind.Instances, device)
@@ -223,7 +222,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	statusKind.Instances = append(statusKind.Instances, device)
@@ -244,7 +243,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	voltageKind.Instances = append(voltageKind.Instances, device)
@@ -265,7 +264,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	currentKind.Instances = append(currentKind.Instances, device)
@@ -286,7 +285,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	temperatureKind.Instances = append(temperatureKind.Instances, device)

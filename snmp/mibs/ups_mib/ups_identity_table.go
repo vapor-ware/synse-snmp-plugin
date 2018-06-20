@@ -152,12 +152,11 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	locationName := "snmp-location"
 	cfg := &sdk.DeviceConfig{
 		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
 		Locations: []*sdk.LocationConfig{
 			{
-				Name:  locationName,
+				Name:  snmpLocation,
 				Rack:  &sdk.LocationData{Name: rack},
 				Board: &sdk.LocationData{Name: board},
 			},
@@ -202,7 +201,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device := &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)
@@ -222,7 +221,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)
@@ -242,7 +241,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)
@@ -262,7 +261,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)
@@ -282,7 +281,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)
@@ -302,7 +301,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)

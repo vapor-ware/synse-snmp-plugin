@@ -130,7 +130,7 @@ func NewDeviceConfig(
 // that is missing and has a default value defined.
 // This is just a deserializer which creates a DeviceConfig from
 // map[string]string.
-func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error) {
+func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error) { // nolint: gocyclo
 
 	// Parse out each field. The constructor call will check the parameters.
 	version, ok := instanceData["version"].(string)

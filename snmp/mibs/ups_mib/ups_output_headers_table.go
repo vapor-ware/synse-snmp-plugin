@@ -64,12 +64,11 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	locationName := "snmp-location"
 	cfg := &sdk.DeviceConfig{
 		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
 		Locations: []*sdk.LocationConfig{
 			{
-				Name:  locationName,
+				Name:  snmpLocation,
 				Rack:  &sdk.LocationData{Name: rack},
 				Board: &sdk.LocationData{Name: board},
 			},
@@ -137,7 +136,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device := &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	statusKind.Instances = append(statusKind.Instances, device)
@@ -158,7 +157,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	frequencyKind.Instances = append(frequencyKind.Instances, device)
@@ -178,7 +177,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Location: locationName,
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	statusKind.Instances = append(statusKind.Instances, device)

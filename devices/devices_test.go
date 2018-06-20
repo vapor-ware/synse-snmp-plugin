@@ -65,7 +65,7 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		t.Fatal(err) // Fail the test.
 	}
 
-	t.Logf("client: %+v", client)
+	t.Logf("client: %#v", client)
 
 	// Create SnmpServerBase
 	snmpServer, err := core.NewSnmpServerBase(

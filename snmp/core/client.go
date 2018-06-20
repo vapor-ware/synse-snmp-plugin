@@ -133,19 +133,64 @@ func NewDeviceConfig(
 func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error) {
 
 	// Parse out each field. The constructor call will check the parameters.
-	version := fmt.Sprint(instanceData["version"])
-	endpoint := fmt.Sprint(instanceData["endpoint"])
-	userName := fmt.Sprint(instanceData["userName"])
-	privacyPassphrase := fmt.Sprint(instanceData["privacyPassphrase"])
-	authenticationPassphrase := fmt.Sprint(instanceData["authenticationPassphrase"])
-	contextName := fmt.Sprint(instanceData["contextName"])
-
-	authProtocolString := fmt.Sprint(instanceData["authenticationProtocol"])
-	privProtocolString := fmt.Sprint(instanceData["privacyProtocol"])
-
-	port, ok := instanceData["port"].(uint16)
+	version, ok := instanceData["version"].(string)
 	if !ok {
-		return nil, fmt.Errorf("port should be an int")
+		return nil, fmt.Errorf("version should be a string")
+	}
+
+	endpoint, ok := instanceData["endpoint"].(string)
+	if !ok {
+		return nil, fmt.Errorf("endpoint should be a string")
+	}
+
+	userName, ok := instanceData["userName"].(string)
+	if !ok {
+		return nil, fmt.Errorf("userName should be a string")
+	}
+
+	privacyPassphrase, ok := instanceData["privacyPassphrase"].(string)
+	if !ok {
+		return nil, fmt.Errorf("privacyPassphrase should be a string")
+	}
+
+	authenticationPassphrase, ok := instanceData["authenticationPassphrase"].(string)
+	if !ok {
+		return nil, fmt.Errorf("authenticationPassphrase should be a string")
+	}
+
+	// Its okay for contextName to not be set
+	ctxName, ok := instanceData["contextName"]
+	if !ok {
+		// If not ok here, that means contextName isn't present. Its okay for it
+		// to not be set.
+		ctxName = ""
+	}
+	contextName, ok := ctxName.(string)
+	if !ok {
+		return nil, fmt.Errorf("contextName should be a string")
+	}
+
+	authProtocolString, ok := instanceData["authenticationProtocol"].(string)
+	if !ok {
+		return nil, fmt.Errorf("authenticationProtocol should be a string")
+	}
+
+	privProtocolString, ok := instanceData["privacyProtocol"].(string)
+	if !ok {
+		return nil, fmt.Errorf("privacyProtocol should be a string")
+	}
+
+	p, ok := instanceData["port"]
+	if !ok {
+		return nil, fmt.Errorf("port required, but not specified")
+	}
+	port, ok := p.(uint16)
+	if !ok {
+		prt, ok := p.(int)
+		if !ok {
+			return nil, fmt.Errorf("port should be an int or uint16")
+		}
+		port = uint16(prt)
 	}
 
 	// Only MD5 and SHA are currently supported.
@@ -191,7 +236,7 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 		contextName)
 }
 
-// ToMap serializes DeviceConfig to map[string]string.
+// ToMap serializes DeviceConfig to map[string]interface{}.
 func (deviceConfig *DeviceConfig) ToMap() (m map[string]interface{}, err error) {
 
 	if deviceConfig.SecurityParameters == nil {

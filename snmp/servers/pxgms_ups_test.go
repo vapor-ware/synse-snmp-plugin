@@ -16,7 +16,7 @@ func TestPxgmsUps(t *testing.T) {
 	data["userName"] = "simulator"
 	data["privacyProtocol"] = "AES"
 	data["privacyPassphrase"] = "privatus"
-	data["port"] = "1024"
+	data["port"] = 1024
 	data["authenticationProtocol"] = "SHA"
 	data["authenticationPassphrase"] = "auctoritas"
 	data["model"] = "PXGMS UPS + EATON 93PM"

@@ -53,14 +53,12 @@ func (snmpMib *SnmpMib) Dump() {
 
 // EnumerateDevices enumerates all synse devices supported by the mib.
 func (snmpMib *SnmpMib) EnumerateDevices(data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
-	for i := 0; i < len(snmpMib.Tables); i++ {
-		deviceSet, err := snmpMib.Tables[i].DevEnumerator.DeviceEnumerator(data)
+	for _, table := range snmpMib.Tables {
+		deviceSet, err := table.DevEnumerator.DeviceEnumerator(data)
 		if err != nil {
 			return nil, err
 		}
-		for j := 0; j < len(deviceSet); j++ {
-			devices = append(devices, deviceSet[j])
-		}
+		devices = append(devices, deviceSet...)
 	}
 	return devices, nil
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsInputTable represts SNMP OID .1.3.6.1.2.1.33.1.3.3
+// UpsInputTable represents SNMP OID .1.3.6.1.2.1.33.1.3.3
 type UpsInputTable struct {
 	*core.SnmpTable // base class
 }
@@ -56,10 +56,6 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 	if err != nil {
 		return nil, err
 	}
-	location := sdk.Location{
-		Rack:  rack,
-		Board: board,
-	}
 
 	table := enumerator.Table
 	mib := table.Mib.(*UpsMib)
@@ -70,11 +66,78 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
+	locationName := "snmp-location"
+	cfg := &sdk.DeviceConfig{
+		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
+		Locations: []*sdk.LocationConfig{
+			{
+				Name:  locationName,
+				Rack:  &sdk.LocationData{Name: rack},
+				Board: &sdk.LocationData{Name: board},
+			},
+		},
+		Devices: []*sdk.DeviceKind{},
+	}
+
+	// We will have "frequency", "voltage", "current", and "power" device kinds.
+	// There is probably a better way of doing this, but this just gets things to
+	// where they need to be for now.
+	frequencyKind := &sdk.DeviceKind{
+		Name: "frequency",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "frequency"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	voltageKind := &sdk.DeviceKind{
+		Name: "voltage",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "voltage"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	currentKind := &sdk.DeviceKind{
+		Name: "current",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "current"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	powerKind := &sdk.DeviceKind{
+		Name: "watts.power",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "watts.power"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	cfg.Devices = []*sdk.DeviceKind{
+		frequencyKind,
+		voltageKind,
+		currentKind,
+		powerKind,
+	}
+
 	for i := 0; i < len(table.Rows); i++ {
 		// upsInputFrequency
 		// deviceData gets shimmed into the DeviceConfig for each synse device.
 		// It varies slightly for each device below.
-		deviceData := map[string]string{
+		deviceData := map[string]interface{}{
 			"info":       fmt.Sprintf("upsInputFrequency%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
@@ -83,22 +146,19 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 2), // base_oid and integer column.
 			"multiplier": ".1",                                  // Units are 0.1 Hertz
 		}
-		deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {
 			return nil, err
 		}
 
-		device := sdk.DeviceConfig{
-			Version:  "1",
-			Type:     "frequency",
-			Model:    model,
-			Location: location,
+		device := &sdk.DeviceInstance{
+			Location: locationName,
 			Data:     deviceData,
 		}
-		devices = append(devices, &device)
+		frequencyKind.Instances = append(frequencyKind.Instances, device)
 
 		// upsInputVoltage ----------------------------------------------------------
-		deviceData = map[string]string{
+		deviceData = map[string]interface{}{
 			"info":       fmt.Sprintf("upsInputVoltage%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
@@ -107,22 +167,19 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 3), // base_oid and integer column.
 			// No multiplier needed. Units are RMS Volts.
 		}
-		deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {
 			return nil, err
 		}
 
-		device2 := sdk.DeviceConfig{
-			Version:  "1",
-			Type:     "voltage",
-			Model:    model,
-			Location: location,
+		device = &sdk.DeviceInstance{
+			Location: locationName,
 			Data:     deviceData,
 		}
-		devices = append(devices, &device2)
+		voltageKind.Instances = append(voltageKind.Instances, device)
 
 		// upsInputCurrent ----------------------------------------------------------
-		deviceData = map[string]string{
+		deviceData = map[string]interface{}{
 			"info":       fmt.Sprintf("upsInputCurrent%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
@@ -131,22 +188,19 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 4), // base_oid and integer column.
 			"multiplier": ".1",                                  // Units are 0.1 RMS Amp
 		}
-		deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {
 			return nil, err
 		}
 
-		device3 := sdk.DeviceConfig{
-			Version:  "1",
-			Type:     "current",
-			Model:    model,
-			Location: location,
+		device = &sdk.DeviceInstance{
+			Location: locationName,
 			Data:     deviceData,
 		}
-		devices = append(devices, &device3)
+		currentKind.Instances = append(currentKind.Instances, device)
 
 		// upsInputTruePower --------------------------------------------------------
-		deviceData = map[string]string{
+		deviceData = map[string]interface{}{
 			"info":       fmt.Sprintf("upsInputTruePower%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
@@ -155,19 +209,18 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 5), // base_oid and integer column.
 			// Output is in Watts. No multiplier needed.
 		}
-		deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {
 			return nil, err
 		}
 
-		device4 := sdk.DeviceConfig{
-			Version:  "1",
-			Type:     "power",
-			Model:    model,
-			Location: location,
+		device = &sdk.DeviceInstance{
+			Location: locationName,
 			Data:     deviceData,
 		}
-		devices = append(devices, &device4)
+		powerKind.Instances = append(powerKind.Instances, device)
 	}
+
+	devices = append(devices, cfg)
 	return devices, err
 }

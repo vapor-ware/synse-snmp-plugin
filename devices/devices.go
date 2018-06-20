@@ -26,7 +26,6 @@ func FindDeviceConfigsByType(devices []*sdk.DeviceConfig, t string) (
 	return matches, err
 }
 
-
 // DumpDeviceConfigs utility function dumps a slice of DeviceConfig to the
 // console with a header.
 func DumpDeviceConfigs(devices []*sdk.DeviceConfig, header string) {

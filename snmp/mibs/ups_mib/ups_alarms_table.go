@@ -4,7 +4,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsAlarmsTable represts SNMP OID .1.3.6.1.2.1.33.1.6.2
+// UpsAlarmsTable represents SNMP OID .1.3.6.1.2.1.33.1.6.2
 // There are no rows in this table when no alarms are present.
 // We have no real data for this row at this time (5/16/2018)
 type UpsAlarmsTable struct {

@@ -192,16 +192,16 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 }
 
 // ToMap serializes DeviceConfig to map[string]string.
-func (deviceConfig *DeviceConfig) ToMap() (m map[string]string, err error) {
+func (deviceConfig *DeviceConfig) ToMap() (m map[string]interface{}, err error) {
 
 	if deviceConfig.SecurityParameters == nil {
 		return nil, fmt.Errorf("No security parameters")
 	}
 
-	m = make(map[string]string)
+	m = make(map[string]interface{})
 	m["version"] = deviceConfig.Version
 	m["endpoint"] = deviceConfig.Endpoint
-	m["port"] = fmt.Sprintf("%d", deviceConfig.Port)
+	m["port"] = deviceConfig.Port
 	m["contextName"] = deviceConfig.ContextName
 
 	securityParameters := deviceConfig.SecurityParameters

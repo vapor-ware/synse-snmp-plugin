@@ -7,7 +7,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsBatteryTable represts SNMP OID .1.3.6.1.2.1.33.1.2
+// UpsBatteryTable represents SNMP OID .1.3.6.1.2.1.33.1.2
 type UpsBatteryTable struct {
 	*core.SnmpTable // base class
 }
@@ -59,10 +59,6 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	if err != nil {
 		return nil, err
 	}
-	location := sdk.Location{
-		Rack:  rack,
-		Board: board,
-	}
 
 	// Pull out the table, mib, device model, SNMP DeviceConfig
 	table := enumerator.Table
@@ -74,12 +70,79 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
+	locationName := "snmp-location"
+	cfg := &sdk.DeviceConfig{
+		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
+		Locations: []*sdk.LocationConfig{
+			{
+				Name:  locationName,
+				Rack:  &sdk.LocationData{Name: rack},
+				Board: &sdk.LocationData{Name: board},
+			},
+		},
+		Devices: []*sdk.DeviceKind{},
+	}
+
+	// We will have "status", "voltage", "current", and "temperature" device kinds.
+	// There is probably a better way of doing this, but this just gets things to
+	// where they need to be for now.
+	statusKind := &sdk.DeviceKind{
+		Name: "status",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "status"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	voltageKind := &sdk.DeviceKind{
+		Name: "voltage",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "voltage"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	currentKind := &sdk.DeviceKind{
+		Name: "current",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "current"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	temperatureKind := &sdk.DeviceKind{
+		Name: "temperature",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "temperature"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	cfg.Devices = []*sdk.DeviceKind{
+		statusKind,
+		voltageKind,
+		currentKind,
+		temperatureKind,
+	}
+
 	// This is always a single row table.
 
 	// upsBatteryStatus
 	// deviceData gets shimmed into the DeviceConfig for each synse device.
 	// It varies slightly for each device below.
-	deviceData := map[string]string{
+	deviceData := map[string]interface{}{
 		"info":       "upsBatteryStatus",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -94,22 +157,19 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"enumeration3": "batteryLow",
 		"enumeration4": "batteryDepleted",
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device := sdk.DeviceConfig{
-		Version:  "1",
-		Type:     "status",
-		Model:    model,
-		Location: location,
+	device := &sdk.DeviceInstance{
+		Location: locationName,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device)
+	statusKind.Instances = append(statusKind.Instances, device)
 
 	// upsSecondsOnBattery --------------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsSecondsOnBattery",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -117,22 +177,19 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "2",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 2), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device2 := sdk.DeviceConfig{
-		Version:  "1",
-		Type:     "status",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: locationName,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device2)
+	statusKind.Instances = append(statusKind.Instances, device)
 
 	// upsEstimatedMinutesRemaining -----------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsEstimatedMinutesRemaining",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -140,22 +197,19 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "3",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 3), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device3 := sdk.DeviceConfig{
-		Version:  "1",
-		Type:     "status",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: locationName,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device3)
+	statusKind.Instances = append(statusKind.Instances, device)
 
 	// upsEstimatedChargeRemaining ------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsEstimatedChargeRemaining",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -163,22 +217,19 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "4",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 4), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device4 := sdk.DeviceConfig{
-		Version:  "1",
-		Type:     "status",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: locationName,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device4)
+	statusKind.Instances = append(statusKind.Instances, device)
 
 	// upsBatteryVoltage ----------------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsBatteryVoltage",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -187,22 +238,19 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 5), // base_oid and integer column.
 		"multiplier": ".1",                                  // Units are 0.1 Volt DC.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device5 := sdk.DeviceConfig{
-		Version:  "1",
-		Type:     "voltage",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: locationName,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device5)
+	voltageKind.Instances = append(voltageKind.Instances, device)
 
 	// upsBatteryCurrent ---------------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsBatteryCurrent",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -211,22 +259,19 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 6), // base_oid and integer column.
 		"multiplier": ".1",                                  // Units are 0.1 Amp DC.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device6 := sdk.DeviceConfig{
-		Version:  "1",
-		Type:     "current",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: locationName,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device6)
+	currentKind.Instances = append(currentKind.Instances, device)
 
 	// upsBatteryTemperature  -----------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsBatteryTemperature",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -235,18 +280,17 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 7), // base_oid and integer column.
 		// No multiplier needed. Units are degrees C.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device7 := sdk.DeviceConfig{
-		Version:  "1",
-		Type:     "temperature",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: locationName,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device7)
+	temperatureKind.Instances = append(temperatureKind.Instances, device)
+
+	devices = append(devices, cfg)
 	return devices, err
 }

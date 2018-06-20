@@ -4,7 +4,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsBasicGroupsTable represts SNMP OID .1.3.6.1.2.1.33.1.6.1.0
+// UpsBasicGroupsTable represents SNMP OID .1.3.6.1.2.1.33.1.6.1.0
 // We currently have no data for this table (5/16/2018)
 type UpsBasicGroupsTable struct {
 	*core.SnmpTable // base class

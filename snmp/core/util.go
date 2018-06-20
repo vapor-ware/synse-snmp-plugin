@@ -11,9 +11,9 @@ import (
 // This file contains utility functions. In the future we could put them in
 // a "library" repo.
 
-// CopyMapStringString returns a copy of the map passed in without error.
-func CopyMapStringString(m map[string]string) map[string]string {
-	target := make(map[string]string)
+// CopyMapStringInterface returns a copy of the map passed in without error.
+func CopyMapStringInterface(m map[string]interface{}) map[string]interface{} {
+	target := make(map[string]interface{})
 	for k, v := range m {
 		target[k] = v
 	}
@@ -62,10 +62,10 @@ func GetRackAndBoard(data map[string]interface{}) (rack string, board string, er
 	return rack, board, nil
 }
 
-// MergeMapStringString returns a new map with the contents of both maps passed
+// MergeMapStringInterface returns a new map with the contents of both maps passed
 // in. Errors out on duplicate keys.
-func MergeMapStringString(a map[string]string, b map[string]string) (map[string]string, error) {
-	merged := CopyMapStringString(a)
+func MergeMapStringInterface(a map[string]interface{}, b map[string]interface{}) (map[string]interface{}, error) {
+	merged := CopyMapStringInterface(a)
 	for k, v := range b {
 		_, inMap := merged[k]
 		if inMap {

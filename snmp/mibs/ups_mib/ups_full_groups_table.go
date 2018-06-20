@@ -4,7 +4,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsFullGroupsTable represts SNMP OID .1.3.6.1.2.1.33.3.2.3
+// UpsFullGroupsTable represents SNMP OID .1.3.6.1.2.1.33.3.2.3
 type UpsFullGroupsTable struct {
 	*core.SnmpTable // base class
 }

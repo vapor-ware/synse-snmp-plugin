@@ -7,7 +7,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsBypassTable represts SNMP OID .1.3.6.1.2.1.33.1.5.3
+// UpsBypassTable represents SNMP OID .1.3.6.1.2.1.33.1.5.3
 type UpsBypassTable struct {
 	*core.SnmpTable // base class
 }
@@ -55,15 +55,66 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 	if err != nil {
 		return nil, err
 	}
-	location := sdk.Location{
-		Rack:  rack,
-		Board: board,
-	}
 
 	// Pull out the table, mib, device model, SNMP DeviceConfig.
 	table := enumerator.Table
 	mib := table.Mib.(*UpsMib)
 	model := mib.UpsIdentityTable.UpsIdentity.Model
+
+	locationName := "snmp-location"
+	cfg := &sdk.DeviceConfig{
+		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
+		Locations: []*sdk.LocationConfig{
+			{
+				Name:  locationName,
+				Rack:  &sdk.LocationData{Name: rack},
+				Board: &sdk.LocationData{Name: board},
+			},
+		},
+		Devices: []*sdk.DeviceKind{},
+	}
+
+	// We will have "voltage", "current", and "power" device kinds.
+	// There is probably a better way of doing this, but this just gets things to
+	// where they need to be for now.
+	voltageKind := &sdk.DeviceKind{
+		Name: "voltage",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "voltage"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	currentKind := &sdk.DeviceKind{
+		Name: "current",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "current"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	powerKind := &sdk.DeviceKind{
+		Name: "watts.power",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "watts.power"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	cfg.Devices = []*sdk.DeviceKind{
+		voltageKind,
+		currentKind,
+		powerKind,
+	}
 
 	snmpDeviceConfigMap, err := table.SnmpServerBase.DeviceConfig.ToMap()
 	if err != nil {
@@ -74,7 +125,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 		// upsBypassVoltage
 		// deviceData gets shimmed into the DeviceConfig for each synse device.
 		// It varies slightly for each device below.
-		deviceData := map[string]string{
+		deviceData := map[string]interface{}{
 			"info":       fmt.Sprintf("upsBypassVoltage%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
@@ -83,22 +134,19 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 2), // base_oid and integer column.
 			// No multiplier needed. Units are RMS Volts.
 		}
-		deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {
 			return nil, err
 		}
 
-		device := sdk.DeviceConfig{
-			Version:  "1",
-			Type:     "voltage",
-			Model:    model,
-			Location: location,
+		device := &sdk.DeviceInstance{
+			Location: locationName,
 			Data:     deviceData,
 		}
-		devices = append(devices, &device)
+		voltageKind.Instances = append(voltageKind.Instances, device)
 
 		// upsBypassCurrent ---------------------------------------------------------
-		deviceData = map[string]string{
+		deviceData = map[string]interface{}{
 			"info":       fmt.Sprintf("upsBypassCurrent%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
@@ -106,22 +154,19 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			"column":     "3",
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 3), // base_oid and integer column.
 		}
-		deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {
 			return nil, err
 		}
 
-		device2 := sdk.DeviceConfig{
-			Version:  "1",
-			Type:     "current",
-			Model:    model,
-			Location: location,
+		device = &sdk.DeviceInstance{
+			Location: locationName,
 			Data:     deviceData,
 		}
-		devices = append(devices, &device2)
+		currentKind.Instances = append(currentKind.Instances, device)
 
 		// upsBypassPower --------------------------------------------------------------
-		deviceData = map[string]string{
+		deviceData = map[string]interface{}{
 			"info":       fmt.Sprintf("upsBypassPower%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
@@ -130,19 +175,18 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 4), // base_oid and integer column.
 			// Output is in Watts. No multiplier needed.
 		}
-		deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {
 			return nil, err
 		}
 
-		device3 := sdk.DeviceConfig{
-			Version:  "1",
-			Type:     "power",
-			Model:    model,
-			Location: location,
+		device = &sdk.DeviceInstance{
+			Location: locationName,
 			Data:     deviceData,
 		}
-		devices = append(devices, &device3)
+		powerKind.Instances = append(powerKind.Instances, device)
 	}
+
+	devices = append(devices, cfg)
 	return devices, err
 }

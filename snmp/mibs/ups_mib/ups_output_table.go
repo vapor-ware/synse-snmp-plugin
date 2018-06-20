@@ -56,10 +56,6 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 	if err != nil {
 		return nil, err
 	}
-	location := sdk.Location{
-		Rack:  rack,
-		Board: board,
-	}
 
 	table := enumerator.Table
 	mib := table.Mib.(*UpsMib)

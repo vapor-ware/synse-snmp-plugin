@@ -31,11 +31,11 @@ HAS_GOX  := $(shell which gox)
 
 .PHONY: build
 build:  ## Build the plugin Go binary
-	go build -ldflags "${LDFLAGS}" -o build/plugin || exit
+	go build -ldflags "${LDFLAGS}" -o build/plugin
 
 .PHONY: clean
 clean:  ## Remove temporary files
-	go clean -v || exit
+	go clean -v
 
 .PHONY: dep
 dep:  ## Ensure and prune dependencies
@@ -61,7 +61,7 @@ push:
 
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
-	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file" || exit; done
+	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file"; done
 
 .PHONY: github-tag
 github-tag:  ## Create and push a tag with the current plugin version

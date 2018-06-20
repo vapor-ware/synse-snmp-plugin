@@ -18,9 +18,11 @@ func FindDeviceConfigsByType(devices []*sdk.DeviceConfig, t string) (
 		return nil, fmt.Errorf("devices is nil")
 	}
 
-	for i := 0; i < len(devices); i++ {
-		if devices[i].Type == t {
-			matches = append(matches, devices[i])
+	for _, device := range devices {
+		for _, kind := range device.Devices {
+			if kind.Name == t {
+				matches = append(matches, device)
+			}
 		}
 	}
 	return matches, err
@@ -37,16 +39,23 @@ func DumpDeviceConfigs(devices []*sdk.DeviceConfig, header string) {
 		return
 	}
 
-	fmt.Printf(". Count: %d\n", len(devices))
+	fmt.Printf(". Count device config: %d\n", len(devices))
 
-	for i := 0; i < len(devices); i++ {
-		fmt.Printf("device[%d]: %v %v %v %v %v row:%v column:%v\n", i,
-			devices[i].Data["table_name"],
-			devices[i].Type,
-			devices[i].Data["info"],
-			devices[i].Data["oid"],
-			devices[i].Data["base_oid"],
-			devices[i].Data["row"],
-			devices[i].Data["column"])
+	for _, device := range devices {
+		fmt.Printf(".. Count device kind: %d\n", len(device.Devices))
+		for _, kind := range device.Devices {
+			fmt.Printf("... Count device instances: %d\n", len(kind.Instances))
+			for _, instance := range kind.Instances {
+				fmt.Printf("device: %v %v %v %v %v row:%v column:%v\n",
+					instance.Data["table_name"],
+					kind.Name,
+					instance.Data["info"],
+					instance.Data["oid"],
+					instance.Data["base_oid"],
+					instance.Data["row"],
+					instance.Data["column"],
+				)
+			}
+		}
 	}
 }

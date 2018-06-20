@@ -109,8 +109,15 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(devices) != 7 {
-		t.Fatalf("Expected 7 devices from the UpsBatteryTable, got %d", len(devices))
+	// Check the number of device instances that were created
+	instanceCount := 0
+	for _, cfg := range devices {
+		for _, kind := range cfg.Devices {
+			instanceCount += len(kind.Instances)
+		}
+	}
+	if instanceCount != 7 {
+		t.Fatalf("Expected 7 devices from the UpsBatteryTable, got %d", instanceCount)
 	}
 
 	// Enumerate UpsInputTable devices.
@@ -124,9 +131,15 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 		t.Fatalf("Expected devices, got none.\n")
 	}
 
-	// Ensure devices and no error.
-	if len(devices) != 12 {
-		t.Fatalf("Expected 12 devices from the UpsInputTable, got %d", len(devices))
+	// Check the number of device instances that were created
+	instanceCount = 0
+	for _, cfg := range devices {
+		for _, kind := range cfg.Devices {
+			instanceCount += len(kind.Instances)
+		}
+	}
+	if instanceCount != 12 {
+		t.Fatalf("Expected 12 devices from the UpsInputTable, got %d", instanceCount)
 	}
 
 	// Enumerate the mib.
@@ -136,8 +149,15 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(devices) != 40 {
-		t.Fatalf("Expected 40 devices, got %d.\n", len(devices))
+	// Check the number of device instances that were created
+	instanceCount = 0
+	for _, cfg := range devices {
+		for _, kind := range cfg.Devices {
+			instanceCount += len(kind.Instances)
+		}
+	}
+	if instanceCount != 40 {
+		t.Fatalf("Expected 40 devices, got %d", instanceCount)
 	}
 
 	fmt.Printf("Dumping devices enumerated from UPS-MIB\n")

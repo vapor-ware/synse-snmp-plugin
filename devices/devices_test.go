@@ -7,6 +7,7 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/mibs/ups_mib"
+	"github.com/vapor-ware/synse-snmp-plugin/outputs"
 )
 
 // Create Device creates the Device structure in test land for now.
@@ -14,12 +15,49 @@ func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) []*sdk.
 	var devices []*sdk.Device
 
 	for _, device := range config.Devices {
+
+		var deviceOutputs []*sdk.Output
+		switch device.Name {
+		case "current":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Current},
+			}
+		case "frequency":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Frequency},
+			}
+		case "identity":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Identity},
+			}
+		case "power":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.WattsPower},
+				{OutputType: outputs.VAPower},
+			}
+		case "status":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Status},
+			}
+		case "temperature":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Temperature},
+			}
+		case "voltage":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Voltage},
+			}
+		default:
+			fmt.Errorf("device kind not supported in output list creation (must be added): %v", device.Name)
+		}
+
 		for _, instance := range device.Instances {
 			device := &sdk.Device{
 				Info:     instance.Info,
 				Data:     instance.Data,
 				Kind:     device.Name,
 				Location: &sdk.Location{Rack: "rack", Board: "board"},
+				Outputs:  deviceOutputs,
 				Handler:  handler,
 			}
 			devices = append(devices, device)
@@ -132,43 +170,65 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		t.Fatal(err)
 	}
 
-	//func DumpDeviceConfigs(devices []*config.DeviceConfig, header string) {
 	DumpDeviceConfigs(snmpDevices, "Devices from UPS-MIB")
-	if len(snmpDevices) != 40 {
-		t.Fatalf("Expected 40 snmp devices, got %d.", len(snmpDevices))
+	// Check the number of snmp device configs
+	if len(snmpDevices) != 6 {
+		t.Fatalf("Expected 6 snmp device configs, got %d.", len(snmpDevices))
+	}
+	// Get the number of snmp device kinds and instances across all configs
+	kinds := map[string]*sdk.DeviceKind{}
+	instanceCount := 0
+	for _, config := range snmpDevices {
+		for _, kind := range config.Devices {
+			instanceCount += len(kind.Instances)
+			kinds[kind.Name] = kind
+		}
+	}
+	// Check the total number of unique number of device kinds
+	if len(kinds) != 7 {
+		t.Logf("found kinds: %v", kinds)
+		t.Fatalf("Expected 7 device kinds, got %d", len(kinds))
 	}
 
-	// Find power device configs in the UPS MIB. There should be six.
-	powerDeviceConfigs, err := FindDeviceConfigsByType(snmpDevices, "power")
-	if err != nil {
-		t.Fatal(err)
-	}
-	DumpDeviceConfigs(powerDeviceConfigs, "Power device configs")
-	if len(powerDeviceConfigs) != 6 {
-		t.Fatalf("Expected 6 power device configs, got %d", len(powerDeviceConfigs))
+	// Check the total number of device instances
+	if instanceCount != 40 {
+		t.Fatalf("Expected 40 instances, got %d", instanceCount)
 	}
 
-	// At long last we should be able to create the Device structure.
-	powerDevices := CreateDevices(powerDeviceConfigs[0], &SnmpPower)
-	if err != nil {
-		t.Fatal(err)
+	// Check the number of power instances
+	powerInstanceCount := 0
+	for _, cfg := range snmpDevices {
+		for _, kind := range cfg.Devices {
+			if kind.Name == "power" {
+				powerInstanceCount += len(kind.Instances)
+			}
+		}
 	}
-	fmt.Printf("powerDevice: %+v\n", powerDevices)
-
-	if len(powerDevices) != 1 {
-		t.Fatalf("Expected 1 power device, got %d.", len(powerDevices))
+	if powerInstanceCount != 6 {
+		t.Fatalf("Expected 6 power device configs, got %d", powerInstanceCount)
 	}
-
-	powerDevice := powerDevices[0]
-	// Get the first reading.
-	context, err := powerDevice.Read() // Call Read through the device's function pointer.
-	if err != nil {
-		t.Fatal(err)
-	}
-	readings := context.Reading
-	for i := 0; i < len(readings); i++ {
-		fmt.Printf("Reading[%d]: %T, %+v\n", i, readings[i], readings[i])
-	}
+	//
+	//// At long last we should be able to create the Device structure.
+	//powerDevices := CreateDevices(snmpDevices[0], &SnmpPower)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Printf("powerDevice: %+v\n", powerDevices)
+	//
+	//if len(powerDevices) != 1 {
+	//	t.Fatalf("Expected 1 power device, got %d.", len(powerDevices))
+	//}
+	//
+	//powerDevice := powerDevices[0]
+	//// Get the first reading.
+	//context, err := powerDevice.Read() // Call Read through the device's function pointer.
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//readings := context.Reading
+	//for i := 0; i < len(readings); i++ {
+	//	fmt.Printf("Reading[%d]: %T, %+v\n", i, readings[i], readings[i])
+	//}
 
 	// For each device config, create a device and perform a reading.
 	var devices []*sdk.Device

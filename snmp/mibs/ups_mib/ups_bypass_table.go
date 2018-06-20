@@ -99,7 +99,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	powerKind := &sdk.DeviceKind{
-		Name: "watts.power",
+		Name: "power",
 		Metadata: map[string]string{
 			"model": model,
 		},

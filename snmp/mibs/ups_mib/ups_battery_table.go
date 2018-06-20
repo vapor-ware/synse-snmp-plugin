@@ -235,7 +235,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"row":        "0",
 		"column":     "5",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 5), // base_oid and integer column.
-		"multiplier": ".1",                                  // Units are 0.1 Volt DC.
+		"multiplier": float32(0.1),                                  // Units are 0.1 Volt DC.
 	}
 	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
@@ -256,7 +256,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"row":        "0",
 		"column":     "6",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 6), // base_oid and integer column.
-		"multiplier": ".1",                                  // Units are 0.1 Amp DC.
+		"multiplier": float32(0.1),                                  // Units are 0.1 Amp DC.
 	}
 	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {

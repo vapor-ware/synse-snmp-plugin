@@ -149,7 +149,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		"row":        "0",
 		"column":     "2",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 2), // base_oid and integer column.
-		"multiplier": ".1",                                  // Units are 0.1 Hertz
+		"multiplier": float32(0.1),                                  // Units are 0.1 Hertz
 	}
 	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {

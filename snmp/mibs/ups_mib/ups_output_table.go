@@ -115,7 +115,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	powerKind := &sdk.DeviceKind{
-		Name: "watts.power",
+		Name: "power",
 		Metadata: map[string]string{
 			"model": model,
 		},
@@ -164,7 +164,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 			"row":        fmt.Sprintf("%d", i),
 			"column":     "3",
 			"oid":        fmt.Sprintf(table.Rows[i].BaseOid, 3), // base_oid and integer column.
-			"multiplier": ".1",                                  // Units are 0.1 RMS Amp
+			"multiplier": float32(0.1),                                  // Units are 0.1 RMS Amp
 		}
 		deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 		if err != nil {

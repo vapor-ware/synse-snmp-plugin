@@ -48,9 +48,12 @@ func SnmpPowerRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	}
 
 	// Create the reading.
-	readings = []*sdk.Reading{
-		// FIXME (etd): differentiate between watts/VA
-		device.GetOutput("watts.power").MakeReading(resultFloat),
+	// FIXME (etd): differentiate between watts/VA
+	reading, err := device.GetOutput("watts.power").MakeReading(resultFloat)
+	if err != nil {
+		return nil, err
 	}
+
+	readings = []*sdk.Reading{reading}
 	return readings, nil
 }

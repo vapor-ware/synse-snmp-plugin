@@ -188,7 +188,6 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	// deviceData gets shimmed into the DeviceConfig for each synse device.
 	// It varies slightly for each device below.
 	deviceData := map[string]interface{}{
-		"info":       "upsIdentManufacturer",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -201,14 +200,14 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device := &sdk.DeviceInstance{
+		Info:     "upsIdentManufacturer",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)
 
-	// upsIdentModel
+	// upsIdentModel -----------------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsIdentModel",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -221,14 +220,14 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsIdentModel",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	identityKind.Instances = append(identityKind.Instances, device)
 
-	// upsIdentUPSSoftwareVersion
+	// upsIdentUPSSoftwareVersion ----------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsIdentSoftwareVersion",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -241,6 +240,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsIdentAgentUPSSoftwareVersion",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -248,7 +248,6 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsIdentAgentSoftwareVersion ----------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsIdentAgentSoftwareVersion",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -261,6 +260,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsIdentAgentSoftwareVersion",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -268,7 +268,6 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsIdentName ---------------------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsIdentName",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -281,6 +280,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsIdentName",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -288,7 +288,6 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsIdentAttachedDevices ----------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsIdentAttachedDevices",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -301,6 +300,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsIdentAttachedDevices",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}

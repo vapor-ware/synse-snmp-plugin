@@ -48,8 +48,11 @@ func SnmpFrequencyRead(device *sdk.Device) (readings []*sdk.Reading, err error) 
 	}
 
 	// Create the reading.
-	readings = []*sdk.Reading{
-		device.GetOutput("frequency").MakeReading(resultFloat),
+	reading, err := device.GetOutput("frequency").MakeReading(resultFloat)
+	if err != nil {
+		return nil, err
 	}
+
+	readings = []*sdk.Reading{reading}
 	return readings, nil
 }

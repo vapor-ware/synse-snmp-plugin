@@ -48,8 +48,11 @@ func SnmpCurrentRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	}
 
 	// Create the reading.
-	readings = []*sdk.Reading{
-		device.GetOutput("current").MakeReading(resultFloat),
+	reading, err := device.GetOutput("current").MakeReading(resultFloat)
+	if err != nil {
+		return nil, err
 	}
+
+	readings = []*sdk.Reading{reading}
 	return readings, nil
 }

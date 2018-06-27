@@ -138,11 +138,10 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 
 	// This is always a single row table.
 
-	// upsBatteryStatus
+	// upsBatteryStatus ---------------------------------------------------
 	// deviceData gets shimmed into the DeviceConfig for each synse device.
 	// It varies slightly for each device below.
 	deviceData := map[string]interface{}{
-		"info":       "upsBatteryStatus",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -162,6 +161,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device := &sdk.DeviceInstance{
+		Info:     "upsBatteryStatus",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -169,7 +169,6 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsSecondsOnBattery --------------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsSecondsOnBattery",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -182,6 +181,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsSecondsOnBattery",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -189,7 +189,6 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsEstimatedMinutesRemaining -----------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsEstimatedMinutesRemaining",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -202,6 +201,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsEstimatedMinutesRemaining",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -209,7 +209,6 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsEstimatedChargeRemaining ------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsEstimatedChargeRemaining",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -222,6 +221,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsEstimatedChargeRemaining",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -229,13 +229,13 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsBatteryVoltage ----------------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsBatteryVoltage",
+		//"info":       "upsBatteryVoltage",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
 		"column":     "5",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 5), // base_oid and integer column.
-		"multiplier": float32(0.1),                                  // Units are 0.1 Volt DC.
+		"multiplier": float32(0.1),                          // Units are 0.1 Volt DC.
 	}
 	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
@@ -243,6 +243,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsBatteryVoltage",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -250,13 +251,12 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsBatteryCurrent ---------------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsBatteryCurrent",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
 		"column":     "6",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 6), // base_oid and integer column.
-		"multiplier": float32(0.1),                                  // Units are 0.1 Amp DC.
+		"multiplier": float32(0.1),                          // Units are 0.1 Amp DC.
 	}
 	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
@@ -264,6 +264,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsBatteryCurrent",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -271,7 +272,6 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsBatteryTemperature  -----------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsBatteryTemperature",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -285,11 +285,13 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsBatteryTemperature",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
 	temperatureKind.Instances = append(temperatureKind.Instances, device)
 
 	devices = append(devices, cfg)
+
 	return devices, err
 }

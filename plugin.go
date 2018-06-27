@@ -10,6 +10,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/outputs"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/servers"
+	"github.com/vapor-ware/synse-sdk/sdk/policies"
 )
 
 const (
@@ -53,6 +54,12 @@ func main() {
 		pluginDesc,
 		pluginVcs,
 	)
+
+	// Set the device config file policy to optional. That way, it it doesn't
+	// exist, we are okay (since we should then get some kind of config dynamically).
+	log.Info("SNMP Plugin - setting policies")
+	policies.Add(policies.DeviceConfigFileOptional)
+
 
 	log.Info("SNMP Plugin calling NewPlugin")
 	plugin := sdk.NewPlugin(

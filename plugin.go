@@ -98,7 +98,6 @@ func main() {
 	// Trace things out that the sdk is using for device enumeration.
 	log.Debugf("plugin: %+v", plugin)
 	log.Debugf("sdk.Config.Plugin: %+v", sdk.Config.Plugin)
-	log.Debugf("sdk.Config.Plugin.DynamicRegistration: %+v", sdk.Config.Plugin.DynamicRegistration)
 
 	// Run the plugin.
 	log.Info("SNMP Plugin running plugin")

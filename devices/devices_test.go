@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-snmp-plugin/outputs"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/mibs/ups_mib"
-	"github.com/vapor-ware/synse-snmp-plugin/outputs"
 )
 
 // Create Device creates the Device structure in test land for now.
-func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) []*sdk.Device {
+func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) ([]*sdk.Device, error) { // nolint: gocyclo
 	var devices []*sdk.Device
 
 	for _, device := range config.Devices {
@@ -48,7 +48,7 @@ func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) []*sdk.
 				{OutputType: outputs.Voltage},
 			}
 		default:
-			fmt.Errorf("device kind not supported in output list creation (must be added): %v", device.Name)
+			return nil, fmt.Errorf("device kind not supported in output list creation (must be added): %v", device.Name)
 		}
 
 		for _, instance := range device.Instances {
@@ -63,7 +63,7 @@ func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) []*sdk.
 			devices = append(devices, device)
 		}
 	}
-	return devices
+	return devices, nil
 }
 
 // Initial device test. Ensure we can register each type the ups mib supports
@@ -207,28 +207,6 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	if powerInstanceCount != 6 {
 		t.Fatalf("Expected 6 power device configs, got %d", powerInstanceCount)
 	}
-	//
-	//// At long last we should be able to create the Device structure.
-	//powerDevices := CreateDevices(snmpDevices[0], &SnmpPower)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//fmt.Printf("powerDevice: %+v\n", powerDevices)
-	//
-	//if len(powerDevices) != 1 {
-	//	t.Fatalf("Expected 1 power device, got %d.", len(powerDevices))
-	//}
-	//
-	//powerDevice := powerDevices[0]
-	//// Get the first reading.
-	//context, err := powerDevice.Read() // Call Read through the device's function pointer.
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//readings := context.Reading
-	//for i := 0; i < len(readings); i++ {
-	//	fmt.Printf("Reading[%d]: %T, %+v\n", i, readings[i], readings[i])
-	//}
 
 	// For each device config, create a device and perform a reading.
 	var devices []*sdk.Device
@@ -265,7 +243,10 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 				Devices:       []*sdk.DeviceKind{kind},
 			}
 
-			devs := CreateDevices(tmpConfig, deviceHandler)
+			devs, err := CreateDevices(tmpConfig, deviceHandler)
+			if err != nil {
+				t.Fatal(err)
+			}
 			devices = append(devices, devs...)
 		}
 	}

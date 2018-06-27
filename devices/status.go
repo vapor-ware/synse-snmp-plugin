@@ -14,7 +14,7 @@ var SnmpStatus = sdk.DeviceHandler{
 }
 
 // SnmpStatusRead is the read handler function for snmp-status devices.
-func SnmpStatusRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
+func SnmpStatusRead(device *sdk.Device) (readings []*sdk.Reading, err error) { // nolint: gocyclo
 
 	// Arg checks.
 	if device == nil {
@@ -66,8 +66,10 @@ func SnmpStatusRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 		}
 	}
 	// Create the reading.
-	readings = []*sdk.Reading{
-		device.GetOutput("status").MakeReading(resultString),
+	reading, err := device.GetOutput("status").MakeReading(resultString)
+	if err != nil {
+		return nil, err
 	}
+	readings = []*sdk.Reading{reading}
 	return readings, nil
 }

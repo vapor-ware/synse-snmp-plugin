@@ -121,11 +121,10 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	for i := 0; i < len(table.Rows); i++ {
-		// upsBypassVoltage
+		// upsBypassVoltage ---------------------------------------------------
 		// deviceData gets shimmed into the DeviceConfig for each synse device.
 		// It varies slightly for each device below.
 		deviceData := map[string]interface{}{
-			"info":       fmt.Sprintf("upsBypassVoltage%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
 			"row":        fmt.Sprintf("%d", i),
@@ -139,6 +138,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device := &sdk.DeviceInstance{
+			Info:     fmt.Sprintf("upsBypassVoltage%d", i),
 			Location: snmpLocation,
 			Data:     deviceData,
 		}
@@ -146,7 +146,6 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 
 		// upsBypassCurrent ---------------------------------------------------------
 		deviceData = map[string]interface{}{
-			"info":       fmt.Sprintf("upsBypassCurrent%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
 			"row":        fmt.Sprintf("%d", i),
@@ -159,6 +158,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device = &sdk.DeviceInstance{
+			Info:     fmt.Sprintf("upsBypassCurrent%d", i),
 			Location: snmpLocation,
 			Data:     deviceData,
 		}
@@ -166,7 +166,6 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 
 		// upsBypassPower --------------------------------------------------------------
 		deviceData = map[string]interface{}{
-			"info":       fmt.Sprintf("upsBypassPower%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
 			"row":        fmt.Sprintf("%d", i),
@@ -180,6 +179,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device = &sdk.DeviceInstance{
+			Info:     fmt.Sprintf("upsBypassPower%d", i),
 			Location: snmpLocation,
 			Data:     deviceData,
 		}

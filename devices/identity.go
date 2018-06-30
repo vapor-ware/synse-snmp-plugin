@@ -49,8 +49,11 @@ func SnmpIdentityRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	}
 
 	// Create the reading.
-	readings = []*sdk.Reading{
-		device.GetOutput("identity").MakeReading(resultString),
+	reading, err := device.GetOutput("identity").MakeReading(resultString)
+	if err != nil {
+		return nil, err
 	}
+
+	readings = []*sdk.Reading{reading}
 	return readings, nil
 }

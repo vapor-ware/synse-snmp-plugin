@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
+	logger "github.com/Sirupsen/logrus"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
@@ -42,13 +42,13 @@ func NewSnmpMib(name string, snmpTables []*SnmpTable) (*SnmpMib, error) {
 
 // Dump all tables in the MIB to the log as CSV.
 func (snmpMib *SnmpMib) Dump() {
-	log.Debugf("Dumping SnmpMib %v. %d tables", snmpMib.Name, len(snmpMib.Tables))
+	logger.Debugf("Dumping SnmpMib %v. %d tables", snmpMib.Name, len(snmpMib.Tables))
 	fmt.Printf("Dumping SnmpMib %+v\n", snmpMib.Name)
 
 	for i := 0; i < len(snmpMib.Tables); i++ {
 		snmpMib.Tables[i].Dump()
 	}
-	log.Debugf("End SnmpMib dump %v", snmpMib.Name)
+	logger.Debugf("End SnmpMib dump %v", snmpMib.Name)
 }
 
 // EnumerateDevices enumerates all synse devices supported by the mib.

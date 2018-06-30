@@ -29,9 +29,10 @@
   name = "github.com/soniah/gosnmp"
   branch = "master"
 
+# TODO: branch changes to master once sdk lands.
 [[constraint]]
   name = "github.com/vapor-ware/synse-sdk"
-  branch = "v1.0"
+  branch = "mhink-new-sdk"
 
 [prune]
   go-tests = true

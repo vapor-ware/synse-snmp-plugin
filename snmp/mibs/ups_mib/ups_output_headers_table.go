@@ -112,7 +112,6 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	// deviceData gets shimmed into the DeviceConfig for each synse device.
 	// It varies slightly for each device below.
 	deviceData := map[string]interface{}{
-		"info":       "upsOutputSource",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -136,6 +135,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device := &sdk.DeviceInstance{
+		Info:     "upsOutputSource",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -143,13 +143,12 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsOutputFrequency --------------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsOutputFrequency",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
 		"column":     "2",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 2), // base_oid and integer column.
-		"multiplier": float32(0.1),                                  // Units are 0.1 Hertz
+		"multiplier": float32(0.1),                          // Units are 0.1 Hertz
 	}
 	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
@@ -157,6 +156,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsOutputFrequency",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
@@ -164,7 +164,6 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 
 	// upsOutputNumLines ---------------------------------------------------------
 	deviceData = map[string]interface{}{
-		"info":       "upsOutputNumLines",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
@@ -177,6 +176,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
+		Info:     "upsOutputNumLines",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}

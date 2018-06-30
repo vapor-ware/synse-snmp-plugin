@@ -31,11 +31,11 @@ HAS_GOX  := $(shell which gox)
 
 .PHONY: build
 build:  ## Build the plugin Go binary
-	go build -ldflags "${LDFLAGS}" -o build/plugin
+	go build -ldflags "${LDFLAGS}" -o build/plugin || exit
 
 .PHONY: clean
 clean:  ## Remove temporary files
-	go clean -v
+	go clean -v || exit
 
 .PHONY: dep
 dep:  ## Ensure and prune dependencies
@@ -58,10 +58,18 @@ push:
 		-t $(IMAGE_NAME):local .
 	docker push vaporio/snmp-plugin:latest
 
+.PHONY: phoenix
+phoenix:  ## make and push private dev image
+	docker rmi $(IMAGE_NAME):phoenix-4.0 || true
+	docker build -f Dockerfile -t $(IMAGE_NAME):phoenix-4.0 .
+	docker push $(IMAGE_NAME):phoenix-4.0
+
+.PHONY: px
+px: phoenix ## shortcut for phoenix
 
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
-	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file"; done
+	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file" || exit ; done
 
 .PHONY: github-tag
 github-tag:  ## Create and push a tag with the current plugin version

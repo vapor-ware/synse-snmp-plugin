@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	logger "github.com/Sirupsen/logrus"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
@@ -32,7 +32,7 @@ type PxgmsUps struct {
 // version:v3
 func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // nolint: gocyclo
 
-	log.Debug("NewPxgmUps start. data: %+v", data)
+	logger.Debug("NewPxgmUps start. data: %+v", data)
 
 	// FIXME (etd): Sorta a hack just to get things moving, but adding in a check against
 	// the model here. There could probably be something at a higher level that checks this
@@ -41,7 +41,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	// now only support one and only one model.
 	// We intend to be able to share SNMP MIBs across models and this won't work at all.
 	model := data["model"].(string)
-	log.Debugf("model is: [%m]", model)
+	logger.Debugf("model is: [%m]", model)
 	if !strings.HasPrefix(model, "PXGMS UPS") {
 		return nil, fmt.Errorf("only PXGMS UPS models are currently supported")
 	}
@@ -75,8 +75,6 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	fmt.Printf("upsMib: %+v\n", upsMib)
 
 	// Enumerate the mib.
-	// TODO: We need to get rack and board from some config somewhere.
-	// How to do it? Also - the UPS is not in the chamber. It's on site.
 	snmpDevices, err := upsMib.EnumerateDevices(
 		map[string]interface{}{"rack": "site", "board": "ups"})
 	if err != nil {
@@ -85,7 +83,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 
 	// Output enumerated devices.
 	for i := 0; i < len(snmpDevices); i++ {
-		fmt.Printf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
+		logger.Debugf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
 	}
 
 	// Set up the object.

@@ -4,8 +4,24 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
+
+func FindDeviceInstanceByInfo(devices []*sdk.DeviceConfig, info string) (
+	*sdk.DeviceConfig, *sdk.DeviceKind, *sdk.DeviceInstance) {
+	for _, device := range devices {
+		for _, kind := range device.Devices {
+			for _, instance := range kind.Instances {
+				// This only works since info is coded to be unique.
+				if instance.Info == info {
+					return device, kind, instance
+				}
+			}
+		}
+	}
+	return nil, nil, nil
+}
 
 // TestUpsMib
 // Initial test creates all tables based on the UPS-MIB.
@@ -167,7 +183,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 				fmt.Printf("UPS-MIB device: %v %v %v %v %v row:%v column:%v\n",
 					instance.Data["table_name"],
 					kind.Name,
-					instance.Data["info"],
+					instance.Info,
 					instance.Data["oid"],
 					instance.Data["base_oid"],
 					instance.Data["row"],
@@ -180,40 +196,34 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	// FIXME (etd) - Commenting out the below -- we can't really access devices via index anymore,
 	// at least not with how the tests are current set up.
 
-	//
-	//// Verify two devices in more detail.
-	//if devices[0].Data == nil {
-	//	t.Fatalf("Expected Data != nil")
-	//}
-	//if devices[0].Data["table_name"] != "UPS-MIB-UPS-Identity-Table" {
-	//	t.Fatalf("Expected TableName == [UPS-MIB-UPS-Identity-Table], got [%v]", devices[0].Data["table_name"])
-	//}
-	//if devices[0].Type != "identity" {
-	//	t.Fatalf("Expected Type == [identity], got [%v]", devices[0].Type)
-	//}
-	//if devices[0].Data["info"] != "upsIdentManufacturer" {
-	//	t.Fatalf("Expected Info == [upsIdentManufacturer], got [%v]", devices[0].Data["info"])
-	//}
-	//if devices[0].Data["oid"] != ".1.3.6.1.2.1.33.1.1.1.0" {
-	//	t.Fatalf("Expected oid == [.1.3.6.1.2.1.33.1.1.1.0], got [%v]", devices[0].Data["oid"])
-	//}
-	//
-	//// Verify two devices in more detail.
-	//if devices[20].Data == nil {
-	//	t.Fatalf("Expected Data != nil")
-	//}
-	//if devices[20].Data["table_name"] != "UPS-MIB-UPS-Input-Table" {
-	//	t.Fatalf("Expected TableName == [UPS-MIB-UPS-Input-Table], got [%v]", devices[20].Data["table_name"])
-	//}
-	//if devices[20].Type != "power" {
-	//	t.Fatalf("Expected Type == [power], got [%v]", devices[20].Type)
-	//}
-	//if devices[20].Data["info"] != "upsInputTruePower1" {
-	//	t.Fatalf("Expected Info == [upsInputTruePower1], got [%v]", devices[20].Data["info"])
-	//}
-	//if devices[20].Data["oid"] != ".1.3.6.1.2.1.33.1.3.3.1.5.2" {
-	//	t.Fatalf("Expected oid == [.1.3.6.1.2.1.33.1.3.3.1.5.2], got [%v]", devices[20].Data["oid"])
-	//}
+	manufacturerDevice, manufacturerDeviceKind, manufacturerInstance := FindDeviceInstanceByInfo(devices, "upsIdentManufacturer")
+	fmt.Printf("manufacturerDevice: %+v\n", manufacturerDevice)
+	fmt.Printf("manufacturerDeviceKind: %+v\n", manufacturerDeviceKind)
+	fmt.Printf("manufacturerInstance: %+v\n", manufacturerInstance)
 
+	if manufacturerInstance.Data["table_name"] != "UPS-MIB-UPS-Identity-Table" {
+		t.Fatalf("Expected TableName == [UPS-MIB-UPS-Identity-Table], got [%v]", manufacturerInstance.Data["table_name"])
+	}
+	if manufacturerDeviceKind.Name != "identity" {
+		t.Fatalf("Expected Name == [identity], got [%v]", manufacturerDeviceKind.Name)
+	}
+	if manufacturerInstance.Data["oid"] != ".1.3.6.1.2.1.33.1.1.1.0" {
+		t.Fatalf("Expected oid == [.1.3.6.1.2.1.33.1.1.1.0], got [%v]", manufacturerInstance.Data["oid"])
+	}
+
+	powerDevice, powerDeviceKind, powerInstance := FindDeviceInstanceByInfo(devices, "upsInputTruePower1")
+	fmt.Printf("powerDevice: %+v\n", powerDevice)
+	fmt.Printf("powerDeviceKind: %+v\n", powerDeviceKind)
+	fmt.Printf("powerInstance: %+v\n", powerInstance)
+
+	if powerInstance.Data["table_name"] != "UPS-MIB-UPS-Input-Table" {
+		t.Fatalf("Expected TableName == [UPS-MIB-UPS-Input-Table], got [%v]", powerInstance.Data["table_name"])
+	}
+	if powerDeviceKind.Name != "power" {
+		t.Fatalf("Expected Name == [power], got [%v]", powerDeviceKind.Name)
+	}
+	if powerInstance.Data["oid"] != ".1.3.6.1.2.1.33.1.3.3.1.5.2" {
+		t.Fatalf("Expected oid == [.1.3.6.1.2.1.33.1.3.3.1.5.2], got [%v]", powerInstance.Data["oid"])
+	}
 	t.Logf("TestUpsMib end")
 }

@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
+	logger "github.com/Sirupsen/logrus"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/sdk/policies"
 	"github.com/vapor-ware/synse-snmp-plugin/devices"
 	"github.com/vapor-ware/synse-snmp-plugin/outputs"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/servers"
-	"github.com/vapor-ware/synse-sdk/sdk/policies"
 )
 
 const (
@@ -32,21 +32,22 @@ func deviceIdentifier(data map[string]interface{}) string {
 // deviceEnumerator allows the sdk to enumerate devices.
 func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*sdk.DeviceConfig, err error) {
 	// Load the MIB from the configuration still.
-	log.Info("SNMP Plugin initializing UPS.")
+	logger.Info("SNMP Plugin initializing UPS.")
 	pxgmsUps, err := servers.NewPxgmsUps(data)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create NewPxgmUps: %v", err)
 	}
-	log.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
+	logger.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
 
 	// Dump PxgmsUps device configurations.
-	log.Info("SNMP Plugin Dumping device configs")
+	logger.Info("SNMP Plugin Dumping device configs")
 	core.DumpDeviceConfigs(pxgmsUps.DeviceConfigs)
 	return pxgmsUps.DeviceConfigs, nil
 }
 
 func main() {
-	log.Info("SNMP Plugin start")
+	logger.SetLevel(logger.DebugLevel)
+	logger.Info("SNMP Plugin start")
 	// Set the plugin metadata
 	sdk.SetPluginMeta(
 		pluginName,
@@ -57,18 +58,17 @@ func main() {
 
 	// Set the device config file policy to optional. That way, it it doesn't
 	// exist, we are okay (since we should then get some kind of config dynamically).
-	log.Info("SNMP Plugin - setting policies")
+	logger.Info("SNMP Plugin - setting policies")
 	policies.Add(policies.DeviceConfigFileOptional)
 
-
-	log.Info("SNMP Plugin calling NewPlugin")
+	logger.Info("SNMP Plugin calling NewPlugin")
 	plugin := sdk.NewPlugin(
 		sdk.CustomDeviceIdentifier(deviceIdentifier),
 		sdk.CustomDynamicDeviceConfigRegistration(deviceEnumerator),
 	)
 
 	// Register the supported output types
-	log.Info("SNMP Plugin registering output types")
+	logger.Info("SNMP Plugin registering output types")
 	err := plugin.RegisterOutputTypes(
 		&outputs.Current,
 		&outputs.Frequency,
@@ -80,11 +80,11 @@ func main() {
 		&outputs.Voltage,
 	)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	// Register Device Handlers for all supported devices we interact with over SNMP.
-	log.Info("SNMP Plugin registering device handlers")
+	logger.Info("SNMP Plugin registering device handlers")
 	plugin.RegisterDeviceHandlers(
 		&devices.SnmpCurrent,
 		&devices.SnmpFrequency,
@@ -96,12 +96,12 @@ func main() {
 	)
 
 	// Trace things out that the sdk is using for device enumeration.
-	log.Debugf("plugin: %+v", plugin)
-	log.Debugf("sdk.Config.Plugin: %+v", sdk.Config.Plugin)
+	logger.Debugf("plugin: %+v", plugin)
+	logger.Debugf("sdk.Config.Plugin: %+v", sdk.Config.Plugin)
 
 	// Run the plugin.
-	log.Info("SNMP Plugin running plugin")
+	logger.Info("SNMP Plugin running plugin")
 	if err := plugin.Run(); err != nil {
-		log.Fatalf("FATAL SNMP PLUGIN ERROR: %v", err)
+		logger.Fatalf("FATAL SNMP PLUGIN ERROR: %v", err)
 	}
 }

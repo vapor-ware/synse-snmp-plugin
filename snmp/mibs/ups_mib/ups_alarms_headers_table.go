@@ -4,7 +4,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsAlarmsHeadersTable represts SNMP OID .1.3.6.1.2.1.33.1.6
+// UpsAlarmsHeadersTable represents SNMP OID .1.3.6.1.2.1.33.1.6
 // This is just the alarms present column. OID: .1.3.6.1.2.1.33.1.6.1.0
 type UpsAlarmsHeadersTable struct {
 	*core.SnmpTable // base class

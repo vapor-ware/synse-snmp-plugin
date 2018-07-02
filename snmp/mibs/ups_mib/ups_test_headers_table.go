@@ -4,7 +4,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsTestHeadersTable represts SNMP OID .1.3.6.1.2.1.33.1.7
+// UpsTestHeadersTable represents SNMP OID .1.3.6.1.2.1.33.1.7
 type UpsTestHeadersTable struct {
 	*core.SnmpTable // base class
 }

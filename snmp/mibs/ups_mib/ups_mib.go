@@ -3,7 +3,7 @@ package mibs
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
+	log "github.com/Sirupsen/logrus"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
@@ -35,7 +35,7 @@ type UpsMib struct {
 
 // NewUpsMib constructs the UpsMib.
 func NewUpsMib(server *core.SnmpServerBase) (upsMib *UpsMib, err error) { // nolint: gocyclo
-	logger.Debugf("Initializing UpsMib")
+	log.Debugf("Initializing UpsMib")
 
 	// Arg checks.
 	if server == nil {
@@ -210,6 +210,6 @@ func NewUpsMib(server *core.SnmpServerBase) (upsMib *UpsMib, err error) { // nol
 	upsMib.UpsBasicGroupsTable.Mib = upsMib
 	upsMib.UpsFullGroupsTable.Mib = upsMib
 
-	logger.Debugf("Initialized UpsMib")
+	log.Debugf("Initialized UpsMib")
 	return upsMib, nil
 }

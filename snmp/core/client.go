@@ -2,12 +2,12 @@ package core
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
+
 	"github.com/soniah/gosnmp"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
 )
 
 // AuthenticationProtocol enumeration for authentication algorithms.
@@ -130,46 +130,90 @@ func NewDeviceConfig(
 // that is missing and has a default value defined.
 // This is just a deserializer which creates a DeviceConfig from
 // map[string]string.
-func GetDeviceConfig(instanceData map[string]string) (*DeviceConfig, error) {
+func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error) { // nolint: gocyclo
 
-	// Parse out each field. The contructor call will check the parameters.
-	version := instanceData["version"]
-	endpoint := instanceData["endpoint"]
-
-	prt, err := strconv.Atoi(instanceData["port"])
-	if err != nil {
-		return nil, err
+	// Parse out each field. The constructor call will check the parameters.
+	version, ok := instanceData["version"].(string)
+	if !ok {
+		return nil, fmt.Errorf("version should be a string")
 	}
-	port := uint16(prt)
 
-	userName := instanceData["userName"]
+	endpoint, ok := instanceData["endpoint"].(string)
+	if !ok {
+		return nil, fmt.Errorf("endpoint should be a string")
+	}
 
-	authenticationProtocolString := strings.ToUpper(instanceData["authenticationProtocol"])
+	userName, ok := instanceData["userName"].(string)
+	if !ok {
+		return nil, fmt.Errorf("userName should be a string")
+	}
+
+	privacyPassphrase, ok := instanceData["privacyPassphrase"].(string)
+	if !ok {
+		return nil, fmt.Errorf("privacyPassphrase should be a string")
+	}
+
+	authenticationPassphrase, ok := instanceData["authenticationPassphrase"].(string)
+	if !ok {
+		return nil, fmt.Errorf("authenticationPassphrase should be a string")
+	}
+
+	// Its okay for contextName to not be set
+	ctxName, ok := instanceData["contextName"]
+	if !ok {
+		// If not ok here, that means contextName isn't present. Its okay for it
+		// to not be set.
+		ctxName = ""
+	}
+	contextName, ok := ctxName.(string)
+	if !ok {
+		return nil, fmt.Errorf("contextName should be a string")
+	}
+
+	authProtocolString, ok := instanceData["authenticationProtocol"].(string)
+	if !ok {
+		return nil, fmt.Errorf("authenticationProtocol should be a string")
+	}
+
+	privProtocolString, ok := instanceData["privacyProtocol"].(string)
+	if !ok {
+		return nil, fmt.Errorf("privacyProtocol should be a string")
+	}
+
+	p, ok := instanceData["port"]
+	if !ok {
+		return nil, fmt.Errorf("port required, but not specified")
+	}
+	port, ok := p.(uint16)
+	if !ok {
+		prt, ok := p.(int)
+		if !ok {
+			return nil, fmt.Errorf("port should be an int or uint16")
+		}
+		port = uint16(prt)
+	}
+
 	// Only MD5 and SHA are currently supported.
 	var authenticationProtocol AuthenticationProtocol
-	if authenticationProtocolString == "MD5" {
+	switch strings.ToUpper(authProtocolString) {
+	case "MD5":
 		authenticationProtocol = MD5
-	} else if authenticationProtocolString == "SHA" {
+	case "SHA":
 		authenticationProtocol = SHA
-	} else {
-		return nil, fmt.Errorf("Unsupported authentication protocol [%v]", authenticationProtocolString)
+	default:
+		return nil, fmt.Errorf("Unsupported authentication protocol [%v]", authProtocolString)
 	}
 
-	authenticationPassphrase := instanceData["authenticationPassphrase"]
-
-	privacyProtocolString := strings.ToUpper(instanceData["privacyProtocol"])
 	// Only DES and AES are currently supported.
 	var privacyProtocol PrivacyProtocol
-	if privacyProtocolString == "DES" {
+	switch strings.ToUpper(privProtocolString) {
+	case "DES":
 		privacyProtocol = DES
-	} else if privacyProtocolString == "AES" {
+	case "AES":
 		privacyProtocol = AES
-	} else {
-		return nil, fmt.Errorf("Unsupported privacy protocol [%v]", privacyProtocolString)
+	default:
+		return nil, fmt.Errorf("Unsupported privacy protocol [%v]", privProtocolString)
 	}
-
-	privacyPassphrase := instanceData["privacyPassphrase"]
-	contextName := instanceData["contextName"]
 
 	// Create security parameters
 	securityParameters, err := NewSecurityParameters(
@@ -177,7 +221,8 @@ func GetDeviceConfig(instanceData map[string]string) (*DeviceConfig, error) {
 		authenticationProtocol,
 		authenticationPassphrase,
 		privacyProtocol,
-		privacyPassphrase)
+		privacyPassphrase,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -191,17 +236,17 @@ func GetDeviceConfig(instanceData map[string]string) (*DeviceConfig, error) {
 		contextName)
 }
 
-// ToMap serializes DeviceConfig to map[string]string.
-func (deviceConfig *DeviceConfig) ToMap() (m map[string]string, err error) {
+// ToMap serializes DeviceConfig to map[string]interface{}.
+func (deviceConfig *DeviceConfig) ToMap() (m map[string]interface{}, err error) {
 
 	if deviceConfig.SecurityParameters == nil {
 		return nil, fmt.Errorf("No security parameters")
 	}
 
-	m = make(map[string]string)
+	m = make(map[string]interface{})
 	m["version"] = deviceConfig.Version
 	m["endpoint"] = deviceConfig.Endpoint
-	m["port"] = fmt.Sprintf("%d", deviceConfig.Port)
+	m["port"] = deviceConfig.Port
 	m["contextName"] = deviceConfig.ContextName
 
 	securityParameters := deviceConfig.SecurityParameters
@@ -371,7 +416,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 	// Connect
 	err := goSnmp.Connect()
 	if err != nil {
-		logger.Error("gosnmp failed to connect")
+		log.Error("gosnmp failed to connect")
 		return nil, fmt.Errorf("Failed to connect gosnmp: %+v", err)
 	}
 	return goSnmp, err

@@ -2,14 +2,13 @@ package devices
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
 // MultiplyReading is a helper method to multiply out raw readings
 // appropriately.
-func MultiplyReading(result core.ReadResult, data map[string]string) (resultFloat float32, err error) {
+func MultiplyReading(result core.ReadResult, data map[string]interface{}) (resultFloat float32, err error) {
 
 	// Raw SNMP reading should be an int.
 	resultInt, ok := result.Data.(int)
@@ -20,14 +19,15 @@ func MultiplyReading(result core.ReadResult, data map[string]string) (resultFloa
 	}
 
 	// Account for a multiplier if any, otherwise just convert to float32.
-	multiplierString, ok := data["multiplier"]
+	multiplier, ok := data["multiplier"]
 	if ok {
-		var multiplierFloat float64
-		multiplierFloat, err = strconv.ParseFloat(multiplierString, 32)
-		if err != nil {
-			return 0.0, err
+		multiplierFloat, isOk := multiplier.(float32)
+		if !isOk {
+			return 0.0, fmt.Errorf(
+				"expected float multiplier, got type: %T, value: %v", multiplier, multiplier,
+			)
 		}
-		resultFloat = float32(resultInt) * float32(multiplierFloat)
+		resultFloat = float32(resultInt) * multiplierFloat
 	} else {
 		resultFloat = float32(resultInt)
 	}

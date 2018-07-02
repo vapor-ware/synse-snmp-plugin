@@ -9,12 +9,8 @@ import (
 
 // SnmpPower is the handler for SNMP OIDs that report power.
 var SnmpPower = sdk.DeviceHandler{
-	Type:  "power",
-	Model: "PXGMS UPS + EATON 93PM",
-
-	Read:     SnmpPowerRead,
-	Write:    nil, // NYI for V1
-	BulkRead: nil,
+	Name: "power",
+	Read: SnmpPowerRead,
 }
 
 // SnmpPowerRead is the read handler function for synse SNMP devices that report power.
@@ -39,7 +35,7 @@ func SnmpPowerRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	}
 
 	// Read the SNMP OID in the device config.
-	result, err := snmpClient.Get(data["oid"])
+	result, err := snmpClient.Get(fmt.Sprint(data["oid"]))
 	if err != nil {
 		return nil, err
 	}
@@ -50,11 +46,11 @@ func SnmpPowerRead(device *sdk.Device) (readings []*sdk.Reading, err error) {
 	if err != nil {
 		return nil, err
 	}
-	resultString := fmt.Sprintf("%.1f", resultFloat)
 
 	// Create the reading.
 	readings = []*sdk.Reading{
-		sdk.NewReading("power", resultString),
+		// FIXME (etd): differentiate between watts/VA
+		device.GetOutput("watts.power").MakeReading(resultFloat),
 	}
 	return readings, nil
 }

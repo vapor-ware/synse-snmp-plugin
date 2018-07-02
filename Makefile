@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 0.1.1-dev
+PLUGIN_VERSION := 0.2.0-dev
 IMAGE_NAME     := vaporio/snmp-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -11,13 +11,13 @@ GIT_TAG    ?= $(shell git describe --tags 2> /dev/null || true)
 BUILD_DATE := $(shell date -u +%Y-%m-%dT%T 2> /dev/null)
 GO_VERSION := $(shell go version | awk '{ print $$3 }')
 
-PKG_CTX := main
+PKG_CTX := github.com/vapor-ware/synse-snmp-plugin/vendor/github.com/vapor-ware/synse-sdk/sdk
 LDFLAGS := -w \
 	-X ${PKG_CTX}.BuildDate=${BUILD_DATE} \
 	-X ${PKG_CTX}.GitCommit=${GIT_COMMIT} \
 	-X ${PKG_CTX}.GitTag=${GIT_TAG} \
 	-X ${PKG_CTX}.GoVersion=${GO_VERSION} \
-	-X ${PKG_CTX}.VersionString=${PLUGIN_VERSION}
+	-X ${PKG_CTX}.PluginVersion=${PLUGIN_VERSION}
 
 
 HAS_LINT := $(shell which gometalinter)
@@ -31,11 +31,11 @@ HAS_GOX  := $(shell which gox)
 
 .PHONY: build
 build:  ## Build the plugin Go binary
-	go build -ldflags "${LDFLAGS}" -o build/plugin || exit
+	go build -ldflags "${LDFLAGS}" -o build/plugin
 
 .PHONY: clean
 clean:  ## Remove temporary files
-	go clean -v || exit
+	go clean -v
 
 .PHONY: dep
 dep:  ## Ensure and prune dependencies
@@ -61,7 +61,7 @@ push:
 
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
-	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file" || exit; done
+	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file"; done
 
 .PHONY: github-tag
 github-tag:  ## Create and push a tag with the current plugin version

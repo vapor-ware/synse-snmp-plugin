@@ -3,8 +3,9 @@ package mibs
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
+	log "github.com/Sirupsen/logrus"
+
+	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
@@ -20,7 +21,7 @@ type UpsIdentity struct {
 	AttachedDevices      string
 }
 
-// UpsIdentityTable represts SNMP OID .1.3.6.1.2.1.33.1.1
+// UpsIdentityTable represents SNMP OID .1.3.6.1.2.1.33.1.1
 type UpsIdentityTable struct {
 	*core.SnmpTable              // base class
 	UpsIdentity     *UpsIdentity // Identity information.
@@ -73,13 +74,13 @@ func (table *UpsIdentityTable) loadIdentity() *UpsIdentity { // nolint: gocyclo
 	var ok bool
 
 	if table == nil || len(table.Rows) < 1 {
-		logger.Warn("No identity information.")
+		log.Warn("No identity information.")
 		goto end
 	}
 
 	snmpRow = table.Rows[0]
 	if snmpRow.RowData == nil || len(snmpRow.RowData) < 6 {
-		logger.Warn("No identity information.")
+		log.Warn("No identity information.")
 		goto end
 	}
 
@@ -133,16 +134,12 @@ type UpsIdentityTableDeviceEnumerator struct {
 
 // DeviceEnumerator overrides the default SnmpTable device enumerator.
 func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
-	data map[string]interface{}) (devices []*config.DeviceConfig, err error) {
+	data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
 
 	// Get the rack and board ids. Setup the location.
 	rack, board, err := core.GetRackAndBoard(data)
 	if err != nil {
 		return nil, err
-	}
-	location := config.Location{
-		Rack:  rack,
-		Board: board,
 	}
 
 	// Pull out the table, mib, device model, SNMP DeviceConfig.
@@ -155,12 +152,42 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
+	cfg := &sdk.DeviceConfig{
+		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
+		Locations: []*sdk.LocationConfig{
+			{
+				Name:  snmpLocation,
+				Rack:  &sdk.LocationData{Name: rack},
+				Board: &sdk.LocationData{Name: board},
+			},
+		},
+		Devices: []*sdk.DeviceKind{},
+	}
+
+	// We will have the "identity" device kind.
+	// There is probably a better way of doing this, but this just gets things to
+	// where they need to be for now.
+	identityKind := &sdk.DeviceKind{
+		Name: "identity",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "identity"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	cfg.Devices = []*sdk.DeviceKind{
+		identityKind,
+	}
+
 	// This is always a single row table.
 
 	// upsIdentManufacturer
 	// deviceData gets shimmed into the DeviceConfig for each synse device.
 	// It varies slightly for each device below.
-	deviceData := map[string]string{
+	deviceData := map[string]interface{}{
 		"info":       "upsIdentManufacturer",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -168,23 +195,19 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "1",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 1), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	// Create the synse device.
-	device := config.DeviceConfig{
-		Version:  "1",
-		Type:     "identity",
-		Model:    model,
-		Location: location,
+	device := &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device)
+	identityKind.Instances = append(identityKind.Instances, device)
 
 	// upsIdentModel
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsIdentModel",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -192,22 +215,19 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "2",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 2), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device2 := config.DeviceConfig{
-		Version:  "1",
-		Type:     "identity",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device2)
+	identityKind.Instances = append(identityKind.Instances, device)
 
 	// upsIdentUPSSoftwareVersion
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsIdentSoftwareVersion",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -215,22 +235,19 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "3",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 3), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device3 := config.DeviceConfig{
-		Version:  "1",
-		Type:     "identity",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device3)
+	identityKind.Instances = append(identityKind.Instances, device)
 
 	// upsIdentAgentSoftwareVersion ----------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsIdentAgentSoftwareVersion",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -238,22 +255,19 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "4",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 4), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device4 := config.DeviceConfig{
-		Version:  "1",
-		Type:     "identity",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device4)
+	identityKind.Instances = append(identityKind.Instances, device)
 
 	// upsIdentName ---------------------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsIdentName",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -261,22 +275,19 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "5",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 5), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device5 := config.DeviceConfig{
-		Version:  "1",
-		Type:     "identity",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device5)
+	identityKind.Instances = append(identityKind.Instances, device)
 
 	// upsIdentAttachedDevices ----------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsIdentAttachedDevices",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -284,19 +295,17 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "6",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 6), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device6 := config.DeviceConfig{
-		Version:  "1",
-		Type:     "identity",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device6)
+	identityKind.Instances = append(identityKind.Instances, device)
 
+	devices = append(devices, cfg)
 	return devices, err
 }

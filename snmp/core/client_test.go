@@ -147,10 +147,10 @@ func verifyConfig(expected *DeviceConfig, actual *DeviceConfig) (err error) {
 
 // Test a valid configuration.
 func TestValidConfigMapShaAes(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version":                  "v3",
 		"endpoint":                 "127.0.0.1",
-		"port":                     "1024",
+		"port":                     1024,
 		"userName":                 "simulator",
 		"authenticationProtocol":   "SHA",
 		"authenticationPassphrase": "auctorias",
@@ -173,10 +173,10 @@ func TestValidConfigMapShaAes(t *testing.T) {
 }
 
 func TestValidConfigMapMd5Des(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version":                  "v3",
 		"endpoint":                 "127.0.0.1",
-		"port":                     "1024",
+		"port":                     1024,
 		"userName":                 "simulator",
 		"authenticationProtocol":   "MD5",
 		"authenticationPassphrase": "auctorias",
@@ -201,10 +201,10 @@ func TestValidConfigMapMd5Des(t *testing.T) {
 // Test invalid configurations, one for each required field missing or invalid.
 
 func TestConfigMapInvalidVersion(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version":                  "v2c", // v2c is not currently supported.
 		"endpoint":                 "127.0.0.1",
-		"port":                     "1024",
+		"port":                     1024,
 		"userName":                 "simulator",
 		"authenticationProtocol":   "SHA",
 		"authenticationPassphrase": "auctorias",
@@ -225,10 +225,10 @@ func TestConfigMapInvalidVersion(t *testing.T) {
 }
 
 func TestConfigMapForgotVersion(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		//"version":                  "v3",
 		"endpoint":                 "127.0.0.1",
-		"port":                     "1024",
+		"port":                     1024,
 		"userName":                 "simulator",
 		"authenticationProtocol":   "SHA",
 		"authenticationPassphrase": "auctorias",
@@ -238,8 +238,7 @@ func TestConfigMapForgotVersion(t *testing.T) {
 	}
 	_, err := GetDeviceConfig(yamlConfig)
 	if err != nil {
-		// We expect an error here: Version [] unsupported
-		expectedError := "Version [] unsupported"
+		expectedError := "version should be a string"
 		if err.Error() != expectedError {
 			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
 		}
@@ -249,10 +248,10 @@ func TestConfigMapForgotVersion(t *testing.T) {
 }
 
 func TestConfigMapForgotEndpoint(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version": "v3",
 		//"endpoint":                 "127.0.0.1",
-		"port":                     "1024",
+		"port":                     1024,
 		"userName":                 "simulator",
 		"authenticationProtocol":   "SHA",
 		"authenticationPassphrase": "auctorias",
@@ -263,7 +262,7 @@ func TestConfigMapForgotEndpoint(t *testing.T) {
 	_, err := GetDeviceConfig(yamlConfig)
 	if err != nil {
 		// We expect an error here:
-		expectedError := "endpoint is an empty string, but should not be"
+		expectedError := "endpoint should be a string"
 		if err.Error() != expectedError {
 			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
 		}
@@ -273,7 +272,7 @@ func TestConfigMapForgotEndpoint(t *testing.T) {
 }
 
 func TestConfigMapNonNumericPort(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version":                  "v3",
 		"endpoint":                 "127.0.0.1",
 		"port":                     "Z",
@@ -287,7 +286,7 @@ func TestConfigMapNonNumericPort(t *testing.T) {
 	_, err := GetDeviceConfig(yamlConfig)
 	if err != nil {
 		// We expect an error here:
-		expectedError := "strconv.Atoi: parsing \"Z\": invalid syntax"
+		expectedError := "port should be an int or uint16"
 		if err.Error() != expectedError {
 			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
 		}
@@ -297,7 +296,7 @@ func TestConfigMapNonNumericPort(t *testing.T) {
 }
 
 func TestConfigMapForgotPort(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version":  "v3",
 		"endpoint": "127.0.0.1",
 		//"port":                     "Z",
@@ -311,7 +310,7 @@ func TestConfigMapForgotPort(t *testing.T) {
 	_, err := GetDeviceConfig(yamlConfig)
 	if err != nil {
 		// We expect an error here:
-		expectedError := "strconv.Atoi: parsing \"\": invalid syntax"
+		expectedError := "port required, but not specified"
 		if err.Error() != expectedError {
 			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
 		}
@@ -323,10 +322,10 @@ func TestConfigMapForgotPort(t *testing.T) {
 func TestConfigMapForgotContextName(t *testing.T) {
 	// This one should be okay. Empty string is valid for context name and is in
 	// fact the SNMP default.
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version":                  "v3",
 		"endpoint":                 "127.0.0.1",
-		"port":                     "1024",
+		"port":                     1024,
 		"userName":                 "simulator",
 		"authenticationProtocol":   "SHA",
 		"authenticationPassphrase": "auctorias",
@@ -343,10 +342,10 @@ func TestConfigMapForgotContextName(t *testing.T) {
 // Test a valid configuration with an additional field.
 // The additional field should be ignored.
 func TestValidConfigMapShaAesExtraField(t *testing.T) {
-	yamlConfig := map[string]string{
+	yamlConfig := map[string]interface{}{
 		"version":                  "v3",
 		"endpoint":                 "127.0.0.1",
-		"port":                     "1024",
+		"port":                     1024,
 		"userName":                 "simulator",
 		"authenticationProtocol":   "SHA",
 		"authenticationPassphrase": "auctorias",

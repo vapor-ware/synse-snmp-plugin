@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
-	"github.com/vapor-ware/synse-sdk/sdk/logger"
+	log "github.com/Sirupsen/logrus"
+
+	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
 // DeviceEnumeratorInterface is an interface that child classes can override in order to
 // dynamically discover devices on a scan.
 type DeviceEnumeratorInterface interface {
-	DeviceEnumerator(data map[string]interface{}) ([]*config.DeviceConfig, error)
+	DeviceEnumerator(data map[string]interface{}) ([]*sdk.DeviceConfig, error)
 }
 
 // SnmpTable encapsulates a table of SNMP OIDs and data.
@@ -52,12 +53,12 @@ type SnmpTable struct {
 }
 
 // DeviceEnumerator is the default SnmpTable Implementation of DeviceEnumerator that returns no devices.
-func (snmpTable *SnmpTable) DeviceEnumerator(data map[string]interface{}) ([]*config.DeviceConfig, error) {
-	return []*config.DeviceConfig{}, nil
+func (snmpTable *SnmpTable) DeviceEnumerator(data map[string]interface{}) ([]*sdk.DeviceConfig, error) {
+	return []*sdk.DeviceConfig{}, nil
 }
 
 // EnumerateDevices calls the specific implementation for enumerating devices.
-func (snmpTable *SnmpTable) EnumerateDevices(data map[string]interface{}) ([]*config.DeviceConfig, error) {
+func (snmpTable *SnmpTable) EnumerateDevices(data map[string]interface{}) ([]*sdk.DeviceConfig, error) {
 	return snmpTable.DevEnumerator.DeviceEnumerator(data)
 }
 
@@ -65,8 +66,8 @@ func (snmpTable *SnmpTable) EnumerateDevices(data map[string]interface{}) ([]*co
 type SnmpTableDefaultEnumerator struct{}
 
 // DeviceEnumerator is the default enumerator which returns no devices.
-func (enumerator SnmpTableDefaultEnumerator) DeviceEnumerator(data map[string]interface{}) ([]*config.DeviceConfig, error) {
-	return []*config.DeviceConfig{}, nil
+func (enumerator SnmpTableDefaultEnumerator) DeviceEnumerator(data map[string]interface{}) ([]*sdk.DeviceConfig, error) {
+	return []*sdk.DeviceConfig{}, nil
 }
 
 // NewSnmpTable creates the SnmpTable structure.
@@ -118,12 +119,12 @@ func NewSnmpTable(
 // Dump to the log as CSV. Also to console.
 func (snmpTable *SnmpTable) Dump() {
 	// Header
-	logger.Debugf("Dumping %v table. %d rows. walk oid: %v",
+	log.Debugf("Dumping %v table. %d rows. walk oid: %v",
 		snmpTable.Name, len(snmpTable.Rows), snmpTable.WalkOid)
 	fmt.Printf("Dumping %v table. %d rows. walk oid: %v\n",
 		snmpTable.Name, len(snmpTable.Rows), snmpTable.WalkOid)
 	// Column list
-	logger.Debugf("%v", strings.Join(snmpTable.ColumnList, ","))
+	log.Debugf("%v", strings.Join(snmpTable.ColumnList, ","))
 	fmt.Printf("%v\n", strings.Join(snmpTable.ColumnList, ","))
 
 	for i := 0; i < len(snmpTable.Rows); i++ { // for each row in the table
@@ -133,7 +134,7 @@ func (snmpTable *SnmpTable) Dump() {
 			cell := row.RowData[j]
 			data = append(data, fmt.Sprintf("%v", cell.Data))
 		}
-		logger.Debugf("%v\n", strings.Join(data, ","))
+		log.Debugf("%v\n", strings.Join(data, ","))
 		fmt.Printf("%v\n", strings.Join(data, ","))
 	}
 }
@@ -142,9 +143,9 @@ func (snmpTable *SnmpTable) Dump() {
 // This is just a get from the cache. It is not a get from the SNMP server.
 func (snmpTable *SnmpTable) Get(baseOid string) *SnmpRow {
 	for i := 0; i < len(snmpTable.Rows); i++ {
-		logger.Debugf("baseOid: %v", snmpTable.Rows[i].BaseOid)
+		log.Debugf("baseOid: %v", snmpTable.Rows[i].BaseOid)
 		if snmpTable.Rows[i].BaseOid == baseOid {
-			logger.Debugf("found row: %v", snmpTable.Rows[i])
+			log.Debugf("found row: %v", snmpTable.Rows[i])
 			return &snmpTable.Rows[i]
 		}
 	}
@@ -166,7 +167,7 @@ func (snmpTable *SnmpTable) Load() error {
 // Unload cached row data once we're done with it.
 func (snmpTable *SnmpTable) Unload() {
 	snmpTable.Rows = nil
-	logger.Debugf("Unloaded SnmpTable %v", snmpTable.Name)
+	log.Debugf("Unloaded SnmpTable %v", snmpTable.Name)
 }
 
 // Update the table by removing the row with the same base_oid as row,
@@ -175,7 +176,7 @@ func (snmpTable *SnmpTable) Unload() {
 // NOTE: This is an upsert.
 func (snmpTable *SnmpTable) Update(row *SnmpRow) {
 	// Delete the existing SNMP row in the variable table by base_oid.
-	logger.Debugf("before delete row count %d", len(snmpTable.Rows))
+	log.Debugf("before delete row count %d", len(snmpTable.Rows))
 	for i := 0; i < len(snmpTable.Rows); i++ {
 		if snmpTable.Rows[i].BaseOid == row.BaseOid {
 			// Delete the row.
@@ -183,7 +184,7 @@ func (snmpTable *SnmpTable) Update(row *SnmpRow) {
 			break
 		}
 	}
-	logger.Debugf("after delete row count %d", len(snmpTable.Rows))
+	log.Debugf("after delete row count %d", len(snmpTable.Rows))
 
 	// Add the new row.
 	snmpTable.Rows = append(snmpTable.Rows, *row)

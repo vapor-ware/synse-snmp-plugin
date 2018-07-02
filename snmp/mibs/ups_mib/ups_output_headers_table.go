@@ -3,11 +3,11 @@ package mibs
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk/config"
+	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
-// UpsOutputHeadersTable represts SNMP OID .1.3.6.1.2.1.33.1.4
+// UpsOutputHeadersTable represents SNMP OID .1.3.6.1.2.1.33.1.4
 type UpsOutputHeadersTable struct {
 	*core.SnmpTable // base class
 }
@@ -47,16 +47,12 @@ type UpsOutputHeadersTableDeviceEnumerator struct {
 
 // DeviceEnumerator overrides the default SnmpTable device enumerator.
 func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
-	data map[string]interface{}) (devices []*config.DeviceConfig, err error) {
+	data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
 
 	// Get the rack and board ids. Setup the location.
 	rack, board, err := core.GetRackAndBoard(data)
 	if err != nil {
 		return nil, err
-	}
-	location := config.Location{
-		Rack:  rack,
-		Board: board,
 	}
 
 	table := enumerator.Table
@@ -68,12 +64,54 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
+	cfg := &sdk.DeviceConfig{
+		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
+		Locations: []*sdk.LocationConfig{
+			{
+				Name:  snmpLocation,
+				Rack:  &sdk.LocationData{Name: rack},
+				Board: &sdk.LocationData{Name: board},
+			},
+		},
+		Devices: []*sdk.DeviceKind{},
+	}
+
+	// We will have "status" and "frequency" device kinds.
+	// There is probably a better way of doing this, but this just gets things to
+	// where they need to be for now.
+	statusKind := &sdk.DeviceKind{
+		Name: "status",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "status"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	frequencyKind := &sdk.DeviceKind{
+		Name: "frequency",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "frequency"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	cfg.Devices = []*sdk.DeviceKind{
+		statusKind,
+		frequencyKind,
+	}
+
 	// This is always a single row table.
 
 	// upsOutputSource
 	// deviceData gets shimmed into the DeviceConfig for each synse device.
 	// It varies slightly for each device below.
-	deviceData := map[string]string{
+	deviceData := map[string]interface{}{
 		"info":       "upsOutputSource",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -92,46 +130,40 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		"enumeration6": "booster",
 		"enumeration7": "reducer",
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device := config.DeviceConfig{
-		Version:  "1",
-		Type:     "status",
-		Model:    model,
-		Location: location,
+	device := &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device)
+	statusKind.Instances = append(statusKind.Instances, device)
 
 	// upsOutputFrequency --------------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsOutputFrequency",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",
 		"column":     "2",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 2), // base_oid and integer column.
-		"multiplier": ".1",                                  // Units are 0.1 Hertz
+		"multiplier": float32(0.1),                                  // Units are 0.1 Hertz
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device2 := config.DeviceConfig{
-		Version:  "1",
-		Type:     "frequency",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device2)
+	frequencyKind.Instances = append(frequencyKind.Instances, device)
 
 	// upsOutputNumLines ---------------------------------------------------------
-	deviceData = map[string]string{
+	deviceData = map[string]interface{}{
 		"info":       "upsOutputNumLines",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
@@ -139,19 +171,17 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "3",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 3), // base_oid and integer column.
 	}
-	deviceData, err = core.MergeMapStringString(snmpDeviceConfigMap, deviceData)
+	deviceData, err = core.MergeMapStringInterface(snmpDeviceConfigMap, deviceData)
 	if err != nil {
 		return nil, err
 	}
 
-	device3 := config.DeviceConfig{
-		Version:  "1",
-		Type:     "status",
-		Model:    model,
-		Location: location,
+	device = &sdk.DeviceInstance{
+		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	devices = append(devices, &device3)
+	statusKind.Instances = append(statusKind.Instances, device)
 
+	devices = append(devices, cfg)
 	return devices, err
 }

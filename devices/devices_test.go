@@ -2,74 +2,68 @@ package devices
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
-	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/snmp/mibs/ups_mib"
+	"github.com/vapor-ware/synse-snmp-plugin/outputs"
 )
 
-// ParseProtoypeConfigs is a wrapper around config.ParsePrototyeConfig() that
-// takes a directory parameter for sanity.
-func ParsePrototypeConfigs(prototypeDirectory string) (
-	prototypeConfigs []*config.PrototypeConfig, err error) {
+// Create Device creates the Device structure in test land for now.
+func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) []*sdk.Device {
+	var devices []*sdk.Device
 
-	// Set EnvProtoPath.
-	err = os.Setenv(config.EnvProtoPath, prototypeDirectory)
-	if err != nil {
-		return nil, err
-	}
-	// Unset env on exit.
-	defer func() {
-		_ = os.Unsetenv(config.EnvProtoPath)
-	}()
+	for _, device := range config.Devices {
 
-	// Parse the Protoype configuration.
-	prototypeConfigs, err = config.ParsePrototypeConfig()
-	if err != nil {
-		return nil, err
-	}
-	for i := 0; i < len(prototypeConfigs); i++ {
-		fmt.Printf("prototypeConfigs[%d]: %+v\n", i, prototypeConfigs[i])
-	}
-	return prototypeConfigs, nil
-}
+		var deviceOutputs []*sdk.Output
+		switch device.Name {
+		case "current":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Current},
+			}
+		case "frequency":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Frequency},
+			}
+		case "identity":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Identity},
+			}
+		case "power":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.WattsPower},
+				{OutputType: outputs.VAPower},
+			}
+		case "status":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Status},
+			}
+		case "temperature":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Temperature},
+			}
+		case "voltage":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.Voltage},
+			}
+		default:
+			fmt.Errorf("device kind not supported in output list creation (must be added): %v", device.Name)
+		}
 
-// FindPrototypeConfigByType finds a prototype config in the given set where
-// Type matches t or nil if not found.
-func FindPrototypeConfigByType(
-	prototypeConfigs []*config.PrototypeConfig, t string) (
-	prototypeConfig *config.PrototypeConfig) {
-	if prototypeConfigs == nil {
-		return nil
-	}
-	for i := 0; i < len(prototypeConfigs); i++ {
-		if prototypeConfigs[i].Type == t {
-			return prototypeConfigs[i]
+		for _, instance := range device.Instances {
+			device := &sdk.Device{
+				Info:     instance.Info,
+				Data:     instance.Data,
+				Kind:     device.Name,
+				Location: &sdk.Location{Rack: "rack", Board: "board"},
+				Outputs:  deviceOutputs,
+				Handler:  handler,
+			}
+			devices = append(devices, device)
 		}
 	}
-	return nil
-}
-
-// Create Device creates the Device structure in test land for now.
-func CreateDevice(
-	deviceConfig *config.DeviceConfig,
-	prototypeConfig *config.PrototypeConfig,
-	deviceHandler *sdk.DeviceHandler,
-	plugin *sdk.Plugin) (device *sdk.Device, err error) {
-
-	return sdk.NewDevice(
-		prototypeConfig,
-		deviceConfig,
-		deviceHandler,
-		plugin)
-}
-
-// testDeviceIdentifier is here so that we can create a plugin.
-func testDeviceIdentifier(x map[string]string) string {
-	return ""
+	return devices
 }
 
 // Initial device test. Ensure we can register each type the ups mib supports
@@ -109,7 +103,7 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		t.Fatal(err) // Fail the test.
 	}
 
-	t.Logf("client: %+v", client)
+	t.Logf("client: %#v", client)
 
 	// Create SnmpServerBase
 	snmpServer, err := core.NewSnmpServerBase(
@@ -176,172 +170,104 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		t.Fatal(err)
 	}
 
-	//func DumpDeviceConfigs(devices []*config.DeviceConfig, header string) {
 	DumpDeviceConfigs(snmpDevices, "Devices from UPS-MIB")
-	if len(snmpDevices) != 40 {
-		t.Fatalf("Expected 40 snmp devices, got %d.", len(snmpDevices))
+	// Check the number of snmp device configs
+	if len(snmpDevices) != 6 {
+		t.Fatalf("Expected 6 snmp device configs, got %d.", len(snmpDevices))
+	}
+	// Get the number of snmp device kinds and instances across all configs
+	kinds := map[string]*sdk.DeviceKind{}
+	instanceCount := 0
+	for _, config := range snmpDevices {
+		for _, kind := range config.Devices {
+			instanceCount += len(kind.Instances)
+			kinds[kind.Name] = kind
+		}
+	}
+	// Check the total number of unique number of device kinds
+	if len(kinds) != 7 {
+		t.Logf("found kinds: %v", kinds)
+		t.Fatalf("Expected 7 device kinds, got %d", len(kinds))
 	}
 
-	// Find power device configs in the UPS MIB. There should be six.
-	powerDeviceConfigs, err := FindDeviceConfigsByType(snmpDevices, "power")
-	if err != nil {
-		t.Fatal(err)
-	}
-	DumpDeviceConfigs(powerDeviceConfigs, "Power device configs")
-	if len(powerDeviceConfigs) != 6 {
-		t.Fatalf("Expected 6 power device configs, got %d", len(powerDeviceConfigs))
+	// Check the total number of device instances
+	if instanceCount != 40 {
+		t.Fatalf("Expected 40 instances, got %d", instanceCount)
 	}
 
-	// Parse out all of the prototype configs. Expect 7.
-	prototypeConfigs, err := ParsePrototypeConfigs("../config/proto")
-	if err != nil {
-		t.Fatal(err)
+	// Check the number of power instances
+	powerInstanceCount := 0
+	for _, cfg := range snmpDevices {
+		for _, kind := range cfg.Devices {
+			if kind.Name == "power" {
+				powerInstanceCount += len(kind.Instances)
+			}
+		}
 	}
-	if len(prototypeConfigs) != 7 {
-		t.Fatalf("Expected 7 prototype configs, got %d", len(prototypeConfigs))
+	if powerInstanceCount != 6 {
+		t.Fatalf("Expected 6 power device configs, got %d", powerInstanceCount)
 	}
-
-	// Find the power prototype config.
-	powerPrototypeConfig := FindPrototypeConfigByType(prototypeConfigs, "power")
-	fmt.Printf("powerPrototypeConfig: %+v\n", powerPrototypeConfig)
-
-	// Setup the power device handler.
-	powerDeviceHandler := &SnmpPower
-	fmt.Printf("powerDeviceHandler: %+v\n", powerDeviceHandler)
-
-	// Need handlers to create a plugin.
-	handlers, err := sdk.NewHandlers(
-		testDeviceIdentifier, testUpsMib.EnumerateDevices)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Printf("handlers: %+v\n", handlers)
-
-	// Need a plugin config to create a plugin.
-	pluginConfig := config.PluginConfig{
-		Name:    "test config",
-		Version: "test config v1",
-		Network: config.NetworkSettings{
-			Type:    "tcp",
-			Address: "test_config",
-		},
-		Settings: config.Settings{
-			Read:        config.ReadSettings{Buffer: 1024},
-			Write:       config.WriteSettings{Buffer: 1024},
-			Transaction: config.TransactionSettings{TTL: "2s"},
-		},
-	}
-	fmt.Printf("pluginConfig: %+v\n", pluginConfig)
-
-	// Create a plugin.
-	plugin, err := sdk.NewPlugin(handlers, &pluginConfig)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Printf("plugin: %+v\n", plugin)
-
-	// At long last we should be able to create the Device structure.
-	powerDevice, err := CreateDevice(
-		powerDeviceConfigs[0], powerPrototypeConfig, powerDeviceHandler, plugin)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Printf("powerDevice: %+v\n", powerDevice)
-
-	// Get the first reading.
-	context, err := powerDevice.Read() // Call Read through the device's function pointer.
-	if err != nil {
-		t.Fatal(err)
-	}
-	readings := context.Reading
-	for i := 0; i < len(readings); i++ {
-		fmt.Printf("Reading[%d]: %T, %+v\n", i, readings[i], readings[i])
-	}
-
-	// Get the rest of the prototype configs and DeviceHandlers.
-	currentPrototypeConfig := FindPrototypeConfigByType(
-		prototypeConfigs, "current")
-	fmt.Printf("currentPrototypeConfig: %+v\n", currentPrototypeConfig)
-
-	currentDeviceHandler := &SnmpCurrent
-	fmt.Printf("currentDeviceHandler: %+v\n", currentDeviceHandler)
-
-	frequencyPrototypeConfig := FindPrototypeConfigByType(
-		prototypeConfigs, "frequency")
-	fmt.Printf("frequencyPrototypeConfig: %+v\n", frequencyPrototypeConfig)
-
-	frequencyDeviceHandler := &SnmpFrequency
-	fmt.Printf("frequencyDeviceHandler: %+v\n", frequencyDeviceHandler)
-
-	identityPrototypeConfig := FindPrototypeConfigByType(
-		prototypeConfigs, "identity")
-	fmt.Printf("identityPrototypeConfig: %+v\n", identityPrototypeConfig)
-
-	identityDeviceHandler := &SnmpIdentity
-	fmt.Printf("identityDeviceHandler: %+v\n", identityDeviceHandler)
-
-	statusPrototypeConfig := FindPrototypeConfigByType(prototypeConfigs, "status")
-	fmt.Printf("statusPrototypeConfig: %+v\n", statusPrototypeConfig)
-
-	statusDeviceHandler := &SnmpStatus
-	fmt.Printf("statusDeviceHandler: %+v\n", statusDeviceHandler)
-
-	temperaturePrototypeConfig := FindPrototypeConfigByType(
-		prototypeConfigs, "temperature")
-	fmt.Printf("temperaturePrototypeConfig: %+v\n", temperaturePrototypeConfig)
-
-	temperatureDeviceHandler := &SnmpTemperature
-	fmt.Printf("temperatureDeviceHandler: %+v\n", temperatureDeviceHandler)
-
-	voltagePrototypeConfig := FindPrototypeConfigByType(
-		prototypeConfigs, "voltage")
-	fmt.Printf("voltagePrototypeConfig: %+v\n", voltagePrototypeConfig)
-
-	voltageDeviceHandler := &SnmpVoltage
-	fmt.Printf("voltageDeviceHandler: %+v\n", voltageDeviceHandler)
+	//
+	//// At long last we should be able to create the Device structure.
+	//powerDevices := CreateDevices(snmpDevices[0], &SnmpPower)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Printf("powerDevice: %+v\n", powerDevices)
+	//
+	//if len(powerDevices) != 1 {
+	//	t.Fatalf("Expected 1 power device, got %d.", len(powerDevices))
+	//}
+	//
+	//powerDevice := powerDevices[0]
+	//// Get the first reading.
+	//context, err := powerDevice.Read() // Call Read through the device's function pointer.
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//readings := context.Reading
+	//for i := 0; i < len(readings); i++ {
+	//	fmt.Printf("Reading[%d]: %T, %+v\n", i, readings[i], readings[i])
+	//}
 
 	// For each device config, create a device and perform a reading.
 	var devices []*sdk.Device
 	DumpDeviceConfigs(snmpDevices, "Second device dump:")
 
-	for i := 0; i < len(snmpDevices); i++ {
-		fmt.Printf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
+	for _, snmpDevice := range snmpDevices {
+		for _, kind := range snmpDevice.Devices {
+			var deviceHandler *sdk.DeviceHandler
 
-		var protoConfig *config.PrototypeConfig
-		var deviceHandler *sdk.DeviceHandler
+			switch typ := kind.Name; typ {
+			case "current":
+				deviceHandler = &SnmpCurrent
+			case "frequency":
+				deviceHandler = &SnmpFrequency
+			case "identity":
+				deviceHandler = &SnmpIdentity
+			case "power":
+				deviceHandler = &SnmpPower
+			case "status":
+				deviceHandler = &SnmpStatus
+			case "temperature":
+				deviceHandler = &SnmpTemperature
+			case "voltage":
+				deviceHandler = &SnmpVoltage
+			default:
+				t.Fatalf("Unknown type: %v", typ)
+			}
 
-		switch typ := snmpDevices[i].Type; typ {
-		case "current":
-			protoConfig = currentPrototypeConfig
-			deviceHandler = currentDeviceHandler
-		case "frequency":
-			protoConfig = frequencyPrototypeConfig
-			deviceHandler = frequencyDeviceHandler
-		case "identity":
-			protoConfig = identityPrototypeConfig
-			deviceHandler = identityDeviceHandler
-		case "power":
-			protoConfig = powerPrototypeConfig
-			deviceHandler = powerDeviceHandler
-		case "status":
-			protoConfig = statusPrototypeConfig
-			deviceHandler = statusDeviceHandler
-		case "temperature":
-			protoConfig = temperaturePrototypeConfig
-			deviceHandler = temperatureDeviceHandler
-		case "voltage":
-			protoConfig = voltagePrototypeConfig
-			deviceHandler = voltageDeviceHandler
-		default:
-			t.Fatalf("Unknown type: %v", typ)
+			// This is not a good way to do this. This is just done here to
+			// get the tests building again. Tests will need to be refactored.
+			tmpConfig := &sdk.DeviceConfig{
+				SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
+				Locations:     []*sdk.LocationConfig{},
+				Devices:       []*sdk.DeviceKind{kind},
+			}
+
+			devs := CreateDevices(tmpConfig, deviceHandler)
+			devices = append(devices, devs...)
 		}
-
-		device, err := CreateDevice(
-			snmpDevices[i], protoConfig, deviceHandler, plugin)
-		if err != nil {
-			t.Fatal(err)
-		}
-		devices = append(devices, device)
 	}
 
 	fmt.Printf("Dumping all devices\n")

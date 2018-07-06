@@ -20,6 +20,43 @@ const (
 	pluginVcs        = "https://github.com/vapor-ware/synse-snmp-plugin"
 )
 
+// mapOidsToInstances creates a map of SNMP OID to device instances and a list
+// of OIDs so that Synse can determine the sort order for SNMP devices in a
+// scan. In this case the OID is a string.
+func mapOidsToInstances(deviceConfigs []*sdk.DeviceConfig) (oidMap map[string]*sdk.DeviceInstance, oidList []string, err error) {
+
+	oidMap = map[string]*sdk.DeviceInstance{}
+	// Iterate from the device config to each device instance.
+	for i := 0; i < len(deviceConfigs); i++ {
+		devices := deviceConfigs[i].Devices
+		for j := 0; j < len(devices); j++ {
+			device := devices[j]
+			for k := 0; k < len(device.Instances); k++ {
+				instance := device.Instances[k]
+
+				// Check for errors and add the oid as a string and a pointer to the
+				// instance to the map value.
+				oidData, ok := instance.Data["oid"]
+				if !ok {
+					return nil, []string{}, fmt.Errorf(
+						"oid is not a key in instance data, instance.Data: %+v", instance.Data)
+				}
+				oidStr, ok := oidData.(string)
+				if !ok {
+					return nil, []string{}, fmt.Errorf("oid data is not a string, %T, %+v", oidData, oidData)
+				}
+				_, exists := oidMap[oidStr]
+				if exists {
+					return nil, []string{}, fmt.Errorf("oid %v already exists. Should not be duplicated", oidStr)
+				}
+				oidMap[oidStr] = instance
+				oidList = append(oidList, oidStr)
+			}
+		}
+	}
+	return oidMap, oidList, nil
+}
+
 // deviceIdentifier defines the SNMP-specific way of uniquely identifying a
 // device through its device configuration.
 // TODO: This will work for the initial cut. This may change later if/when
@@ -32,6 +69,7 @@ func deviceIdentifier(data map[string]interface{}) string {
 // deviceEnumerator allows the sdk to enumerate devices.
 func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*sdk.DeviceConfig, err error) {
 	// Load the MIB from the configuration still.
+	// Factory class for initializing servers via config is TODO:
 	logger.Info("SNMP Plugin initializing UPS.")
 	pxgmsUps, err := servers.NewPxgmsUps(data)
 	if err != nil {
@@ -39,8 +77,28 @@ func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*sdk.DeviceC
 	}
 	logger.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
 
-	// Dump PxgmsUps device configurations.
-	logger.Info("SNMP Plugin Dumping device configs")
+	// First get a map of each OID to each device instance.
+	oidMap, oidList, err := mapOidsToInstances(pxgmsUps.DeviceConfigs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create an OidTrie and sort it.
+	oidTrie, err := core.NewOidTrie(&oidList)
+	if err != nil {
+		return nil, err
+	}
+	sorted, err := oidTrie.Sort()
+	if err != nil {
+		return nil, err
+	}
+
+	// Shim in the sort ordinal to the DeviceInstance Data.
+	for ordinal := 0; ordinal < len(sorted); ordinal++ { // Zero based in list.
+		oidMap[sorted[ordinal].ToString].SortOrdinal = int32(ordinal + 1) // One based sort ordinal.
+	}
+
+	// Dump SNMP device configurations.
 	core.DumpDeviceConfigs(pxgmsUps.DeviceConfigs)
 	return pxgmsUps.DeviceConfigs, nil
 }
@@ -94,10 +152,6 @@ func main() {
 		&devices.SnmpTemperature,
 		&devices.SnmpVoltage,
 	)
-
-	// Trace things out that the sdk is using for device enumeration.
-	logger.Debugf("plugin: %+v", plugin)
-	logger.Debugf("sdk.Config.Plugin: %+v", sdk.Config.Plugin)
 
 	// Run the plugin.
 	logger.Info("SNMP Plugin running plugin")

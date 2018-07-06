@@ -31,7 +31,8 @@
 
 [[constraint]]
   name = "github.com/vapor-ware/synse-sdk"
-  branch = "master"
+  # TODO: Put this back. branch = "master"
+  branch = "mhink-sort"
 
 [prune]
   go-tests = true

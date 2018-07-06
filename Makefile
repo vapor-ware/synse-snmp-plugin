@@ -58,6 +58,15 @@ push:
 		-t $(IMAGE_NAME):local .
 	docker push vaporio/snmp-plugin:latest
 
+.PHONY: phoenix
+phoenix:  ## make and push private dev image
+	docker rmi $(IMAGE_NAME):phoenix-4.0 || true
+	docker build -f Dockerfile -t $(IMAGE_NAME):phoenix-4.0 .
+	docker push $(IMAGE_NAME):phoenix-4.0
+
+.PHONY: px
+px: phoenix ## shortcut for phoenix
+
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
 	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file" || exit ; done

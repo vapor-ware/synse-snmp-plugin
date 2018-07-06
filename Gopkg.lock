@@ -38,12 +38,13 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/soniah/gosnmp"
   packages = ["."]
-  revision = "3a04a94adc2ee1b4ab3e8948e706e49b153a4627"
-  version = "v1.10"
+  revision = "39f440c6e3c2f59d2141ddf3e97195bcb2abecff"
 
 [[projects]]
+  branch = "mhink-sort"
   name = "github.com/vapor-ware/synse-sdk"
   packages = [
     "sdk",
@@ -51,14 +52,13 @@
     "sdk/health",
     "sdk/policies"
   ]
-  revision = "1886a89201272e3c18ab08a55cfb9f832f94925c"
-  version = "1.0.0"
+  revision = "0d4cd0f250a5a4911ba78d6f92c8ee62b0514e6a"
 
 [[projects]]
+  branch = "mhink-sort"
   name = "github.com/vapor-ware/synse-server-grpc"
   packages = ["go"]
-  revision = "e0c079f1b85081c6a536fb7c5c63cf9b9370c22e"
-  version = "1.0.0"
+  revision = "8f7f826fb8b4eab3decc34b14700a5d45924abbb"
 
 [[projects]]
   branch = "master"
@@ -78,7 +78,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "87b3feba568e144938625fc5d80ec92566c1a8fe"
+  revision = "039a4258aec0ad3c79b905677cceeab13b296a77"
 
 [[projects]]
   branch = "master"
@@ -87,7 +87,7 @@
     "unix",
     "windows"
   ]
-  revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
+  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -120,7 +120,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "ff3583edef7de132f219f0efc00e097cabcc0ec0"
+  revision = "e92b116572682a5b432ddd840aeaba2a559eeff1"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -163,6 +163,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "baf5b960c6d5c62be2d5d7511836535ecb310dfcff443fb75171e9c5ecf6afb5"
+  inputs-digest = "3f0afc94010ae24a0468cb57a66af08169d1d25f1917de242b3fc01b75d8ea0c"
   solver-name = "gps-cdcl"
   solver-version = 1

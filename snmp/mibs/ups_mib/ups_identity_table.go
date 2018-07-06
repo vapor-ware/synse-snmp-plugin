@@ -240,7 +240,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	device = &sdk.DeviceInstance{
-		Info:     "upsIdentAgentUPSSoftwareVersion",
+		Info:     "upsIdentUPSSoftwareVersion",
 		Location: snmpLocation,
 		Data:     deviceData,
 	}

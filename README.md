@@ -1,4 +1,6 @@
 # Vapor SNMP Plugin (Internal)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin?ref=badge_shield)
+
 
 The internal SNMP plugin ports over the SNMP functionality from the OpenDCRE
 implementation.
@@ -114,3 +116,7 @@ Are there logs that document what happened? etc.
 [go-sdk]: https://github.com/vapor-ware/synse-sdk
 [issues]: https://github.com/vapor-ware/synse-snmp-plugin/issues
 [ups-mib-rfc]: https://tools.ietf.org/html/rfc1628
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin?ref=badge_large)

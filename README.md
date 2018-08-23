@@ -1,100 +1,116 @@
-# Vapor SNMP Plugin (Internal)
+[![CircleCI](https://circleci.com/gh/vapor-ware/synse-snmp-plugin.svg?style=shield)](https://circleci.com/gh/vapor-ware/synse-snmp-plugin)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin?ref=badge_shield)
 
+# Synse SNMP Plugin
+A general-purpose SNMP plugin for [Synse Server][synse-server].
 
-The internal SNMP plugin ports over the SNMP functionality from the OpenDCRE
-implementation.
+## Plugin Support
+### Outputs
+Outputs should be referenced by name. A single device can have more than one instance
+of an output type. In the table below, a value of `-` indicates that there is no value
+set for that field.
 
-## Architecture
-The SNMP plugin uses the [Synse Go SDK][go-sdk]. It follows a similar pattern to other plugins
-where the plugin-specific read/write methods (see [plugin.go][plugin-main]) dispatch to
-device-specific handlers based on the model of the requested device. This allows each device to
-have its own arbitrary implementation.
+| Name | Description | Unit | Precision | Scaling Factor |
+| ---- | ----------- | ---- | --------- | -------------- |
+| current | An output type for current readings | amps | 3 | - |
+| frequency | An output type for frequency readings | hertz | 3 | - |
+| identity | An output type for identity readings | - | - | - |
+| va.power | An output type for power readings, in volt-amperes | volt-ampere | 3 | - |
+| watts.power | An output type for power readings, in watts | watts | 3 | - |
+| status | An output type for status readings | - | - | - |
+| temperature | An output type for temperature readings | degrees celsius | 3 | - |
+| voltage | An output type for voltage readings | volts | 3 | - |
 
-### Supported MIBs
+### Device Handlers
+Device Handlers should be referenced by name.
+
+| Name | Description | Read | Write | Bulk Read |
+| ---- | ----------- | ---- | ----- | --------- |
+| current | A handler for the SNMP OIDs that report current | ✓ | ✗ | ✗ |
+| frequency | A handler for the SNMP OIDs that report frequency | ✓ | ✗ | ✗ |
+| identity | A handler for the SNMP-identity device | ✓ | ✗ | ✗ |
+| power | A handler for the SNMP OIDs that report power | ✓ | ✗ | ✗ |
+| status | A handler for the SNMP-status device | ✓ | ✗ | ✗ |
+| temperature | A handler for the SNMP OIDs that report temperature | ✓ | ✗ | ✗ |
+| voltage | A handler for the SNMP OIDs that report voltage | ✓ | ✗ | ✗ |
+
+### Write Values
+The SNMP plugin does not currently support writing to any devices.
+
+
+## Getting Started
+### Getting the Plugin
+You can get the Synse SNMP plugin by:
+
+0. Cloning this repo, setting up the project dependencies, and building the binary or docker image
+   ```bash
+   # setup the project
+   $ make setup
+
+   # build the binary
+   $ make build
+
+   # build the docker image
+   $ make docker
+   ```
+0. Pulling a pre-built docker image from [DockerHub][plugin-dockerhub]
+   ```bash
+   $ docker pull vaporio/snmp-plugin
+   ```
+0. Downloading a pre-built binary from the latest [release][plugin-release].
+
+### Running the Plugin
+If you are using the Docker image (recommended):
+```bash
+$ docker run vaporio/snmp-plugin
+```
+
+If you are using the binary directly:
+```bash
+# The name of the plugin binary may differ depending on how it is saved.
+$ ./plugin
+```
+
+In either case, the plugin should run but you should not see any devices configured
+and you should see errors in the logs saying that various configurations were not found.
+The next section describes how to configure the plugin.
+
+## Configuring the Plugin
+Plugin and device configurations are described in detail in the [SDK Configuration Documentation][sdk-config-docs].
+
+For your own deployment, you will need to provide your own plugin config, `config.yml`.
+The SNMP plugin dynamically generates the device configuration records from a MIB walk,
+so there is no need to specify device instance configuration files here.
+
+For a simple example of how dynamic registration works, see the SDK's
+[dynamic registration example][dynamic-reg-example].
+
+### plugin config
+After reading through the docs linked above for the plugin config, take a look at the
+[example plugin config](config.yml). This can be used as a reference. To specify your
+own SNMP devices, you will need to list them under the `dynamicRegistration` field, e.g.
+```yaml
+dynamicRegistration:
+  config:
+    - model: PXGMS UPS + EATON 93PM
+      version: v3
+      endpoint: 127.0.0.1
+      port: 1024
+      userName: simulator
+      authenticationProtocol: SHA
+      authenticationPassphrase: auctoritas
+      privacyProtocol: AES
+      privacyPassphrase: privatus
+      contextName: public
+```
+
+Once you have your plugin config, you can either mount it into the container at `/plugin/config.yml`,
+or mount it anywhere, e.g. `/tmp/cfg/config.yml`, and specify that path in the plugin config
+override environment variable, `PLUGIN_CONFIG=/tmp/cfg`.
+
+## Supported MIBs
 
 * [UPS-MIB][ups-mib-rfc]
-
-Plugins are used in conjunction with Synse Server; they provide the backend data which
-Synse Server makes available to any upstream API user.
-
-See the `synse-plugins-internal/deploy/` directory for examples on how to run Synse
-Server with plugins. Examples exist for both docker-compose based deployments
-and kubernetes based deployments. Furthermore, working examples using the SNMP plugin
-can be found there for both unix socket networking configurations and TCP networking
-configurations.
-
-### Configuration
-There are three type of configuration for plugins:
-- plugin configuration
-- device prototype configuration
-- device instance configuration
-
-The device prototype configuration is found in `config/proto/` and defines base attributes
-of a device. For each prototype configuration in `config/proto/`, there should be a matching
-device implementation in `devices/`. The device prototype configurations are built into the
-plugin and define the set of devices that the plugin supports.
-
-The device instance configuration is found in `config/device/` and defines specific devices
-that the plugin should communicate with. The configurations here are plugin-dependent and for
-the most part specify how to reach that device (e.g. which serial port to use, etc). The repo
-contains sample device configurations, but these are not built into the plugin. They should be
-specified at runtime.
-
-The plugin configuration is found in `plugin.yml`. It provides options for the behavior of the
-plugin, such as whether it should run in debug mode, the timeout interval, read/write queue
-sizes, etc.
-
-
-## Deployment
-Generally, there are three ways to deploy a plugin:
-- directly on the host
-- built-in to the Synse Server image
-- as a standalone image
-
-The primary intended usage is as a standalone image. Below describes how to deploy
-the plugin via Docker as well as to a Kubernetes cluster.
-
-### Docker
-**TODO**
-
-### Kubernetes
-**TODO**
-
-
-## Developing
-The Makefile provides targets to simplify the development workflow. For all targets,
-use `make help`
-
-### Building
-There are two builds that are supported - building the Go binary locally, and building
-the docker image.
-
-To build the Go binary
-```
-make build
-```
-
-To build the Docker image
-```
-make docker
-```
-
-Note that when building the docker image, it will first build the Go binary for linux.
-
-### Linting
-Prior to committing code, the source should be linted. Linting is built into the CI
-pipeline, so if linting fails, the code will not be merged in.
-```
-make lint
-```
-
-### Testing
-Prior to committing code, the source should be tested. Tests should be added for any new
-component.
-```
-make test
-```
 
 
 ## Troubleshooting
@@ -110,13 +126,28 @@ If you find a bug or experience an issue, open a [new issue][issues] and provide
 information as possible. What happened? What was expected to happen? How do they differ?
 Are there logs that document what happened? etc.
 
+## Feedback
+Feedback for this plugin, or any component of the Synse ecosystem, is greatly appreciated!
+If you experience any issues, find the documentation unclear, have requests for features,
+or just have questions about it, we'd love to know. Feel free to open an issue for any
+feedback you may have.
 
-
-[plugin-main]: https://github.com/vapor-ware/synse-plugins-internal/blob/master/i2c/plugin.go
-[go-sdk]: https://github.com/vapor-ware/synse-sdk
-[issues]: https://github.com/vapor-ware/synse-snmp-plugin/issues
-[ups-mib-rfc]: https://tools.ietf.org/html/rfc1628
-
+## Contributing
+We welcome contributions to the project. The project maintainers actively manage the issues
+and pull requests. If you choose to contribute, we ask that you either comment on an existing
+issue or open a new one.
 
 ## License
+The Synse SNMP Plugin, and all other components of the Synse ecosystem, is released under the
+[GPL-3.0](LICENSE) license.
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin?ref=badge_large)
+
+
+[synse-server]: https://github.com/vapor-ware/synse-server
+[plugin-dockerhub]: https://hub.docker.com/r/vaporio/snmp-plugin
+[plugin-release]: https://github.com/vapor-ware/synse-snmp-plugin/releases
+[sdk-config-docs]: http://synse-sdk.readthedocs.io/en/latest/user/configuration.html
+[dynamic-reg-example]: https://github.com/vapor-ware/synse-sdk/tree/master/examples/dynamic_registration
+[ups-mib-rfc]: https://tools.ietf.org/html/rfc1628
+[issues]: https://github.com/vapor-ware/synse-snmp-plugin/issues

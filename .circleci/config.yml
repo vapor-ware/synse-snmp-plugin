@@ -23,9 +23,8 @@ jobs:
   # build
   #
   # This job is run for all commits. It makes sure that: the source code
-  # is properly linted, the source code is properly formatted, the source
-  # can be compiled and built successfully, and the Docker image can be
-  # built successfully.
+  # is properly  formatted, the source can be compiled and built successfully,
+  # and the Docker image can be built successfully.
   #
   # This job does not publish any build artifacts.
   build:
@@ -39,9 +38,6 @@ jobs:
       - run:
           name: Install Vendored Dependencies
           command: make dep
-      - run:
-          name: Lint
-          command: make lint
       - run:
           name: Format
           command: |
@@ -58,6 +54,31 @@ jobs:
       - run:
           name: Build Docker Image
           command: make docker
+      - save_cache:
+          when: on_success
+          key: v1-vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+          paths:
+            - vendor/
+
+  # lint
+  #
+  # This job runs linting on the project source files. It is kept as a separate
+  # job because it takes a while to run. Running this job in parallel speeds up
+  # the CI flow overall.
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - v1-vendor-{{ checksum "Gopkg.toml" }}
+      - run:
+          name: Install Vendored Dependencies
+          command: make dep
+      - run:
+          name: Lint
+          command: make lint
       - save_cache:
           when: on_success
           key: v1-vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
@@ -163,10 +184,12 @@ workflows:
   build:
     jobs:
       - build
+      - lint
       - publish-edge:
           context: vapor-auto
           requires:
             - build
+            - lint
           filters:
             branches:
               only: master

@@ -31,6 +31,10 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - run:
+          name: Setup
+          command: |
+            go get -u golang.org/x/tools/cmd/goimports
       - restore_cache:
           keys:
             - v1-vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}

@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 0.2.0-dev
+PLUGIN_VERSION := 1.0.0
 IMAGE_NAME     := vaporio/snmp-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -49,14 +49,6 @@ docker:  ## Build the docker image
 	docker build -f Dockerfile \
 		-t $(IMAGE_NAME):latest \
 		-t $(IMAGE_NAME):local .
-
-.PHONY: push
-push:
-	docker rmi vaporio/snmp-plugin:latest || true
-	docker build -f Dockerfile \
-		-t $(IMAGE_NAME):latest \
-		-t $(IMAGE_NAME):local .
-	docker push vaporio/snmp-plugin:latest
 
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
@@ -118,8 +110,8 @@ help:  ## Print usage information
 .DEFAULT_GOAL := help
 
 .PHONY: all
-all: ## make clean build fmt lint test push
-	@$(MAKE) clean build fmt lint test push
+all: ## make clean build fmt lint test
+	@$(MAKE) clean build fmt lint test
 
 #
 # CI Targets

@@ -1,5 +1,6 @@
 [![CircleCI](https://circleci.com/gh/vapor-ware/synse-snmp-plugin.svg?style=shield)](https://circleci.com/gh/vapor-ware/synse-snmp-plugin)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin?ref=badge_shield)
+![GitHub release](https://img.shields.io/github/release/vapor-ware/synse-snmp-plugin.svg)
 
 # Synse SNMP Plugin
 A general-purpose SNMP plugin for [Synse Server][synse-server].
@@ -12,27 +13,27 @@ set for that field.
 
 | Name | Description | Unit | Precision | Scaling Factor |
 | ---- | ----------- | ---- | --------- | -------------- |
-| current | An output type for current readings | amps | 3 | - |
-| frequency | An output type for frequency readings | hertz | 3 | - |
-| identity | An output type for identity readings | - | - | - |
-| va.power | An output type for power readings, in volt-amperes | volt-ampere | 3 | - |
-| watts.power | An output type for power readings, in watts | watts | 3 | - |
-| status | An output type for status readings | - | - | - |
-| temperature | An output type for temperature readings | degrees celsius | 3 | - |
-| voltage | An output type for voltage readings | volts | 3 | - |
+| `current` | An output type for current readings | amps | 3 | - |
+| `frequency` | An output type for frequency readings | hertz | 3 | - |
+| `identity` | An output type for identity readings | - | - | - |
+| `va.power` | An output type for power readings, in volt-amperes | volt-ampere | 3 | - |
+| `watts.power` | An output type for power readings, in watts | watts | 3 | - |
+| `status` | An output type for status readings | - | - | - |
+| `temperature` | An output type for temperature readings | degrees celsius | 3 | - |
+| `voltage` | An output type for voltage readings | volts | 3 | - |
 
 ### Device Handlers
 Device Handlers should be referenced by name.
 
 | Name | Description | Read | Write | Bulk Read |
 | ---- | ----------- | ---- | ----- | --------- |
-| current | A handler for the SNMP OIDs that report current | ✓ | ✗ | ✗ |
-| frequency | A handler for the SNMP OIDs that report frequency | ✓ | ✗ | ✗ |
-| identity | A handler for the SNMP-identity device | ✓ | ✗ | ✗ |
-| power | A handler for the SNMP OIDs that report power | ✓ | ✗ | ✗ |
-| status | A handler for the SNMP-status device | ✓ | ✗ | ✗ |
-| temperature | A handler for the SNMP OIDs that report temperature | ✓ | ✗ | ✗ |
-| voltage | A handler for the SNMP OIDs that report voltage | ✓ | ✗ | ✗ |
+| `current` | A handler for the SNMP OIDs that report current | ✓ | ✗ | ✗ |
+| `frequency` | A handler for the SNMP OIDs that report frequency | ✓ | ✗ | ✗ |
+| `identity` | A handler for the SNMP-identity device | ✓ | ✗ | ✗ |
+| `power` | A handler for the SNMP OIDs that report power | ✓ | ✗ | ✗ |
+| `status` | A handler for the SNMP-status device | ✓ | ✗ | ✗ |
+| `temperature` | A handler for the SNMP OIDs that report temperature | ✓ | ✗ | ✗ |
+| `voltage` | A handler for the SNMP OIDs that report voltage | ✓ | ✗ | ✗ |
 
 ### Write Values
 The SNMP plugin does not currently support writing to any devices.

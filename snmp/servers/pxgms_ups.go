@@ -32,7 +32,7 @@ type PxgmsUps struct {
 // version:v3
 func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // nolint: gocyclo
 
-	logger.Debug("NewPxgmUps start. data: %+v", data)
+	logger.Debugf("NewPxgmUps start. data: %+v", data)
 
 	// FIXME (etd): Sorta a hack just to get things moving, but adding in a check against
 	// the model here. There could probably be something at a higher level that checks this
@@ -41,7 +41,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	// now only support one and only one model.
 	// We intend to be able to share SNMP MIBs across models and this won't work at all.
 	model := data["model"].(string)
-	logger.Debugf("model is: [%m]", model)
+	logger.Debugf("model is: [%s]", model)
 	if !strings.HasPrefix(model, "PXGMS UPS") {
 		return nil, fmt.Errorf("only PXGMS UPS models are currently supported")
 	}

@@ -51,7 +51,7 @@ docker:  ## Build the docker image
 		-t $(IMAGE_NAME):local .
 
 .PHONY: px
-docker:  ## Build the phoenix docker image
+px:  ## Build the phoenix docker image
 	docker rmi $(IMAGE_NAME):phoenix-4.0 || true
 	docker build -f Dockerfile \
 		-t $(IMAGE_NAME):phoenix-4.0 .

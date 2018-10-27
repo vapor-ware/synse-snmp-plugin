@@ -10,6 +10,6 @@ LABEL maintainer="vapor@vapor.io"
 WORKDIR /plugin
 
 COPY --from=builder /go/src/github.com/vapor-ware/synse-snmp-plugin/build/plugin ./plugin
-COPY config.yml .
+# COPY config.yml .
 
 CMD ["./plugin"]

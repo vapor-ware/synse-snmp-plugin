@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	logger "github.com/Sirupsen/logrus"
-
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/policies"
 	"github.com/vapor-ware/synse-snmp-plugin/devices"

@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 1.0.1-dev
+PLUGIN_VERSION := 1.0.0
 IMAGE_NAME     := vaporio/snmp-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -131,7 +131,7 @@ ifndef HAS_GOX
 endif
 	@ # We currently only use a couple of images; the built set of images can be
 	@ # updated if we ever need to support more os/arch combinations
-	gox --output="build/${PKG_NAME}_{{.OS}}_{{.Arch}}" \
+	gox --output="build/${PLUGIN_NAME}_{{.OS}}_{{.Arch}}" \
 		--ldflags "${LDFLAGS}" \
 		--osarch='linux/amd64 darwin/amd64' \
 		github.com/vapor-ware/synse-snmp-plugin

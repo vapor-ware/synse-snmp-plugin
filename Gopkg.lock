@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:d867dfa6751c8d7a435821ad3b736310c2ed68945d05b50fb9d23aee0540c8cc"
+  digest = "1:87c2e02fb01c27060ccc5ba7c5a407cc91147726f8f40b70cceeedbc52b1f3a8"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
-  version = "v1.0.6"
+  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:7f769a7ea697a8e50c8a79a829f53a469e3ca7b8e314434ea9d9a25ca8401cb7"
@@ -26,7 +26,7 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:ae0036fa14b41c52607c53fa072ef5045ec5f9013ed569e6a5fa19dd5e2ac89a"
+  digest = "1:4c0989ca0bcd10799064318923b9bc2db6b4d6338dd75f3f2d86c3511aaaf5cf"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -38,6 +38,14 @@
   pruneopts = "UT"
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
   version = "v1.2.0"
+
+[[projects]]
+  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
@@ -64,7 +72,7 @@
   revision = "35d70ef6436030897babd670877f2d4a1748c249"
 
 [[projects]]
-  digest = "1:718950f28a3902b3a3abf93c8cfca0ebfc8521748e432cc34c4220045a55f5ea"
+  digest = "1:4cb3c2d50aba26ac06cce5bd4e1c058ea85d3baed46a4f1b82a28243c6702f24"
   name = "github.com/vapor-ware/synse-sdk"
   packages = [
     "sdk",
@@ -73,16 +81,16 @@
     "sdk/policies",
   ]
   pruneopts = "UT"
-  revision = "95a2deff1260171cbcd5d58a12b3cdbe6159b4e9"
-  version = "1.1.0"
+  revision = "fc11f0f3f375e091ccb490b9c58e410018656207"
+  version = "1.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:bf033fb06435e52e54e920d172f72b11b2ea91e44b2b9a5e21e57a616590f9d7"
+  digest = "1:a95be5a656edf57b48a06335bbb627fc2eb5f37890df1183bbaab9443c43cae1"
   name = "github.com/vapor-ware/synse-server-grpc"
   packages = ["go"]
   pruneopts = "UT"
-  revision = "5a6280c2ec33b2eb3781e7700ddfec04294bf3c6"
+  revision = "3bc0b24b2bfbc8df1d67f02607d13380318d68ee"
+  version = "1.1.0"
 
 [[projects]]
   branch = "master"
@@ -94,7 +102,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1427ef3c5200ade53e1569b34a7fd49dff8df0c2b3cdb9539a727f69ae5eddfa"
+  digest = "1:deafe4ab271911fec7de5b693d7faae3f38796d9eb8622e2b9e7df42bb3dfea9"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -110,7 +118,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:34d379c4ad053c9b3930c98837f52130ac42de3a64d6fcc8bb33ceb404a55d85"
+  digest = "1:eb687625ffed87cbfa4d219ddb6c344bd9d0dc5900e461b86269373470534bae"
   name = "golang.org/x/sys"
   packages = [
     "unix",
@@ -120,7 +128,7 @@
   revision = "8cf3aee429924738c56c34bb819c4ea8273fc434"
 
 [[projects]]
-  digest = "1:7509ba4347d1f8de6ae9be8818b0cd1abc3deeffe28aeaf4be6d4b6b5178d9ca"
+  digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -159,24 +167,29 @@
   revision = "11092d34479b07829b72e10713b159248caf5dad"
 
 [[projects]]
-  digest = "1:74f4a872f90f363778088654a2edea7101d62e6fc0784945d38b0ef85e1828d8"
+  digest = "1:9ab5a33d8cb5c120602a34d2e985ce17956a4e8c2edce7e6961568f95e40c09a"
   name = "google.golang.org/grpc"
   packages = [
     ".",
     "balancer",
     "balancer/base",
     "balancer/roundrobin",
+    "binarylog/grpc_binarylog_v1",
     "codes",
     "connectivity",
     "credentials",
+    "credentials/internal",
     "encoding",
     "encoding/proto",
     "grpclog",
     "internal",
     "internal/backoff",
+    "internal/binarylog",
     "internal/channelz",
     "internal/envconfig",
     "internal/grpcrand",
+    "internal/grpcsync",
+    "internal/syscall",
     "internal/transport",
     "keepalive",
     "metadata",
@@ -190,8 +203,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "32fb0ac620c32ba40a4626ddf94d90d12cce3455"
-  version = "v1.14.0"
+  revision = "a02b0774206b209466313a0b525d2c738fe407eb"
+  version = "v1.18.0"
 
 [[projects]]
   digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"

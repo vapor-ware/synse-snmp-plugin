@@ -1,2 +1,26 @@
+# Linux
+*~
+.directory
+.Trash-*
+**/packages
+
+# OSX
+.DS_Store
+._*
+.TemporaryItems
+.Trashes
+
+# Git
+.git
+.gitignore
+
+# CI
 .jenkins
-build/
+
+# Vendored Dependencies
+vendor/
+
+# Docs
+**/*.md
+**/*.rst
+NOTICE

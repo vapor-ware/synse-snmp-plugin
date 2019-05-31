@@ -1,0 +1,18 @@
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "1.4.2"
+
+[[constraint]]
+  name = "github.com/soniah/gosnmp"
+  version = "1.22.0"
+
+[[constraint]]
+  branch = "v3/staging"
+  name = "github.com/vapor-ware/synse-sdk"
+
+[prune]
+  go-tests = true
+  unused-packages = true

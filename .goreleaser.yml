@@ -1,0 +1,58 @@
+# For details, see the GoReleaser documentation at http://goreleaser.com
+project_name: synse-snmp-plugin
+before:
+  hooks:
+    - go clean -v
+    - rm -rf dist
+builds:
+  - env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -w
+      - -X github.com/vapor-ware/synse-snmp-plugin/vendor/github.com/vapor-ware/synse-sdk/sdk.BuildDate={{ .Date }}
+      - -X github.com/vapor-ware/synse-snmp-plugin/vendor/github.com/vapor-ware/synse-sdk/sdk.GitCommit={{ .ShortCommit }}
+      - -X github.com/vapor-ware/synse-snmp-plugin/vendor/github.com/vapor-ware/synse-sdk/sdk.GitTag={{ .Tag }}
+      - -X github.com/vapor-ware/synse-snmp-plugin/vendor/github.com/vapor-ware/synse-sdk/sdk.GoVersion={{ .Env.GOVERSION }}
+      - -X github.com/vapor-ware/synse-snmp-plugin/vendor/github.com/vapor-ware/synse-sdk/sdk.PluginVersion={{ .Version }}
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+archive:
+  format: tar.gz
+checksum:
+  name_template: 'checksums-{{ .Tag }}.txt'
+release:
+  github:
+    owner: vapor-ware
+    name: synse-snmp-plugin
+  draft: false
+  prerelease: auto
+  name_template: "{{ .Version }}"
+dockers:
+  -
+    goos: linux
+    goarch: amd64
+    binaries:
+      - synse-snmp-plugin
+    image_templates:
+      - vaporio/snmp-plugin:{{ .Tag }}
+      - vaporio/snmp-plugin:{{ .Major }}
+      - vaporio/snmp-plugin:{{ .Major }}.{{ .Minor }}
+      - vaporio/snmp-plugin:latest
+    build_flag_templates:
+      - "--label=org.label-schema.version={{ .Version }}"
+      - "--label=org.label-schema.build-date={{ .Date }}"
+      - "--label=org.label-schema.vcs-ref={{ .ShortCommit }}"
+    extra_files:
+      - config/device
+      - config.yml
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

@@ -1,0 +1,28 @@
+version: 3
+debug: true
+network:
+  type: tcp
+  address: ':5001'
+settings:
+  mode: serial
+  read:
+    interval: 3s
+    buffer: 1024
+  write:
+    interval: 1s
+    buffer: 1024
+
+# This should allow for dynamic registration of SNMP devices for the PXGMS_UPS.
+# For this example configuration, this is set up against the SNMP emulator.
+dynamicRegistration:
+  config:
+    - model: PXGMS UPS + EATON 93PM
+      version: v3
+      endpoint: 127.0.0.1
+      port: 1024
+      userName: simulator
+      authenticationProtocol: SHA
+      authenticationPassphrase: auctoritas
+      privacyProtocol: AES
+      privacyPassphrase: privatus
+      contextName: public

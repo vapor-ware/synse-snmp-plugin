@@ -20,6 +20,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifi
 #  image. They should be supplied on a per-deployment basis.
 
 # Copy the executable.
-COPY synse-emulator-plugin ./plugin
+COPY synse-snmp-plugin ./plugin
 
 ENTRYPOINT ["./plugin"]

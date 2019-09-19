@@ -16,5 +16,10 @@
 python `which snmpsimd.py` \
     --data-dir=$1 \
     --agent-udpv4-endpoint=0.0.0.0:$2 \
+    --v3-user=simulator \
+    --v3-auth-key=auctoritas \
+    --v3-auth-proto=SHA \
+    --v3-priv-key=privatus \
+    --v3-priv-proto=AES \
     2>&1 | tee /logs/$3
 

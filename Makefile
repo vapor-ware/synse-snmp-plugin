@@ -20,7 +20,7 @@ LDFLAGS := -w \
 	-X ${PKG_CTX}.PluginVersion=${PLUGIN_VERSION}
 
 
-HAS_LINT := $(shell which gometalinter)
+HAS_LINT := $(shell which golangci-lint)
 HAS_DEP  := $(shell which dep)
 HAS_GOX  := $(shell which gox)
 
@@ -65,17 +65,9 @@ github-tag:  ## Create and push a tag with the current plugin version
 .PHONY: lint
 lint:  ## Lint project source files
 ifndef HAS_LINT
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install
+	$(shell curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $$(go env GOPATH)/bin v1.18.0)
 endif
-	@ # disable gotype: https://github.com/alecthomas/gometalinter/issues/40
-	gometalinter ./... \
-		--disable=gotype \
-		--tests \
-		--vendor \
-		--sort=path --sort=line \
-		--aggregate \
-		--deadline=5m || exit
+	golangci-lint run
 
 .PHONY: setup
 setup:  ## Install the build and development dependencies and set up vendoring

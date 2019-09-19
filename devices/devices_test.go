@@ -122,6 +122,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	// Enumerate the mib. First few calls are testing bad parameters.
 	_, err = testUpsMib.EnumerateDevices(nil)
 	if err == nil {
+		t.Fatalf("err is nil")
+	} else {
 		if "data is nil" != err.Error() {
 			t.Fatalf("Expected err: [data is nil], got [%v]", err.Error())
 		}
@@ -130,6 +132,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	// No rack.
 	_, err = testUpsMib.EnumerateDevices(map[string]interface{}{})
 	if err == nil {
+		t.Fatalf("err is nil")
+	} else {
 		if "rack is not in data" != err.Error() {
 			t.Fatalf("Expected err: [rack is not in data], got [%v]", err.Error())
 		}
@@ -138,6 +142,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	// Rack is not a string.
 	_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": 3})
 	if err == nil {
+		t.Fatalf("err is nil")
+	} else {
 		if "rack is not a string, int" != err.Error() {
 			t.Fatalf(
 				"Expected err: [rack is not a string, int], got [%v]", err.Error())
@@ -148,6 +154,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	_, err = testUpsMib.EnumerateDevices(
 		map[string]interface{}{"rack": "test_rack"})
 	if err == nil {
+		t.Fatalf("err is nil")
+	} else {
 		if "board is not in data" != err.Error() {
 			t.Fatalf("Expected err: [board is not in data], got [%v]", err.Error())
 		}
@@ -157,6 +165,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	_, err = testUpsMib.EnumerateDevices(
 		map[string]interface{}{"rack": "test_rack", "board": -1})
 	if err == nil {
+		t.Fatalf("err is nil")
+	} else {
 		if "board is not a string, int" != err.Error() {
 			t.Fatalf(
 				"Expected err: [board is not a string, int], got [%v]", err.Error())

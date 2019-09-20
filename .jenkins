@@ -74,6 +74,38 @@ pipeline {
       }
     }
 
+    // Run tests on project source code.
+    stage('Test') {
+      steps {
+        script {
+          // Build the SNMP emulator image.
+          sh 'docker build -t emulator_snmp-emulator-ups emulator'
+
+          // Start the SNMP emulator.
+          docker.image('emulator_snmp-emulator-ups:latest').withRun(
+            "-m 1024MB -p 1024:1024") { se ->
+
+            // Stand up a container to run the tests.
+            // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
+            docker.image('vaporio/golang:1.11').inside(
+              "-v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJPATH}") {
+            // Set up the project in the docker container. The project must be
+            // on the GOPATH (/go) in order to correctly vendor dependencies and
+            // build the project artifacts.
+            //sh 'mkdir -p ${PROJ_PATH} && cp -r ${WORKSPACE}/* ${PROJ_PATH}'
+
+            // The pipeline's 'dir()' directive is broken when run inside a docker
+            // container, so we need to 'cd' into the project directory prior to
+            // running the required commands.
+            //sh 'cd ${PROJ_PATH} && go test cover -v ./...'
+             // Run the tests.
+             sh 'go test cover -v ./...'
+            }
+          }
+        }
+      }
+    }
+
     // Build the image with the 'edge' tag and publish it to DockerHub. This
     // should only be run on the master branch (e.g. PR merge)
     stage('Publish Edge Image') {

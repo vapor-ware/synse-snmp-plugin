@@ -130,6 +130,8 @@ pipeline {
               } finally {
                 // get the emulator logs
                 sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
+                // inspect the network
+                sh "docker network inspect ${n}"
               } // end finally
             } // end emulator  container
           } // end network

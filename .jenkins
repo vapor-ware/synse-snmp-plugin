@@ -84,7 +84,8 @@ pipeline {
           // Start the SNMP emulator.
           docker.image('emulator_snmp-emulator-ups:latest').withRun(
             // "-m 1024MB -p 1024:1024 --name snmp-emulator-ups", // args
-            "-m 1024MB -p 1024/udp:1024/udp --name snmp-emulator-ups", // args
+            //"-m 1024MB -p 1024/udp:1024/udp --name snmp-emulator-ups", // args
+            "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
             "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
             ) { se ->
             //"-m 1024MB -p 1024:1024 --name snmp-emulator-ups ./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log") { se ->

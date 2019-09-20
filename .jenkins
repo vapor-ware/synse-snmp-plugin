@@ -92,54 +92,35 @@ pipeline {
     }
 
     // Run tests on project source code.
+    // These tests run very differently when run from the Makefile and in CI.
+    // From the Makefile we start up the emulator in a container and expose port 1024
+    // on the host. The tests run on the host and connect through port 1024.
+    // Here we start up the emulator in a container and expose port 1024 on the host.
+    // The tests run in a golang container and connect to the exposed port 1024 on the host.
+    // This could cause problems with parallel builds, but it is a place to start.
     stage('Test') {
       steps {
         script {
           // Build the SNMP emulator image.
           sh 'docker build -t emulator_snmp-emulator-ups emulator'
 
-          // Remove the emulator container if it exits.
-          sh 'docker rm snmp-emulator-ups -f || true'
+          // Start the SNMP emulator.
+          docker.image('emulator_snmp-emulator-ups:latest').withRun(
+            "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
+            "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
+            ) { se ->
 
-          // Start the network and bring up containers.
-          withDockerNetwork{ n ->
-            // Start the SNMP emulator.
-            docker.image('emulator_snmp-emulator-ups:latest').withRun(
-              //"-m 1024MB -p 1024 --network ${n} --name snmp-emulator-ups", // args
-              //"-m 1024MB --network ${n} --name snmp-emulator-ups", // args
-              //"-m 1024MB -p 1024:1024/udp --network ${n} --name snmp-emulator-ups", // args
-              "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
-              "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
-              ) { se ->
+            // Stand up a container to run the tests.
+            // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
+            docker.image('vaporio/golang:1.11').inside(
+              "--network=host -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
 
-              // Try to get the logs off of the emulator.
-              sh 'docker ps --no-trunc && sleep 5'
-              //sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
-              sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
-
-              try{
-                // Stand up a container to run the tests.
-                // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
-                docker.image('vaporio/golang:1.11').inside(
-                  //"--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH} --link ${se.id}:snmp-emulator-ups") { testContainer ->
-                  //"--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
-                  "--network=host -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
-
-                  sh "echo PWD ${PWD} && ls"
-                  sh "echo PROJ_PATH ${PROJ_PATH} && ls ${PROJ_PATH}"
-                  sh "echo WORKSPACE ${WORKSPACE} && ls ${WORKSPACE}"
-                  sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
-                  // So the tests are running, That's good. Need to fix the connection to the snmp emulator.
-                } // end testContainer
-              } finally {
-                // get the emulator logs
-                sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
-                // inspect the network
-                sh "docker network inspect ${n}"
-                sh "docker network inspect host"
-              } // end finally
-            } // end emulator  container
-          } // end network
+              sh "echo PWD ${PWD} && ls"
+              sh "echo PROJ_PATH ${PROJ_PATH} && ls ${PROJ_PATH}"
+              sh "echo WORKSPACE ${WORKSPACE} && ls ${WORKSPACE}"
+              sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
+            } // end testContainer
+          } // end emulator container
         } // end script
       } // end steps
     } // end stage

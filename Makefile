@@ -88,7 +88,7 @@ test:  ## Run all tests
 	docker-compose -f ./emulator/test_snmp.yml build
 	docker-compose -f ./emulator/test_snmp.yml up -d
 	go test -cover -v ./... || (echo TESTS FAILED $$?; docker-compose -f ./emulator/test_snmp.yml kill; exit 1)
-	#docker-compose -f ./emulator/test_snmp.yml down
+	docker-compose -f ./emulator/test_snmp.yml down
 
 .PHONY: test-local
 test-local: ## Test with a local emulator (stand if up yourself)

@@ -1,22 +1,5 @@
 #!/usr/bin/env groovy
 
-// Create a network for the vsm_controller (test container) and redis
-// with a UUID to ensure network names do not collide on a single build
-// machine.
-// Cleanup when done.
-// TODO / FUTURE: Needs to be in common ci code until Jenkins supports this.
-def withDockerNetwork(Closure inner) {
-  try {
-    // networkId needs to be unique since two build jobs will be run in parallel
-    // on the same build machine.
-    networkId = UUID.randomUUID().toString()
-    sh "docker network create -d bridge ${networkId}"
-    inner.call(networkId)
-  } finally {
-    sh "docker network rm ${networkId} || true"
-  }
-}
-
 pipeline {
 
   agent any
@@ -110,14 +93,11 @@ pipeline {
             "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
             ) { se ->
 
-            // Stand up a container to run the tests.
+            // Stand up a container to run the tests. Put it on the host network.
             // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
             docker.image('vaporio/golang:1.11').inside(
               "--network=host -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
 
-              sh "echo PWD ${PWD} && ls"
-              sh "echo PROJ_PATH ${PROJ_PATH} && ls ${PROJ_PATH}"
-              sh "echo WORKSPACE ${WORKSPACE} && ls ${WORKSPACE}"
               sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
             } // end testContainer
           } // end emulator container

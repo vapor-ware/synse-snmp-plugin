@@ -106,8 +106,9 @@ pipeline {
             // Start the SNMP emulator.
             docker.image('emulator_snmp-emulator-ups:latest').withRun(
               //"-m 1024MB -p 1024 --network ${n} --name snmp-emulator-ups", // args
-              "-m 1024MB --network ${n} --name snmp-emulator-ups", // args
+              //"-m 1024MB --network ${n} --name snmp-emulator-ups", // args
               //"-m 1024MB -p 1024:1024/udp --network ${n} --name snmp-emulator-ups", // args
+              "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
               "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
               ) { se ->
 
@@ -120,7 +121,9 @@ pipeline {
                 // Stand up a container to run the tests.
                 // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
                 docker.image('vaporio/golang:1.11').inside(
-                  "--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH} --link ${se.id}:snmp-emulator-ups") { testContainer ->
+                  //"--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH} --link ${se.id}:snmp-emulator-ups") { testContainer ->
+                  //"--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
+                  "--network=host -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
 
                   sh "echo PWD ${PWD} && ls"
                   sh "echo PROJ_PATH ${PROJ_PATH} && ls ${PROJ_PATH}"
@@ -133,6 +136,7 @@ pipeline {
                 sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
                 // inspect the network
                 sh "docker network inspect ${n}"
+                sh "docker network inspect host"
               } // end finally
             } // end emulator  container
           } // end network

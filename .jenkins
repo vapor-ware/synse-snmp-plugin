@@ -81,6 +81,9 @@ pipeline {
           // Build the SNMP emulator image.
           sh 'docker build -t emulator_snmp-emulator-ups emulator'
 
+          // Remove the emulator container if it exits.
+          sh 'docker rm snmp-emulator-ups -f || true'
+
           // Start the SNMP emulator.
           docker.image('emulator_snmp-emulator-ups:latest').withRun(
             // "-m 1024MB -p 1024:1024 --name snmp-emulator-ups", // args

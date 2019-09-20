@@ -91,7 +91,8 @@ pipeline {
 
             // Try to get the logs off of the emulator.
             sh 'docker ps && sleep 5'
-            sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
+            //sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
+            sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
 
             // Stand up a container to run the tests.
             // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.

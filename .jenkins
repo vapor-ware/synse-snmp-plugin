@@ -1,5 +1,22 @@
 #!/usr/bin/env groovy
 
+// Create a network for the vsm_controller (test container) and redis
+// with a UUID to ensure network names do not collide on a single build
+// machine.
+// Cleanup when done.
+// TODO / FUTURE: Needs to be in common ci code until Jenkins supports this.
+def withDockerNetwork(Closure inner) {
+  try {
+    // networkId needs to be unique since two build jobs will be run in parallel
+    // on the same build machine.
+    networkId = UUID.randomUUID().toString()
+    sh "docker network create -d bridge ${networkId}"
+    inner.call(networkId)
+  } finally {
+    sh "docker network rm ${networkId} || true"
+  }
+}
+
 pipeline {
 
   agent any
@@ -84,26 +101,30 @@ pipeline {
           // Remove the emulator container if it exits.
           sh 'docker rm snmp-emulator-ups -f || true'
 
-          // Start the SNMP emulator.
-          docker.image('emulator_snmp-emulator-ups:latest').withRun(
-            // "-m 1024MB -p 1024:1024 --name snmp-emulator-ups", // args
-            //"-m 1024MB -p 1024/udp:1024/udp --name snmp-emulator-ups", // args
-            "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
-            "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
-            ) { se ->
+          // Start the network and bring up containers.
+          withDockerNetwork{ n ->
+            // Start the SNMP emulator.
+            docker.image('emulator_snmp-emulator-ups:latest').withRun(
+              // "-m 1024MB -p 1024:1024 --name snmp-emulator-ups", // args
+              //"-m 1024MB -p 1024/udp:1024/udp --name snmp-emulator-ups", // args
+              //"-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
+              "-m 1024MB -p 1024 --network ${n} --name snmp-emulator-ups", // args
+              "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
+              ) { se ->
             //"-m 1024MB -p 1024:1024 --name snmp-emulator-ups ./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log") { se ->
 
-            // Try to get the logs off of the emulator.
-            sh 'docker ps --no-trunc && sleep 5'
-            //sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
-            sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
+              // Try to get the logs off of the emulator.
+              sh 'docker ps --no-trunc && sleep 5'
+              //sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
+              sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
 
 
-            try{
-            // Stand up a container to run the tests.
-            // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
-            docker.image('vaporio/golang:1.11').inside(
-              "-v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") {
+              try{
+              // Stand up a container to run the tests.
+              // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
+              docker.image('vaporio/golang:1.11').inside(
+                "--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") {
+                //"-v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") {
             // Set up the project in the docker container. The project must be
             // on the GOPATH (/go) in order to correctly vendor dependencies and
             // build the project artifacts.
@@ -116,6 +137,7 @@ pipeline {
              // Run the tests.
              //sh "echo ${PWD} && go get golang.org/x/tools/cmd/cover && which cover && go test -cover -v ./..."
              //sh "echo ${PWD} && ls && go test -cover -v ./..."
+
               sh "echo PWD ${PWD} && ls"
               sh "echo PROJ_PATH ${PROJ_PATH} && ls ${PROJ_PATH}"
               sh "echo WORKSPACE ${WORKSPACE} && ls ${WORKSPACE}"
@@ -131,6 +153,7 @@ pipeline {
             }
 
           } // end emulator container
+          } // end network
         }
       }
     }

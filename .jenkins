@@ -94,7 +94,7 @@ pipeline {
             //"-m 1024MB -p 1024:1024 --name snmp-emulator-ups ./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log") { se ->
 
             // Try to get the logs off of the emulator.
-            sh 'docker ps && sleep 5'
+            sh 'docker ps --no-trunc && sleep 5'
             //sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
             sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
 

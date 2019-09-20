@@ -105,7 +105,8 @@ pipeline {
           withDockerNetwork{ n ->
             // Start the SNMP emulator.
             docker.image('emulator_snmp-emulator-ups:latest').withRun(
-              "-m 1024MB -p 1024 --network ${n} --name snmp-emulator-ups", // args
+              //"-m 1024MB -p 1024 --network ${n} --name snmp-emulator-ups", // args
+              "-m 1024MB --network ${n} --name snmp-emulator-ups", // args
               "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
               ) { se ->
 

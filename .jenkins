@@ -109,6 +109,7 @@ pipeline {
               //sh "cd ${PROJ_PATH} && make dep"
               //sh "echo ${PWD} && ls"
               sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
+              // So the tests are running, That's good. Need to fix the connection to the snmp emulator.
             }
           }
         }

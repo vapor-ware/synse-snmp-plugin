@@ -98,6 +98,8 @@ pipeline {
             //sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
             sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
 
+            try {
+
             // Stand up a container to run the tests.
             // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
             docker.image('vaporio/golang:1.11').inside(
@@ -123,7 +125,12 @@ pipeline {
               //sh "echo ${PWD} && ls"
               sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
               // So the tests are running, That's good. Need to fix the connection to the snmp emulator.
+              } catch (Exception e) {
+            sh 'Trying to get test container logs'
+            sh 'docker ps | grep -v snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
+              }
             } // end test container
+            sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
 
           } // end emulator container
         }

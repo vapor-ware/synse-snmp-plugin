@@ -23,7 +23,7 @@ pipeline {
     stage('Vendor Dependencies') {
       agent {
         docker {
-          image 'vaporio/golang:1.11'
+          image 'vaporio/golang:1.13'
           reuseNode true
         }
       }
@@ -50,7 +50,7 @@ pipeline {
     stage('Lint') {
       agent {
         docker {
-          image 'vaporio/golang:1.11'
+          image 'vaporio/golang:1.13'
           reuseNode true
         }
       }
@@ -95,7 +95,7 @@ pipeline {
 
             // Stand up a container to run the tests. Put it on the host network.
             // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
-            docker.image('vaporio/golang:1.11').inside(
+            docker.image('vaporio/golang:1.13').inside(
               "--network=host -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
 
               sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
@@ -122,7 +122,7 @@ pipeline {
     stage('Build Release Artifacts') {
       agent {
         docker {
-          image 'vaporio/golang:1.11'
+          image 'vaporio/golang:1.13'
           reuseNode true
         }
       }

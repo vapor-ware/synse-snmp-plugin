@@ -124,6 +124,7 @@ pipeline {
               sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
               // So the tests are running, That's good. Need to fix the connection to the snmp emulator.
             } // end test container
+            sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
 
           } // end emulator container
         }

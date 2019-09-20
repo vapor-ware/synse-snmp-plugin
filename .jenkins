@@ -105,58 +105,36 @@ pipeline {
           withDockerNetwork{ n ->
             // Start the SNMP emulator.
             docker.image('emulator_snmp-emulator-ups:latest').withRun(
-              // "-m 1024MB -p 1024:1024 --name snmp-emulator-ups", // args
-              //"-m 1024MB -p 1024/udp:1024/udp --name snmp-emulator-ups", // args
-              //"-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
               "-m 1024MB -p 1024 --network ${n} --name snmp-emulator-ups", // args
               "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
               ) { se ->
-            //"-m 1024MB -p 1024:1024 --name snmp-emulator-ups ./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log") { se ->
 
               // Try to get the logs off of the emulator.
               sh 'docker ps --no-trunc && sleep 5'
               //sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs -f'
               sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
 
-
               try{
-              // Stand up a container to run the tests.
-              // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
-              docker.image('vaporio/golang:1.11').inside(
-                "--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") {
-                //"-v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") {
-            // Set up the project in the docker container. The project must be
-            // on the GOPATH (/go) in order to correctly vendor dependencies and
-            // build the project artifacts.
-            //sh 'mkdir -p ${PROJ_PATH} && cp -r ${WORKSPACE}/* ${PROJ_PATH}'
+                // Stand up a container to run the tests.
+                // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.
+                docker.image('vaporio/golang:1.11').inside(
+                  "--network ${n} -v ${WORKSPACE}:/${PROJ_PATH} -w=/${PROJ_PATH}") { testContainer ->
 
-            // The pipeline's 'dir()' directive is broken when run inside a docker
-            // container, so we need to 'cd' into the project directory prior to
-            // running the required commands.
-            //sh 'cd ${PROJ_PATH} && go test cover -v ./...'
-             // Run the tests.
-             //sh "echo ${PWD} && go get golang.org/x/tools/cmd/cover && which cover && go test -cover -v ./..."
-             //sh "echo ${PWD} && ls && go test -cover -v ./..."
-
-              sh "echo PWD ${PWD} && ls"
-              sh "echo PROJ_PATH ${PROJ_PATH} && ls ${PROJ_PATH}"
-              sh "echo WORKSPACE ${WORKSPACE} && ls ${WORKSPACE}"
-              //sh "mkdir -p ${PROJ_PATH} && cp -r ${WORKSPACE}/* ${PROJ_PATH}"
-              //sh "echo ${PWD} && ls"
-              //sh "cd ${PROJ_PATH} && make dep"
-              //sh "echo ${PWD} && ls"
-              sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
-              // So the tests are running, That's good. Need to fix the connection to the snmp emulator.
-            } // end test container
-            } finally {
-            sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
-            }
-
-          } // end emulator container
+                  sh "echo PWD ${PWD} && ls"
+                  sh "echo PROJ_PATH ${PROJ_PATH} && ls ${PROJ_PATH}"
+                  sh "echo WORKSPACE ${WORKSPACE} && ls ${WORKSPACE}"
+                  sh 'cd ${PROJ_PATH} && go test -cover -v ./...'
+                  // So the tests are running, That's good. Need to fix the connection to the snmp emulator.
+                } // end testContainer
+              } finally {
+                // get the emulator logs
+                sh 'docker ps | grep snmp-emulator-ups | cut -f 1 -d " " | xargs docker logs'
+              } // end finally
+            } // end emulator  container
           } // end network
-        }
-      }
-    }
+        } // end script
+      } // end steps
+    } // end stage
 
     // Build the image with the 'edge' tag and publish it to DockerHub. This
     // should only be run on the master branch (e.g. PR merge)

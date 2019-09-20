@@ -83,7 +83,7 @@ pipeline {
 
           // Start the SNMP emulator.
           docker.image('emulator_snmp-emulator-ups:latest').withRun(
-            "-m 1024MB -p 1024:1024 -name snmp-emulator-ups ./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log") { se ->
+            "-m 1024MB -p 1024:1024 --name snmp-emulator-ups ./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log") { se ->
 
             // Stand up a container to run the tests.
             // Mount the workspace to the test containers PROJ_PATH and work from PROJ_PATH.

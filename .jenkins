@@ -99,7 +99,7 @@ pipeline {
             // running the required commands.
             //sh 'cd ${PROJ_PATH} && go test cover -v ./...'
              // Run the tests.
-             sh "echo ${PWD} && go get golang.org/x/tools/cmd/cover && which cover && go test cover -v ./..."
+             sh "echo ${PWD} && go get golang.org/x/tools/cmd/cover && which cover && go test -cover -v ./..."
             }
           }
         }

@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	logger "github.com/Sirupsen/logrus"
+	logger "github.com/sirupsen/logrus"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
 )

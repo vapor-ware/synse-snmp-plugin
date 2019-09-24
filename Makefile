@@ -21,7 +21,6 @@ LDFLAGS := -w \
 
 
 HAS_LINT := $(shell which golangci-lint)
-HAS_DEP  := $(shell which dep)
 HAS_GOX  := $(shell which gox)
 
 
@@ -36,13 +35,6 @@ build:  ## Build the plugin Go binary
 .PHONY: clean
 clean:  ## Remove temporary files
 	go clean -v || exit
-
-.PHONY: dep
-dep:  ## Ensure and prune dependencies
-ifndef HAS_DEP
-	go get -u github.com/golang/dep/cmd/dep
-endif
-	dep ensure -v
 
 .PHONY: docker
 docker:  ## Build the docker image
@@ -71,14 +63,7 @@ endif
 
 .PHONY: setup
 setup:  ## Install the build and development dependencies and set up vendoring
-	go get -u github.com/alecthomas/gometalinter
 	go get -u golang.org/x/tools/cmd/cover
-	go get -u github.com/golang/dep/cmd/dep
-	gometalinter --install
-ifeq (,$(wildcard ./Gopkg.toml))
-	dep init
-endif
-	@$(MAKE) dep
 
 .PHONY: test
 test:  ## Run all tests

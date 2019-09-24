@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // SnmpRow encapsulates one row of an SNMP table.

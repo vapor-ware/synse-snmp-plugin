@@ -59,7 +59,7 @@ lint:  ## Lint project source files
 ifndef HAS_LINT
 	$(shell curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $$(go env GOPATH)/bin v1.18.0)
 endif
-	golangci-lint run
+	golangci-lint run --deadline=5m
 
 .PHONY: setup
 setup:  ## Install the build and development dependencies and set up vendoring

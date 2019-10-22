@@ -44,22 +44,25 @@ pipeline {
     // This could cause problems with parallel builds, but it is a place to start.
     stage('Test') {
       steps {
-        script {
-          // Build the SNMP emulator image.
-          sh 'docker build -t emulator_snmp-emulator-ups emulator'
+        // Critial section to avoid container name collisions.
+        lock('Test') {
+          script {
+            // Build the SNMP emulator image.
+            sh 'docker build -t emulator_snmp-emulator-ups emulator'
 
-          // Start the SNMP emulator.
-          docker.image('emulator_snmp-emulator-ups:latest').withRun(
-            "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
-            "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
-            ) { se ->
+            // Start the SNMP emulator.
+            docker.image('emulator_snmp-emulator-ups:latest').withRun(
+              "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
+              "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
+              ) { se ->
 
-            // Stand up a container to run the tests. Put it on the host network.
-            docker.image('vaporio/golang:1.13').inside("--network=host") { testContainer ->
-              sh 'go test -cover -v ./...'
-            } // end testContainer
-          } // end emulator container
-        } // end script
+              // Stand up a container to run the tests. Put it on the host network.
+              docker.image('vaporio/golang:1.13').inside("--network=host") { testContainer ->
+                sh 'go test -cover -v ./...'
+              } // end testContainer
+            } // end emulator container
+          } // end script
+        } // end lock
       } // end steps
     } // end stage
 

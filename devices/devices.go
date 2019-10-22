@@ -1,11 +1,12 @@
 package devices
 
-// This file contains device utility functions.
+// This file contains device utility functions and common device functions.
 
 import (
 	"fmt"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-snmp-plugin/snmp/core"
 )
 
 // DumpDeviceConfigs utility function dumps a slice of DeviceConfig to the
@@ -38,4 +39,29 @@ func DumpDeviceConfigs(devices []*sdk.DeviceConfig, header string) {
 			}
 		}
 	}
+}
+
+// Get the raw reading from the SNMP server with error checks.
+// Factors out common code.
+func getRawReading(device *sdk.Device) (result core.ReadResult, err error) {
+	// Arg checks.
+	if device == nil {
+		return result, fmt.Errorf("device is nil")
+	}
+
+	// Get the SNMP device config from the strings in data.
+	data := device.Data
+	snmpConfig, err := core.GetDeviceConfig(data)
+	if err != nil {
+		return result, err
+	}
+
+	// Create SnmpClient.
+	snmpClient, err := core.NewSnmpClient(snmpConfig)
+	if err != nil {
+		return result, err
+	}
+
+	// Read the SNMP OID in the device config.
+	return snmpClient.Get(fmt.Sprint(data["oid"]))
 }

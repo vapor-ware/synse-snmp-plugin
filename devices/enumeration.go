@@ -34,10 +34,12 @@ func TranslateEnumeration(result core.ReadResult, data map[string]interface{}) (
 			result.Data, result.Data)
 	}
 
+	// Key lookup to find the enumaration,
 	key := fmt.Sprintf("enumeration%d", resultInt)
 	translation, ok := data[key]
 	if !ok {
-		translation = "undefined" // No translation found. unknown is acually used in SNMP.
+		// Not found. Return something with the raw int.
+		translation = fmt.Sprintf("undefined%d", resultInt)
 	}
 	return fmt.Sprint(translation), nil
 }

@@ -35,9 +35,13 @@ func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) ([]*sdk
 				{OutputType: outputs.WattsPower},
 				{OutputType: outputs.VAPower},
 			}
-		case "status":
+		case "status-int":
 			deviceOutputs = []*sdk.Output{
-				{OutputType: outputs.Status},
+				{OutputType: outputs.StatusInt},
+			}
+		case "status-string":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.StatusString},
 			}
 		case "temperature":
 			deviceOutputs = []*sdk.Output{
@@ -195,9 +199,9 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		}
 	}
 	// Check the total number of unique number of device kinds
-	if len(kinds) != 7 {
+	if len(kinds) != 8 {
 		t.Logf("found kinds: %v", kinds)
-		t.Fatalf("Expected 7 device kinds, got %d", len(kinds))
+		t.Fatalf("Expected 8 device kinds, got %d", len(kinds))
 	}
 
 	// Check the total number of device instances
@@ -235,8 +239,10 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 				deviceHandler = &SnmpIdentity
 			case "power":
 				deviceHandler = &SnmpPower
-			case "status":
-				deviceHandler = &SnmpStatus
+			case "status-int":
+				deviceHandler = &SnmpStatusInt
+			case "status-string":
+				deviceHandler = &SnmpStatusString
 			case "temperature":
 				deviceHandler = &SnmpTemperature
 			case "voltage":

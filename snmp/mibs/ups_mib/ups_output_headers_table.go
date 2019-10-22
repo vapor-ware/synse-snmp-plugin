@@ -76,16 +76,27 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		Devices: []*sdk.DeviceKind{},
 	}
 
-	// We will have "status" and "frequency" device kinds.
+	// We will have "status-int", "status-string" and "frequency" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
-	statusKind := &sdk.DeviceKind{
-		Name: "status",
+	statusIntKind := &sdk.DeviceKind{
+		Name: "status-int",
 		Metadata: map[string]string{
 			"model": model,
 		},
 		Outputs: []*sdk.DeviceOutput{
-			{Type: "status"},
+			{Type: "status-int"},
+		},
+		Instances: []*sdk.DeviceInstance{},
+	}
+
+	statusStringKind := &sdk.DeviceKind{
+		Name: "status-string",
+		Metadata: map[string]string{
+			"model": model,
+		},
+		Outputs: []*sdk.DeviceOutput{
+			{Type: "status-string"},
 		},
 		Instances: []*sdk.DeviceInstance{},
 	}
@@ -102,7 +113,8 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	cfg.Devices = []*sdk.DeviceKind{
-		statusKind,
+		statusIntKind,
+		statusStringKind,
 		frequencyKind,
 	}
 
@@ -139,7 +151,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	statusKind.Instances = append(statusKind.Instances, device)
+	statusStringKind.Instances = append(statusStringKind.Instances, device)
 
 	// upsOutputFrequency --------------------------------------------------------
 	deviceData = map[string]interface{}{
@@ -180,7 +192,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		Location: snmpLocation,
 		Data:     deviceData,
 	}
-	statusKind.Instances = append(statusKind.Instances, device)
+	statusIntKind.Instances = append(statusIntKind.Instances, device)
 
 	devices = append(devices, cfg)
 	return devices, err

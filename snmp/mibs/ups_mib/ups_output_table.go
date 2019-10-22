@@ -21,7 +21,7 @@ func NewUpsOutputTable(snmpServerBase *core.SnmpServerBase) (
 		"UPS-MIB-UPS-Output-Table", // Table Name
 		".1.3.6.1.2.1.33.1.4.4",    // WalkOid
 		[]string{ // Column Names
-			"upsOutputLineIndex", // MIB says not accessable. Have seen it in walks.
+			"upsOutputLineIndex", // MIB says not accessible. Have seen it in walks.
 			"upsOutputVoltage",   // RMS Volts
 			"upsOutputCurrent",   // .1 RMS Amp
 			"upsOutputPower",     // Watts
@@ -78,16 +78,16 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 		Devices: []*sdk.DeviceKind{},
 	}
 
-	// We will have "status", "voltage", "current", and "temperature" device kinds.
+	// We will have "status-int", "voltage", "current", and "temperature" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
-	statusKind := &sdk.DeviceKind{
-		Name: "status",
+	statusIntKind := &sdk.DeviceKind{
+		Name: "status-int",
 		Metadata: map[string]string{
 			"model": model,
 		},
 		Outputs: []*sdk.DeviceOutput{
-			{Type: "status"},
+			{Type: "status-int"},
 		},
 		Instances: []*sdk.DeviceInstance{},
 	}
@@ -126,7 +126,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	cfg.Devices = []*sdk.DeviceKind{
-		statusKind,
+		statusIntKind,
 		voltageKind,
 		currentKind,
 		powerKind,
@@ -137,7 +137,6 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 		// deviceData gets shimmed into the DeviceConfig for each synse device.
 		// It varies slightly for each device below.
 		deviceData := map[string]interface{}{
-			//"info":       fmt.Sprintf("upsOutputVoltage%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
 			"row":        fmt.Sprintf("%d", i),
@@ -159,7 +158,6 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 
 		// upsOutputCurrent ----------------------------------------------------------
 		deviceData = map[string]interface{}{
-			//"info":       fmt.Sprintf("upsOutputCurrent%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
 			"row":        fmt.Sprintf("%d", i),
@@ -181,7 +179,6 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 
 		// upsOutputPower -------------------------------------------------------------
 		deviceData = map[string]interface{}{
-			//"info":       fmt.Sprintf("upsOutputPower%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
 			"row":        fmt.Sprintf("%d", i),
@@ -203,7 +200,6 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 
 		// upsOutputPercentLoad -------------------------------------------------------
 		deviceData = map[string]interface{}{
-			//"info":       fmt.Sprintf("upsOutputPercentLoad%d", i),
 			"base_oid":   table.Rows[i].BaseOid,
 			"table_name": table.Name,
 			"row":        fmt.Sprintf("%d", i),
@@ -220,7 +216,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 			Location: snmpLocation,
 			Data:     deviceData,
 		}
-		statusKind.Instances = append(statusKind.Instances, device)
+		statusIntKind.Instances = append(statusIntKind.Instances, device)
 	}
 
 	devices = append(devices, cfg)

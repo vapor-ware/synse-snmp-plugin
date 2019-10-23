@@ -23,9 +23,17 @@ var (
 		},
 	}
 
-	// Status describes readings with status outputs.
-	Status = sdk.OutputType{
-		Name: "status",
+	// StatusInt describes readings with status outputs where status is an
+	// integer. Status is a very generic output and avoids a plethora of more
+	// specific output types.
+	StatusInt = sdk.OutputType{
+		Name: "status-int",
+	}
+
+	// StatusString describes readings with status outputs where status is a
+	// string, for example an enumeration.
+	StatusString = sdk.OutputType{
+		Name: "status-string",
 	}
 
 	// WattsPower describes readings with power (watts) outputs.

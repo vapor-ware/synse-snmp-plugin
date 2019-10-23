@@ -133,7 +133,8 @@ func main() {
 		&outputs.Identity,
 		&outputs.VAPower,
 		&outputs.WattsPower,
-		&outputs.Status,
+		&outputs.StatusInt,
+		&outputs.StatusString,
 		&outputs.Temperature,
 		&outputs.Voltage,
 	)
@@ -148,7 +149,8 @@ func main() {
 		&devices.SnmpFrequency,
 		&devices.SnmpIdentity,
 		&devices.SnmpPower,
-		&devices.SnmpStatus,
+		&devices.SnmpStatusInt,
+		&devices.SnmpStatusString,
 		&devices.SnmpTemperature,
 		&devices.SnmpVoltage,
 	)

@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	logger "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 )
 
@@ -22,20 +22,20 @@ func CopyMapStringInterface(m map[string]interface{}) map[string]interface{} {
 // DumpDeviceConfigs to the log.
 func DumpDeviceConfigs(deviceConfigs []*config.DeviceProto) {
 	if deviceConfigs == nil {
-		logger.Infof("No Device prototype Configs to dump\n")
+		log.Infof("No Device prototype Configs to dump\n")
 		return
 	}
-	logger.Infof("Found %d device prototype configs.\n", len(deviceConfigs))
+	log.Infof("Found %d device prototype configs.\n", len(deviceConfigs))
 	for i := 0; i < len(deviceConfigs); i++ {
-		logger.Infof("deviceProto[%d]: %T: %+v\n", i, deviceConfigs[i], deviceConfigs[i])
+		log.Infof("deviceProto[%d]: %T: %+v\n", i, deviceConfigs[i], deviceConfigs[i])
 		//logger.Infof("deviceConfig[%d].Devices: %T: %+v", i, deviceConfigs[i].Devices, deviceConfigs[i].Devices)
 		//devices := deviceConfigs[i].Devices
 		instances := deviceConfigs[i].Instances
 		for j := 0; j < len(instances); j++ {
-			logger.Infof("deviceProto[%d].Instances[%d]: %T: %+v", i, j,
+			log.Infof("deviceProto[%d].Instances[%d]: %T: %+v", i, j,
 				instances[j], instances[j])
 
-			logger.Infof("deviceProto[%d].Instances[%d].Output: %+v", i, j, instances[j].Output)
+			log.Infof("deviceProto[%d].Instances[%d].Output: %+v", i, j, instances[j].Output)
 		}
 	}
 }

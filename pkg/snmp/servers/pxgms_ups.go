@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	logger "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 	mibs "github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/mibs/ups_mib"
@@ -31,7 +31,7 @@ type PxgmsUps struct {
 // version:v3
 func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // nolint: gocyclo
 
-	logger.Debugf("NewPxgmUps start. data: %+v", data)
+	log.Debugf("NewPxgmUps start. data: %+v", data)
 
 	// FIXME (etd): Sorta a hack just to get things moving, but adding in a check against
 	// the model here. There could probably be something at a higher level that checks this
@@ -40,7 +40,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	// now only support one and only one model.
 	// We intend to be able to share SNMP MIBs across models and this won't work at all.
 	model := data["model"].(string)
-	logger.Debugf("model is: [%s]", model)
+	log.Debugf("model is: [%s]", model)
 	if !strings.HasPrefix(model, "PXGMS UPS") {
 		return nil, fmt.Errorf("only PXGMS UPS models are currently supported")
 	}
@@ -82,7 +82,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 
 	// Output enumerated devices.
 	for i := 0; i < len(snmpDevices); i++ {
-		logger.Debugf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
+		log.Debugf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
 	}
 
 	// Set up the object.

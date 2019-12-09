@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	logger "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/outputs"
@@ -15,7 +15,7 @@ func MakePlugin() *sdk.Plugin {
 		sdk.DeviceConfigOptional(),
 	)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// Register custom output types.
@@ -25,7 +25,7 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.WattsPower,
 	)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// Register device handlers
@@ -39,7 +39,7 @@ func MakePlugin() *sdk.Plugin {
 		&devices.SnmpVoltage,
 	)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 
 	return plugin

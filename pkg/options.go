@@ -3,7 +3,7 @@ package pkg
 import (
 	"fmt"
 
-	logger "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/servers"
@@ -58,12 +58,12 @@ func deviceIdentifier(data map[string]interface{}) string {
 func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.DeviceProto, err error) {
 	// Load the MIB from the configuration still.
 	// Factory class for initializing servers via config is TODO:
-	logger.Info("SNMP Plugin initializing UPS.")
+	log.Info("SNMP Plugin initializing UPS.")
 	pxgmsUps, err := servers.NewPxgmsUps(data)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create NewPxgmUps: %v", err)
 	}
-	logger.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
+	log.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
 
 	// First get a map of each OID to each device instance.
 	oidMap, oidList, err := mapOidsToInstances(pxgmsUps.DeviceConfigs)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	logger "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 	mibs "github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/mibs/ups_mib"
@@ -40,7 +40,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	// (mhink): The SNMP server level factory is NYI due to other oblications. This will allow sharing MIBs.
 	// Ticket is here: https://github.com/vapor-ware/synse-snmp-plugin/issues/10
 	model := data["model"].(string)
-	logger.Debugf("model is: [%s]", model)
+	log.Debugf("model is: [%s]", model)
 	if !strings.HasPrefix(model, "PXGMS UPS") {
 		return nil, fmt.Errorf("only PXGMS UPS models are currently supported")
 	}
@@ -82,7 +82,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 
 	// Output enumerated devices.
 	for i := 0; i < len(snmpDevices); i++ {
-		logger.Debugf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
+		log.Debugf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
 	}
 
 	// Set up the object.

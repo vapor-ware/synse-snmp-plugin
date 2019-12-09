@@ -1,7 +1,7 @@
 package main
 
 import (
-	logger "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg"
 )
@@ -26,6 +26,6 @@ func main() {
 
 	// Run the plugin
 	if err := plugin.Run(); err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 }

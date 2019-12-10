@@ -61,7 +61,7 @@ func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.Devi
 	log.Info("SNMP Plugin initializing UPS.")
 	pxgmsUps, err := servers.NewPxgmsUps(data)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create NewPxgmUps: %v", err)
+		return nil, fmt.Errorf("failed to create NewPxgmUps: %v", err)
 	}
 	log.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
 

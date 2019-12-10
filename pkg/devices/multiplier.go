@@ -14,7 +14,7 @@ func MultiplyReading(result core.ReadResult, data map[string]interface{}) (resul
 	resultInt, ok := result.Data.(int)
 	if !ok {
 		return 0.0, fmt.Errorf(
-			"Expected int reading, got type: %T, value: %v",
+			"expected int reading, got type: %T, value: %v",
 			result.Data, result.Data)
 	}
 

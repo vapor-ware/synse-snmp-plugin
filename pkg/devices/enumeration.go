@@ -30,7 +30,7 @@ func TranslateEnumeration(result core.ReadResult, data map[string]interface{}) (
 	resultInt, ok := result.Data.(int)
 	if !ok {
 		return "", fmt.Errorf(
-			"Expected int reading, got type: %T, value: %v",
+			"expected int reading, got type: %T, value: %v",
 			result.Data, result.Data)
 	}
 

@@ -53,12 +53,12 @@ func NewSecurityParameters(
 	// For now, require authorization and privacy.
 	// Empty user/passwords are okay.
 	if !(authenticationProtocol == MD5 || authenticationProtocol == SHA) {
-		return nil, fmt.Errorf("Unsupported authentication protocol [%v]",
+		return nil, fmt.Errorf("unsupported authentication protocol [%v]",
 			authenticationProtocol)
 	}
 
 	if !(privacyProtocol == DES || privacyProtocol == AES) {
-		return nil, fmt.Errorf("Unsupported privacy protocol [%v]",
+		return nil, fmt.Errorf("unsupported privacy protocol [%v]",
 			privacyProtocol)
 	}
 
@@ -101,7 +101,7 @@ func NewDeviceConfig(
 	// Check parameters.
 	versionUpper := strings.ToUpper(version)
 	if versionUpper != "V3" {
-		return nil, fmt.Errorf("Version [%v] unsupported", version)
+		return nil, fmt.Errorf("version [%v] unsupported", version)
 	}
 
 	if securityParameters == nil {
@@ -200,7 +200,7 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 	case "SHA":
 		authenticationProtocol = SHA
 	default:
-		return nil, fmt.Errorf("Unsupported authentication protocol [%v]", authProtocolString)
+		return nil, fmt.Errorf("unsupported authentication protocol [%v]", authProtocolString)
 	}
 
 	// Only DES and AES are currently supported.
@@ -211,7 +211,7 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 	case "AES":
 		privacyProtocol = AES
 	default:
-		return nil, fmt.Errorf("Unsupported privacy protocol [%v]", privProtocolString)
+		return nil, fmt.Errorf("unsupported privacy protocol [%v]", privProtocolString)
 	}
 
 	// Create security parameters
@@ -239,7 +239,7 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 func (deviceConfig *DeviceConfig) ToMap() (m map[string]interface{}, err error) {
 
 	if deviceConfig.SecurityParameters == nil {
-		return nil, fmt.Errorf("No security parameters")
+		return nil, fmt.Errorf("no security parameters")
 	}
 
 	m = make(map[string]interface{})
@@ -384,7 +384,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 	} else if securityParameters.AuthenticationProtocol == SHA {
 		authProtocol = gosnmp.SHA
 	} else {
-		return nil, fmt.Errorf("Unsupported authentication protocol [%v]", securityParameters.AuthenticationProtocol)
+		return nil, fmt.Errorf("unsupported authentication protocol [%v]", securityParameters.AuthenticationProtocol)
 	}
 
 	if securityParameters.PrivacyProtocol == DES {
@@ -392,7 +392,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 	} else if securityParameters.PrivacyProtocol == AES {
 		privProtocol = gosnmp.AES
 	} else {
-		return nil, fmt.Errorf("Unsupported privacy protocol [%v]", securityParameters.PrivacyProtocol)
+		return nil, fmt.Errorf("unsupported privacy protocol [%v]", securityParameters.PrivacyProtocol)
 	}
 
 	goSnmp := &gosnmp.GoSNMP{
@@ -416,7 +416,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 	err := goSnmp.Connect()
 	if err != nil {
 		log.Error("gosnmp failed to connect")
-		return nil, fmt.Errorf("Failed to connect gosnmp: %+v", err)
+		return nil, fmt.Errorf("failed to connect gosnmp: %+v", err)
 	}
 	return goSnmp, err
 }

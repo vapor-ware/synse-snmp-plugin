@@ -33,7 +33,7 @@ func NewSnmpRow(baseOid string, table *SnmpTable, rowData []*ReadResult) (*SnmpR
 	// Verify table column list length is the same as the length of rowData for sanity check.
 	if len(table.ColumnList) != len(rowData) {
 		return nil, fmt.Errorf(
-			"Given %d column names and %d data columns. Unable to map unless equal",
+			"given %d column names and %d data columns. Unable to map unless equal",
 			len(table.ColumnList), len(rowData))
 	}
 

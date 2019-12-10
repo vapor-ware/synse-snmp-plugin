@@ -60,7 +60,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 	// where they need to be for now.
 	voltageProto := &config.DeviceProto{
 		Type: "voltage",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -68,7 +68,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 
 	currentProto := &config.DeviceProto{
 		Type: "current",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -76,7 +76,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 
 	powerProto := &config.DeviceProto{
 		Type: "power",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},

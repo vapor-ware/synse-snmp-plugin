@@ -63,9 +63,9 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 	// We will have "status-int", "voltage", "current", and "temperature" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
-	statusIntKind := &config.DeviceProto{
+	statusIntProto := &config.DeviceProto{
 		Type: "status-int",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -73,7 +73,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 
 	voltageKind := &config.DeviceProto{
 		Type: "voltage",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -81,7 +81,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 
 	currentKind := &config.DeviceProto{
 		Type: "current",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -89,14 +89,14 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 
 	powerKind := &config.DeviceProto{
 		Type: "power",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
 	}
 
 	devices = []*config.DeviceProto{
-		statusIntKind,
+		statusIntProto,
 		voltageKind,
 		currentKind,
 		powerKind,

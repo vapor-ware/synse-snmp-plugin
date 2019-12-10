@@ -150,7 +150,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	// where they need to be for now.
 	identityProto := &config.DeviceProto{
 		Type: "identity",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},

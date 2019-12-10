@@ -63,7 +63,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	// where they need to be for now.
 	statusProto := &config.DeviceProto{
 		Type: "status",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -71,7 +71,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 
 	frequencyProto := &config.DeviceProto{
 		Type: "frequency",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},

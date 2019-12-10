@@ -65,7 +65,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 	// where they need to be for now.
 	frequencyProto := &config.DeviceProto{
 		Type: "frequency",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -73,7 +73,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 
 	voltageProto := &config.DeviceProto{
 		Type: "voltage",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -81,7 +81,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 
 	currentProto := &config.DeviceProto{
 		Type: "current",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
@@ -89,7 +89,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 
 	powerProto := &config.DeviceProto{
 		Type: "power",
-		Metadata: map[string]string{
+		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},

@@ -28,7 +28,7 @@ func SnmpIdentityRead(device *sdk.Device) (readings []*output.Reading, err error
 	resultString, ok := result.Data.(string)
 	if !ok {
 		return nil, fmt.Errorf(
-			"Expected int identity reading, got type: %T, value: %v",
+			"expected int identity reading, got type: %T, value: %v",
 			result.Data, result.Data)
 	}
 

@@ -202,7 +202,7 @@ func (snmpTable *SnmpTable) UpdateCell(
 			return nil
 		}
 	}
-	return fmt.Errorf("Unable to update table %v, baseOid %v, index %d",
+	return fmt.Errorf("unable to update table %v, baseOid %v, index %d",
 		snmpTable.Name, baseOid, index)
 }
 

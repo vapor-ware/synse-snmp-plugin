@@ -23,11 +23,11 @@ func NewOid(oid string) (result *Oid, err error) {
 	oid = strings.TrimPrefix(oid, ".")
 
 	if len(oid) == 0 {
-		return nil, fmt.Errorf("Empty oid")
+		return nil, fmt.Errorf("empty oid")
 	}
 
 	split := strings.Split(oid, ".")
-	slice := []uint64{}
+	var slice []uint64
 
 	var segment uint64
 	for i := 0; i < len(split); i++ {

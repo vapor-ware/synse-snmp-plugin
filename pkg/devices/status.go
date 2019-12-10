@@ -118,7 +118,7 @@ func SnmpStatusStringRead(device *sdk.Device) (readings []*sdk.Reading, err erro
 			resultInt, ok = result.Data.(int)
 			if !ok {
 				return nil, fmt.Errorf(
-					"Expected string or int status reading, got type: %T, value: %v",
+					"expected string or int status reading, got type: %T, value: %v",
 					result.Data, result.Data)
 			}
 			// An Int has to be be an enumeration.

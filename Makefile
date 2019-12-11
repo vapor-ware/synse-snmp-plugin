@@ -57,7 +57,7 @@ github-tag:  ## Create and push a tag with the current plugin version
 .PHONY: lint
 lint:  ## Lint project source files
 ifndef HAS_LINT
-	$(shell curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $$(go env GOPATH)/bin v1.18.0)
+	$(shell curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $$(go env GOPATH)/bin v1.21.0)
 endif
 	golangci-lint run --deadline=5m
 

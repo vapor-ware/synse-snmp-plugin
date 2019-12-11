@@ -32,14 +32,14 @@ type PxgmsUps struct {
 // version:v3
 func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // nolint: gocyclo
 
-	logger.Debugf("NewPxgmUps start. data: %+v", data)
-
 	// FIXME (etd): Sorta a hack just to get things moving, but adding in a check against
 	// the model here. There could probably be something at a higher level that checks this
 	// and initializes the right stuff based on the specified model.
 	// TODO: File a ticket on this. Checking against the model is ruining SNMP. Any MIB can
 	// now only support one and only one model.
 	// We intend to be able to share SNMP MIBs across models and this won't work at all.
+	// (mhink): The SNMP server level factory is NYI due to other oblications. This will allow sharing MIBs.
+	// Ticket is here: https://github.com/vapor-ware/synse-snmp-plugin/issues/10
 	model := data["model"].(string)
 	logger.Debugf("model is: [%s]", model)
 	if !strings.HasPrefix(model, "PXGMS UPS") {

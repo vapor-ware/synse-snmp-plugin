@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 1.1.1
+PLUGIN_VERSION := 1.2.0
 IMAGE_NAME     := vaporio/snmp-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -43,6 +43,7 @@ docker:  ## Build the docker image
 		--build-arg BUILD_VERSION=$(PKG_VERSION) \
 		--build-arg VCS_REF=$(GIT_COMMIT) \
 		-t $(IMAGE_NAME):latest \
+		-t $(IMAGE_NAME):1.2 \
 		-t $(IMAGE_NAME):local .
 
 .PHONY: fmt

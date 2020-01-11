@@ -39,6 +39,10 @@ func CreateDevices(config *sdk.DeviceConfig, handler *sdk.DeviceHandler) ([]*sdk
 			deviceOutputs = []*sdk.Output{
 				{OutputType: outputs.StatusInt},
 			}
+		case "status-uint":
+			deviceOutputs = []*sdk.Output{
+				{OutputType: outputs.StatusUint},
+			}
 		case "status-string":
 			deviceOutputs = []*sdk.Output{
 				{OutputType: outputs.StatusString},
@@ -186,8 +190,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 
 	DumpDeviceConfigs(snmpDevices, "Devices from UPS-MIB")
 	// Check the number of snmp device configs
-	if len(snmpDevices) != 6 {
-		t.Fatalf("Expected 6 snmp device configs, got %d.", len(snmpDevices))
+	if len(snmpDevices) != 8 {
+		t.Fatalf("Expected 8 snmp device configs, got %d.", len(snmpDevices))
 	}
 	// Get the number of snmp device kinds and instances across all configs
 	kinds := map[string]*sdk.DeviceKind{}
@@ -199,14 +203,14 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		}
 	}
 	// Check the total number of unique number of device kinds
-	if len(kinds) != 8 {
+	if len(kinds) != 9 {
 		t.Logf("found kinds: %v", kinds)
-		t.Fatalf("Expected 8 device kinds, got %d", len(kinds))
+		t.Fatalf("Expected 9 device kinds, got %d", len(kinds))
 	}
 
 	// Check the total number of device instances
-	if instanceCount != 40 {
-		t.Fatalf("Expected 40 instances, got %d", instanceCount)
+	if instanceCount != 45 {
+		t.Fatalf("Expected 45 instances, got %d", instanceCount)
 	}
 
 	// Check the number of power instances
@@ -241,6 +245,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 				deviceHandler = &SnmpPower
 			case "status-int":
 				deviceHandler = &SnmpStatusInt
+			case "status-uint":
+				deviceHandler = &SnmpStatusUint
 			case "status-string":
 				deviceHandler = &SnmpStatusString
 			case "temperature":

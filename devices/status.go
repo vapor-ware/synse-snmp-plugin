@@ -12,6 +12,12 @@ var SnmpStatusInt = sdk.DeviceHandler{
 	Read: SnmpStatusIntRead,
 }
 
+// SnmpStatusUint is the handler for the SNMP status-uint devices.
+var SnmpStatusUint = sdk.DeviceHandler{
+	Name: "status-uint",
+	Read: SnmpStatusUintRead,
+}
+
 // SnmpStatusString is the handler for the SNMP status-string devices.
 var SnmpStatusString = sdk.DeviceHandler{
 	Name: "status-string",
@@ -45,6 +51,42 @@ func SnmpStatusIntRead(device *sdk.Device) (readings []*sdk.Reading, err error) 
 	} else {
 		// Create the reading.
 		reading, err = device.GetOutput("status-int").MakeReading(nil)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	readings = []*sdk.Reading{reading}
+	return readings, nil
+}
+
+// SnmpStatusUintRead is the read handler function for SNMP status-int devices.
+func SnmpStatusUintRead(device *sdk.Device) (readings []*sdk.Reading, err error) { // nolint: gocyclo
+
+	// Get the raw reading from the SNMP server.
+	result, err := getRawReading(device)
+	if err != nil {
+		return nil, err
+	}
+
+	// Should be an int.
+	var reading *sdk.Reading
+	if result.Data != nil {
+		var resultUint uint
+		resultUint, ok := result.Data.(uint)
+		if !ok {
+			return nil, fmt.Errorf(
+				"Expected int status reading, got type: %T, value: %v",
+				result.Data, result.Data)
+		}
+		// Create the reading.
+		reading, err = device.GetOutput("status-uint").MakeReading(resultUint)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Create the reading.
+		reading, err = device.GetOutput("status-uint").MakeReading(nil)
 		if err != nil {
 			return nil, err
 		}

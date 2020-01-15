@@ -30,6 +30,13 @@ var (
 		Name: "status-int",
 	}
 
+	// StatusUint describes readings with status outputs where status is an
+	// integer. Status is a very generic output and avoids a plethora of more
+	// specific output types.
+	StatusUint = sdk.OutputType{
+		Name: "status-uint",
+	}
+
 	// StatusString describes readings with status outputs where status is a
 	// string, for example an enumeration.
 	StatusString = sdk.OutputType{

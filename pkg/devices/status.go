@@ -1,8 +1,6 @@
 package devices
 
 import (
-	"fmt"
-
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
@@ -22,34 +20,27 @@ func SnmpStatusRead(device *sdk.Device) (readings []*output.Reading, err error) 
 		return nil, err
 	}
 
-	// Should be a string.
-	resultString := "" // Default reading for nil.
+	// Generally, the value we get back as the reading should be the value we return.
+	// It could be a string, int, uint, etc. The "status" output does not place any
+	// kind of restrictions on its returned value.
+	//
+	// The value we get back may need additional processing if the device reading is
+	// an enumeration. Here, we check if the device data has an enumeration defined,
+	// and if so, translate the enumeration. Otherwise, we return whatever the raw
+	// reading is.
+	var value interface{}
 	if result.Data != nil {
-		var ok bool
-		resultString, ok = result.Data.(string)
-		if !ok {
-			// Could be an int as well.
-			var resultInt int
-			resultInt, ok = result.Data.(int)
-			if !ok {
-				return nil, fmt.Errorf(
-					"expected string or int status reading, got type: %T, value: %v",
-					result.Data, result.Data)
+		if IsEnumeration(device.Data) {
+			value, err = TranslateEnumeration(result, device.Data)
+			if err != nil {
+				return nil, err
 			}
-			// An Int could be an enumeration.
-			if IsEnumeration(device.Data) {
-				resultString, err = TranslateEnumeration(result, device.Data)
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				resultString = fmt.Sprintf("%d", resultInt)
-			}
+		} else {
+			value = result.Data
 		}
 	}
-	// Create the reading.
-	reading := output.Status.MakeReading(resultString)
 
-	readings = []*output.Reading{reading}
-	return readings, nil
+	return []*output.Reading{
+		output.Status.MakeReading(value),
+	}, nil
 }

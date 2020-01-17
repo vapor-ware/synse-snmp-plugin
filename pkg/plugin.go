@@ -30,13 +30,7 @@ func MakePlugin() *sdk.Plugin {
 
 	// Register device handlers
 	err = plugin.RegisterDeviceHandlers(
-		&devices.SnmpCurrent,
-		&devices.SnmpFrequency,
-		&devices.SnmpIdentity,
-		&devices.SnmpPower,
-		&devices.SnmpStatus,
-		&devices.SnmpTemperature,
-		&devices.SnmpVoltage,
+		devices.SNMPDeviceHandlers...,
 	)
 	if err != nil {
 		log.Fatal(err)

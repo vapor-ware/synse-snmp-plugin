@@ -11,21 +11,50 @@ import (
 )
 
 // Create Device creates the Device structure in test land for now.
-func CreateDevices(proto *config.DeviceProto, handler string) ([]*sdk.Device, error) { // nolint: gocyclo
+func CreateDevices(proto *config.DeviceProto) ([]*sdk.Device, error) {
 	var devices []*sdk.Device
 
-	for _, instance := range proto.Instances {
+	deviceMap := map[string]*sdk.DeviceHandler{}
+	for _, handler := range SNMPDeviceHandlers {
+		deviceMap[handler.Name] = handler
+	}
 
-		device := &sdk.Device{
-			Info:    instance.Info,
-			Data:    instance.Data,
-			Type:    proto.Type,
-			Handler: handler,
+	for _, instance := range proto.Instances {
+		device, err := sdk.NewDeviceFromConfig(proto, instance, deviceMap)
+		if err != nil {
+			return nil, err
 		}
 		devices = append(devices, device)
-
 	}
 	return devices, nil
+}
+
+// log information about the provided device prototypes, aiding in test debug.
+func logDeviceProtos(t *testing.T, protos []*config.DeviceProto, header string) {
+	t.Log("== Dumping Device Prototypes ==")
+	t.Log(header)
+
+	if protos == nil {
+		t.Log(" <nil>")
+		return
+	}
+
+	t.Logf(". Count device proto: %d", len(protos))
+	for _, proto := range protos {
+		t.Logf(".. [proto: %s] Count device instances: %d", proto.Type, len(proto.Instances))
+		for _, instance := range proto.Instances {
+			t.Logf("     device: %v %v %v %v %v row:%v column:%v\n",
+				instance.Data["table_name"],
+				proto.Type,
+				instance.Info,
+				instance.Data["oid"],
+				instance.Data["base_oid"],
+				instance.Data["row"],
+				instance.Data["column"],
+			)
+		}
+
+	}
 }
 
 // Initial device test. Ensure we can register each type the ups mib supports
@@ -64,115 +93,85 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	testUpsMib, err := mibs.NewUpsMib(snmpServer)
 	assert.NoError(t, err)
 
-	//// Enumerate the mib. First few calls are testing bad parameters.
-	//_, err = testUpsMib.EnumerateDevices(nil)
-	//assert.Error(t, err)
-	//assert.Equal(t, "data is nil", err.Error())
-	//
-	//// No rack.
-	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{})
-	//assert.Error(t, err)
-	//assert.Equal(t, "rack is not in data", err.Error())
-	//
-	//// Rack is not a string.
-	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": 3})
-	//assert.Error(t, err)
-	//assert.Equal(t, "rack is not a string, int", err.Error())
-	//
-	//// No board.
-	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": "test_rack"})
-	//assert.Error(t, err)
-	//assert.Equal(t, "board is not in data", err.Error())
-	//
-	//// Board is not a string.
-	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": "test_rack", "board": -1})
-	//assert.Error(t, err)
-	//assert.Equal(t, "board is not a string, int", err.Error())
-
 	// This call uses valid parameters.
-	snmpDevices, err := testUpsMib.EnumerateDevices(map[string]interface{}{
-		"rack":  "test_rack",
-		"board": "test_board",
-	})
+	//
+	// NOTE: (etd) Enumerating devices now (v3) returns a []DeviceProto, whereas in v2 it was a
+	//	[]DeviceConfig, which was a higher-level aggregate of DeviceKind (the v3 DeviceProto is
+	//	effectively the same thing as the v2 DeviceKind here). Since they are not yet aggregated
+	// 	on return here, there will be a larger number of initial "snmpDevices" because there are
+	//  device protos of the same type being generated from different tables. This initial check
+	//  verifies that we get an expected number of protos from all tables. A subsequent check gets
+	//  the number of unique proto types from all tables and verifies.
+	//
+	//	Note also that the "rack" and "board" are no longer required in v3 as there is no global
+	//  "location" associated with a device configuration. Any locational information should be
+	//  contained in the device Context field. Location tags may also be generated to allow filtering
+	//  by location
+	snmpDevices, err := testUpsMib.EnumerateDevices(map[string]interface{}{})
 	assert.NoError(t, err)
-	assert.Len(t, snmpDevices, 8)
+	assert.Len(t, snmpDevices, 20) // all DeviceProtos from all tables.
 
-	// FIXME (etd): just log these out via the test logger, don't need to fmt.print..
-	//DumpDeviceConfigs(snmpDevices, "Devices from UPS-MIB")
+	logDeviceProtos(t, snmpDevices, "Devices from UPS-MIB")
 
-	// Get the number of snmp device kinds and instances across all configs
-	protos := map[string]*config.DeviceProto{}
+	// Check the number of unique DeviceProto types enumerated. Also aggregate the total
+	// number of instances for all protos (e.g. the total number of devices).
+	protos := map[string]int{}
 	instanceCount := 0
 	for _, proto := range snmpDevices {
-		protos[proto.Type] = proto
 		instanceCount += len(proto.Instances)
-	}
-	// Check the total number of unique number of device kinds
-	assert.Len(t, protos, 9, protos)
-	assert.Equal(t, 45, instanceCount)
 
-	// Check the number of power instances
-	powerInstanceCount := 0
-	for _, proto := range snmpDevices {
-		if proto.Type == "power" {
-			powerInstanceCount += len(proto.Instances)
+		// If the proto Type is already in the map, add the number of new instances,
+		// otherwise initialize the entry.
+		_, ok := protos[proto.Type]
+		if !ok {
+			protos[proto.Type] = len(proto.Instances)
+		} else {
+			protos[proto.Type] += len(proto.Instances)
 		}
 	}
-	assert.Equal(t, 6, powerInstanceCount)
+	// Check the total number of unique number of device proto types
+	assert.Len(t, protos, 7, protos)
+	// Check the total number of device instances
+	assert.Equal(t, 45, instanceCount)
+
+	// Check the number of device instances for each device prototype.
+	t.Logf("device prototype map: %#v", protos)
+	assert.Equal(t, 6, protos["power"])
+	assert.Equal(t, 6, protos["identity"])
+	assert.Equal(t, 14, protos["status"])
+	assert.Equal(t, 7, protos["voltage"])
+	assert.Equal(t, 7, protos["current"])
+	assert.Equal(t, 1, protos["temperature"])
+	assert.Equal(t, 4, protos["frequency"])
+
+	logDeviceProtos(t, snmpDevices, "Second device dump:")
 
 	// For each device config, create a device and perform a reading.
-	//var devices []*sdk.Device
-	//DumpDeviceConfigs(snmpDevices, "Second device dump:")
+	var devices []*sdk.Device
+	for _, proto := range snmpDevices {
+		devs, err := CreateDevices(proto)
+		assert.NoError(t, err)
 
-	//for _, proto := range snmpDevices {
-	//	var deviceHandler *sdk.DeviceHandler
-	//
-	//	switch typ := proto.Type; typ {
-	//	case "current":
-	//		deviceHandler = &SnmpCurrent
-	//	case "frequency":
-	//		deviceHandler = &SnmpFrequency
-	//	case "identity":
-	//		deviceHandler = &SnmpIdentity
-	//	case "power":
-	//		deviceHandler = &SnmpPower
-	//	case "status":
-	//		deviceHandler = &SnmpStatus
-	//	case "temperature":
-	//		deviceHandler = &SnmpTemperature
-	//	case "voltage":
-	//		deviceHandler = &SnmpVoltage
-	//	default:
-	//		t.Fatalf("Unknown type: %v", typ)
-	//	}
-	//
-	//	devs, err := CreateDevices(proto, deviceHandler)
-	//	if err != nil {
-	//		t.Fatal(err)
-	//	}
-	//	devices = append(devices, devs...)
-	//}
-	//
-	//fmt.Printf("Dumping all devices\n")
-	//for i := 0; i < len(devices); i++ {
-	//	fmt.Printf("device[%d]: %+v\n", i, devices[i])
-	//}
-	//
-	//// Read each device
-	//fmt.Printf("Reading each device.\n")
-	//for i := 0; i < len(devices); i++ {
-	//	context, err := devices[i].Read() // Call Read through the device's function pointer.
-	//	if err != nil {
-	//		t.Fatal(err)
-	//	}
-	//	readings := context.Reading
-	//	// Each device currently has one reading,
-	//	if len(readings) != 1 {
-	//		t.Fatalf("Expected 1 reading for device[%d], got %d", i, len(readings))
-	//	}
-	//	for j := 0; j < len(readings); j++ {
-	//		fmt.Printf("Reading[%d][%d]: %T, %+v\n", i, j, readings[j], readings[j])
-	//	}
-	//}
-	//fmt.Printf("Finished reading each device.\n")
+		devices = append(devices, devs...)
+	}
+
+	t.Log("Dumping all devices")
+	for i := 0; i < len(devices); i++ {
+		t.Logf("device[%d]: %+v", i, devices[i])
+	}
+
+	// Read each device
+	t.Logf("Reading each device.")
+	for i := 0; i < len(devices); i++ {
+		context, err := devices[i].Read() // Call Read through the device's function pointer.
+		assert.NoError(t, err)
+
+		readings := context.Reading
+		// Each device currently has one reading,
+		assert.Len(t, readings, 1)
+		for j := 0; j < len(readings); j++ {
+			t.Logf("Reading[%d][%d]: %T, %+v", i, j, readings[j], readings[j])
+		}
+	}
+	t.Log("Finished reading each device.")
 }

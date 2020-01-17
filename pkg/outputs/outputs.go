@@ -28,5 +28,6 @@ var (
 	// Identity describes readings with identity outputs.
 	Identity = output.Output{
 		Name: "identity",
+		Type: "identity",
 	}
 )

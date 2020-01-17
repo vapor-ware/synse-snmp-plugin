@@ -1,9 +1,10 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestClient is the initial positive test against the emulator.
@@ -14,10 +15,9 @@ func TestClient(t *testing.T) {
 		SHA,          // Authentication Protocol
 		"auctoritas", // Authentication Passphrase
 		AES,          // Privacy Protocol
-		"privatus")   // Privacy Passphrase
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"privatus",   // Privacy Passphrase
+	)
+	assert.NoError(t, err)
 
 	// Create a config.
 	config, err := NewDeviceConfig(
@@ -25,122 +25,71 @@ func TestClient(t *testing.T) {
 		"127.0.0.1", // Endpoint
 		1024,        // Port
 		securityParameters,
-		"public") //  Context name
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"public", //  Context name
+	)
+	assert.NoError(t, err)
 
 	// Create a client.
 	client, err := NewSnmpClient(config)
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+	assert.NoError(t, err)
 
 	// Walk OID "1.3.6.1" and print results.
 	results, err := client.Walk("1.3.6.1")
-	if err != nil {
-		t.Error(err) // Fail the test.
-	}
+	assert.NoError(t, err)
 
 	// Log output.
 	for i, result := range results {
-		t.Logf("%d: OID: %v, Data: %v",
-			i, result.Oid, result.Data)
+		t.Logf("%d: OID: %v, Data: %v", i, result.Oid, result.Data)
 	}
 }
 
 // getExpectedConfigShaAes gets an expected valid device configuration.
 func getExpectedConfigShaAes() *DeviceConfig {
-	securityParameters := &SecurityParameters{
-		UserName:                 "simulator",
-		AuthenticationProtocol:   SHA,
-		AuthenticationPassphrase: "auctorias",
-		PrivacyProtocol:          AES,
-		PrivacyPassphrase:        "privatus",
-	}
-
 	return &DeviceConfig{
-		Version:            "V3",
-		Endpoint:           "127.0.0.1",
-		Port:               1024,
-		ContextName:        "public",
-		Timeout:            time.Duration(30) * time.Second,
-		SecurityParameters: securityParameters,
+		Version:     "V3",
+		Endpoint:    "127.0.0.1",
+		Port:        1024,
+		ContextName: "public",
+		Timeout:     time.Duration(30) * time.Second,
+		SecurityParameters: &SecurityParameters{
+			UserName:                 "simulator",
+			AuthenticationProtocol:   SHA,
+			AuthenticationPassphrase: "auctorias",
+			PrivacyProtocol:          AES,
+			PrivacyPassphrase:        "privatus",
+		},
 	}
 }
 
 // getExpectedConfigShaAes gets an expected valid device configuration.
 func getExpectedConfigMd5Des() *DeviceConfig {
-	securityParameters := &SecurityParameters{
-		UserName:                 "simulator",
-		AuthenticationProtocol:   MD5,
-		AuthenticationPassphrase: "auctorias",
-		PrivacyProtocol:          DES,
-		PrivacyPassphrase:        "privatus",
-	}
-
 	return &DeviceConfig{
-		Version:            "V3",
-		Endpoint:           "127.0.0.1",
-		Port:               1024,
-		ContextName:        "public",
-		Timeout:            time.Duration(30) * time.Second,
-		SecurityParameters: securityParameters,
+		Version:     "V3",
+		Endpoint:    "127.0.0.1",
+		Port:        1024,
+		ContextName: "public",
+		Timeout:     time.Duration(30) * time.Second,
+		SecurityParameters: &SecurityParameters{
+			UserName:                 "simulator",
+			AuthenticationProtocol:   MD5,
+			AuthenticationPassphrase: "auctorias",
+			PrivacyProtocol:          DES,
+			PrivacyPassphrase:        "privatus",
+		},
 	}
 }
 
-// verifyConfig checks excpected DeviceConfig fields versus the actual.
-func verifyConfig(expected *DeviceConfig, actual *DeviceConfig) (err error) {
-
-	if expected.Version != actual.Version {
-		return fmt.Errorf("Fail version: expected: [%v], actual [%v]",
-			expected.Version, actual.Version)
-	}
-
-	if expected.Endpoint != actual.Endpoint {
-		return fmt.Errorf("Fail endpoint: expected: [%v], actual [%v]",
-			expected.Endpoint, actual.Endpoint)
-	}
-
-	if expected.Port != actual.Port {
-		return fmt.Errorf("Fail port: expected: [%v], actual: [%v]",
-			expected.Port, actual.Port)
-	}
-
-	if expected.SecurityParameters.UserName != actual.SecurityParameters.UserName {
-		return fmt.Errorf("Fail userName: expected: [%v], actual [%v]",
-			expected.SecurityParameters.UserName, actual.SecurityParameters.UserName)
-	}
-
-	if expected.SecurityParameters.AuthenticationProtocol != actual.SecurityParameters.AuthenticationProtocol {
-		return fmt.Errorf("Fail AuthenticationProtocol: expected: [%v], actual [%v]",
-			expected.SecurityParameters.AuthenticationProtocol,
-			actual.SecurityParameters.AuthenticationProtocol)
-	}
-
-	if expected.SecurityParameters.AuthenticationPassphrase != actual.SecurityParameters.AuthenticationPassphrase {
-		return fmt.Errorf("Fail AuthenticationPassphrase: expected: [%v], actual [%v]",
-			expected.SecurityParameters.AuthenticationPassphrase,
-			actual.SecurityParameters.AuthenticationPassphrase)
-	}
-
-	if expected.SecurityParameters.PrivacyProtocol != actual.SecurityParameters.PrivacyProtocol {
-		return fmt.Errorf("Fail PrivacyProtocol: expected: [%v], actual [%v]",
-			expected.SecurityParameters.PrivacyProtocol,
-			actual.SecurityParameters.PrivacyProtocol)
-	}
-
-	if expected.SecurityParameters.PrivacyPassphrase != actual.SecurityParameters.PrivacyPassphrase {
-		return fmt.Errorf("Fail PrivacyPassphrase: expected: [%v], actual [%v]",
-			expected.SecurityParameters.PrivacyPassphrase,
-			actual.SecurityParameters.PrivacyPassphrase)
-	}
-
-	if expected.ContextName != actual.ContextName {
-		return fmt.Errorf("Fail ContextName: expected: [%v], actual [%v]",
-			expected.ContextName, actual.ContextName)
-	}
-	return nil // Verification passed.
+// verifyConfig checks expected DeviceConfig fields versus the actual.
+func verifyConfig(t *testing.T, expected *DeviceConfig, actual *DeviceConfig) {
+	assert.Equal(t, expected.Version, actual.Version)
+	assert.Equal(t, expected.Endpoint, actual.Endpoint)
+	assert.Equal(t, expected.Port, actual.Port)
+	assert.Equal(t, expected.ContextName, actual.ContextName)
+	assert.Equal(t, expected.SecurityParameters.UserName, actual.SecurityParameters.UserName)
+	assert.Equal(t, expected.SecurityParameters.AuthenticationProtocol, actual.SecurityParameters.AuthenticationProtocol)
+	assert.Equal(t, expected.SecurityParameters.AuthenticationPassphrase, actual.SecurityParameters.AuthenticationPassphrase)
+	assert.Equal(t, expected.SecurityParameters.PrivacyProtocol, actual.SecurityParameters.PrivacyProtocol)
+	assert.Equal(t, expected.SecurityParameters.PrivacyPassphrase, actual.SecurityParameters.PrivacyPassphrase)
 }
 
 // Configuration tests.
@@ -160,16 +109,11 @@ func TestValidConfigMapShaAes(t *testing.T) {
 	}
 	// actual is a SNMP DeviceConfig created by the constructor.
 	actual, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		t.Fatal(err) // Fail test.
-	}
+	assert.NoError(t, err)
 
 	// Test each field against expected.
 	expected := getExpectedConfigShaAes()
-	err = verifyConfig(expected, actual)
-	if err != nil {
-		t.Fatal(err) // Fail test.
-	}
+	verifyConfig(t, expected, actual)
 }
 
 func TestValidConfigMapMd5Des(t *testing.T) {
@@ -186,16 +130,11 @@ func TestValidConfigMapMd5Des(t *testing.T) {
 	}
 	// actual is a SNMP DeviceConfig created by the constructor.
 	actual, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		t.Fatal(err) // Fail test.
-	}
+	assert.NoError(t, err)
 
 	// Test each field against expected.
 	expected := getExpectedConfigMd5Des()
-	err = verifyConfig(expected, actual)
-	if err != nil {
-		t.Fatal(err) // Fail test.
-	}
+	verifyConfig(t, expected, actual)
 }
 
 // Test invalid configurations, one for each required field missing or invalid.
@@ -213,15 +152,8 @@ func TestConfigMapInvalidVersion(t *testing.T) {
 		"contextName":              "public",
 	}
 	_, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		// We expect an error here: Version [v2c] unsupported
-		expectedError := "Version [v2c] unsupported"
-		if err.Error() != expectedError {
-			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
-		}
-	} else {
-		t.Fatal("Got nil error, expected non-nil error")
-	}
+	assert.Error(t, err)
+	assert.Equal(t, "version [v2c] unsupported", err.Error())
 }
 
 func TestConfigMapForgotVersion(t *testing.T) {
@@ -237,14 +169,8 @@ func TestConfigMapForgotVersion(t *testing.T) {
 		"contextName":              "public",
 	}
 	_, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		expectedError := "version should be a string"
-		if err.Error() != expectedError {
-			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
-		}
-	} else {
-		t.Fatal("Got nil error, expected non-nil error")
-	}
+	assert.Error(t, err)
+	assert.Equal(t, "version should be a string", err.Error())
 }
 
 func TestConfigMapForgotEndpoint(t *testing.T) {
@@ -260,15 +186,8 @@ func TestConfigMapForgotEndpoint(t *testing.T) {
 		"contextName":              "public",
 	}
 	_, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		// We expect an error here:
-		expectedError := "endpoint should be a string"
-		if err.Error() != expectedError {
-			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
-		}
-	} else {
-		t.Fatalf("Got nil error, expected non-nil error")
-	}
+	assert.Error(t, err)
+	assert.Equal(t, "endpoint should be a string", err.Error())
 }
 
 func TestConfigMapNonNumericPort(t *testing.T) {
@@ -284,15 +203,8 @@ func TestConfigMapNonNumericPort(t *testing.T) {
 		"contextName":              "public",
 	}
 	_, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		// We expect an error here:
-		expectedError := "port should be an int or uint16"
-		if err.Error() != expectedError {
-			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
-		}
-	} else {
-		t.Fatal("Got nil error, expected non-nil error")
-	}
+	assert.Error(t, err)
+	assert.Equal(t, "port should be an int or uint16", err.Error())
 }
 
 func TestConfigMapForgotPort(t *testing.T) {
@@ -308,15 +220,8 @@ func TestConfigMapForgotPort(t *testing.T) {
 		"contextName":              "public",
 	}
 	_, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		// We expect an error here:
-		expectedError := "port required, but not specified"
-		if err.Error() != expectedError {
-			t.Fatalf("Expected error %v, got %v", expectedError, err.Error())
-		}
-	} else {
-		t.Fatal("Got nil error, expected non-nil error")
-	}
+	assert.Error(t, err)
+	assert.Equal(t, "port required, but not specified", err.Error())
 }
 
 func TestConfigMapForgotContextName(t *testing.T) {
@@ -333,10 +238,7 @@ func TestConfigMapForgotContextName(t *testing.T) {
 		"privacyPassphrase":        "privatus",
 	}
 	_, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		// We should not expect an error here:
-		t.Fatalf("Expected no error, got %v", err.Error())
-	}
+	assert.NoError(t, err)
 }
 
 // Test a valid configuration with an additional field.
@@ -356,16 +258,11 @@ func TestValidConfigMapShaAesExtraField(t *testing.T) {
 	}
 	// actual is a SNMP DeviceConfig created by the constructor.
 	actual, err := GetDeviceConfig(yamlConfig)
-	if err != nil {
-		t.Fatal(err) // Fail test.
-	}
+	assert.NoError(t, err)
 
 	// Test each field against expected.
 	expected := getExpectedConfigShaAes()
-	err = verifyConfig(expected, actual)
-	if err != nil {
-		t.Fatal(err) // Fail test.
-	}
+	verifyConfig(t, expected, actual)
 }
 
 // TestDeviceConfigSerialization tests serialization to and from a map[string]string.
@@ -376,10 +273,9 @@ func TestDeviceConfigSerialization(t *testing.T) {
 		SHA,          // Authentication Protocol
 		"auctoritas", // Authentication Passphrase
 		AES,          // Privacy Protocol
-		"privatus")   // Privacy Passphrase
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"privatus",   // Privacy Passphrase
+	)
+	assert.NoError(t, err)
 
 	// Create a config.
 	config, err := NewDeviceConfig(
@@ -387,26 +283,18 @@ func TestDeviceConfigSerialization(t *testing.T) {
 		"127.0.0.1", // Endpoint
 		1024,        // Port
 		securityParameters,
-		"public") //  Context name
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"public", //  Context name
+	)
+	assert.NoError(t, err)
 
 	// Serialize
 	serialized, err := config.ToMap()
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+	assert.NoError(t, err)
 
 	// Deserialize
 	deserialized, err := GetDeviceConfig(serialized)
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+	assert.NoError(t, err)
 
 	// Compare. config is the expected (original), deserialized is actual.
-	err = verifyConfig(config, deserialized)
-	if err != nil {
-		t.Fatal(err) // Fail test.
-	}
+	verifyConfig(t, config, deserialized)
 }

@@ -3,7 +3,7 @@ package mibs
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -49,13 +49,7 @@ type UpsAlarmsTableDeviceEnumerator struct {
 
 // DeviceEnumerator overrides the default SnmpTable device enumerator.
 func (enumerator UpsAlarmsTableDeviceEnumerator) DeviceEnumerator(
-	data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
-
-	// Get the rack and board ids. Setup the location.
-	rack, board, err := core.GetRackAndBoard(data)
-	if err != nil {
-		return
-	}
+	data map[string]interface{}) (devices []*config.DeviceProto, err error) {
 
 	table := enumerator.Table
 	mib := table.Mib.(*UpsMib)
@@ -66,46 +60,46 @@ func (enumerator UpsAlarmsTableDeviceEnumerator) DeviceEnumerator(
 		return
 	}
 
-	cfg := &sdk.DeviceConfig{
-		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
-		Locations: []*sdk.LocationConfig{
-			{
-				Name:  snmpLocation,
-				Rack:  &sdk.LocationData{Name: rack},
-				Board: &sdk.LocationData{Name: board},
-			},
-		},
-		Devices: []*sdk.DeviceKind{},
-	}
-
-	// We have "status-uint" and "status-string" device kinds.
-	statusUintKind := &sdk.DeviceKind{
-		Name: "status-uint",
-		Metadata: map[string]string{
+	statusProto := &config.DeviceProto{
+		Type: "status",
+		Context: map[string]string{
 			"model": model,
 		},
-		Outputs: []*sdk.DeviceOutput{
-			{Type: "status-uint"},
-		},
-		Instances: []*sdk.DeviceInstance{},
+		Instances: []*config.DeviceInstance{},
 	}
 
-	statusStringKind := &sdk.DeviceKind{
-		Name: "status-string",
-		Metadata: map[string]string{
-			"model": model,
-		},
-		Outputs: []*sdk.DeviceOutput{
-			{Type: "status-string"},
-		},
-		Instances: []*sdk.DeviceInstance{},
+	devices = []*config.DeviceProto{
+		statusProto,
 	}
 
-	// This gets the devices in the enumerated output, meaning they show up in a scan.
-	cfg.Devices = []*sdk.DeviceKind{
-		statusUintKind,
-		statusStringKind,
-	}
+	//// We have "status-uint" and "status-string" device kinds.
+	//statusUintKind := &sdk.DeviceKind{
+	//	Name: "status-uint",
+	//	Metadata: map[string]string{
+	//		"model": model,
+	//	},
+	//	Outputs: []*sdk.DeviceOutput{
+	//		{Type: "status-uint"},
+	//	},
+	//	Instances: []*sdk.DeviceInstance{},
+	//}
+	//
+	//statusStringKind := &sdk.DeviceKind{
+	//	Name: "status-string",
+	//	Metadata: map[string]string{
+	//		"model": model,
+	//	},
+	//	Outputs: []*sdk.DeviceOutput{
+	//		{Type: "status-string"},
+	//	},
+	//	Instances: []*sdk.DeviceInstance{},
+	//}
+	//
+	//// This gets the devices in the enumerated output, meaning they show up in a scan.
+	//cfg.Devices = []*sdk.DeviceKind{
+	//	statusUintKind,
+	//	statusStringKind,
+	//}
 
 	for i := 0; i < len(table.Rows); i++ {
 
@@ -122,12 +116,11 @@ func (enumerator UpsAlarmsTableDeviceEnumerator) DeviceEnumerator(
 			return nil, err
 		}
 
-		device := &sdk.DeviceInstance{
-			Info:     fmt.Sprintf("upsAlarm%d", i),
-			Location: snmpLocation,
-			Data:     deviceData,
+		device := &config.DeviceInstance{
+			Info: fmt.Sprintf("upsAlarm%d", i),
+			Data: deviceData,
 		}
-		statusStringKind.Instances = append(statusStringKind.Instances, device)
+		statusProto.Instances = append(statusProto.Instances, device)
 
 		// upsAlarmTime ---------------------------------------------------------
 		deviceData = map[string]interface{}{
@@ -142,14 +135,13 @@ func (enumerator UpsAlarmsTableDeviceEnumerator) DeviceEnumerator(
 			return nil, err
 		}
 
-		device = &sdk.DeviceInstance{
-			Info:     fmt.Sprintf("upsAlarmTime%d", i),
-			Location: snmpLocation,
-			Data:     deviceData,
+		device = &config.DeviceInstance{
+			Info: fmt.Sprintf("upsAlarmTime%d", i),
+			Data: deviceData,
 		}
-		statusUintKind.Instances = append(statusUintKind.Instances, device)
+		statusProto.Instances = append(statusProto.Instances, device)
 
 	} // end for
-	devices = append(devices, cfg)
+
 	return
 }

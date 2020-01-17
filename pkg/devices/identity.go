@@ -6,7 +6,6 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/outputs"
-	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // SnmpIdentity is the handler for the snmp-identity device.

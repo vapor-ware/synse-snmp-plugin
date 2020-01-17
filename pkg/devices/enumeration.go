@@ -34,7 +34,7 @@ func TranslateEnumeration(result core.ReadResult, data map[string]interface{}) (
 			result.Data, result.Data)
 	}
 
-	// Key lookup to find the enumaration,
+	// Key lookup to find the enumeration.
 	key := fmt.Sprintf("enumeration%d", resultInt)
 	translation, ok := data[key]
 	if !ok {

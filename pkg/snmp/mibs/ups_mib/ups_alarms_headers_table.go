@@ -3,7 +3,7 @@ package mibs
 import (
 	"fmt"
 
-	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -46,13 +46,13 @@ type UpsAlarmsHeadersTableDeviceEnumerator struct {
 
 // DeviceEnumerator overrides the default SnmpTable device enumerator.
 func (enumerator UpsAlarmsHeadersTableDeviceEnumerator) DeviceEnumerator(
-	data map[string]interface{}) (devices []*sdk.DeviceConfig, err error) {
+	data map[string]interface{}) (devices []*config.DeviceProto, err error) {
 
-	// Get the rack and board ids. Setup the location.
-	rack, board, err := core.GetRackAndBoard(data)
-	if err != nil {
-		return
-	}
+	//// Get the rack and board ids. Setup the location.
+	//rack, board, err := core.GetRackAndBoard(data)
+	//if err != nil {
+	//	return
+	//}
 
 	table := enumerator.Table
 	mib := table.Mib.(*UpsMib)
@@ -63,34 +63,46 @@ func (enumerator UpsAlarmsHeadersTableDeviceEnumerator) DeviceEnumerator(
 		return
 	}
 
-	cfg := &sdk.DeviceConfig{
-		SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
-		Locations: []*sdk.LocationConfig{
-			{
-				Name:  snmpLocation,
-				Rack:  &sdk.LocationData{Name: rack},
-				Board: &sdk.LocationData{Name: board},
-			},
-		},
-		Devices: []*sdk.DeviceKind{},
-	}
+	//cfg := &sdk.DeviceConfig{
+	//	SchemeVersion: sdk.SchemeVersion{Version: "1.0"},
+	//	Locations: []*sdk.LocationConfig{
+	//		{
+	//			Name:  snmpLocation,
+	//			Rack:  &sdk.LocationData{Name: rack},
+	//			Board: &sdk.LocationData{Name: board},
+	//		},
+	//	},
+	//	Devices: []*sdk.DeviceKind{},
+	//}
 
-	// We have only "status-int" device kinds.
-	statusIntKind := &sdk.DeviceKind{
-		Name: "status-int",
-		Metadata: map[string]string{
+	statusProto := &config.DeviceProto{
+		Type: "status",
+		Context: map[string]string{
 			"model": model,
 		},
-		Outputs: []*sdk.DeviceOutput{
-			{Type: "status-int"},
-		},
-		Instances: []*sdk.DeviceInstance{},
+		Instances: []*config.DeviceInstance{},
 	}
 
-	// This gets the devices in the enumerated output, meaning they show up in a scan.
-	cfg.Devices = []*sdk.DeviceKind{
-		statusIntKind,
+	devices = []*config.DeviceProto{
+		statusProto,
 	}
+
+	//// We have only "status-int" device kinds.
+	//statusIntKind := &sdk.DeviceKind{
+	//	Name: "status-int",
+	//	Metadata: map[string]string{
+	//		"model": model,
+	//	},
+	//	Outputs: []*sdk.DeviceOutput{
+	//		{Type: "status-int"},
+	//	},
+	//	Instances: []*sdk.DeviceInstance{},
+	//}
+	//
+	//// This gets the devices in the enumerated output, meaning they show up in a scan.
+	//cfg.Devices = []*sdk.DeviceKind{
+	//	statusIntKind,
+	//}
 
 	// This is always a single row table.
 
@@ -107,13 +119,11 @@ func (enumerator UpsAlarmsHeadersTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	device := &sdk.DeviceInstance{
-		Info:     "upsAlarmsPresent",
-		Location: snmpLocation,
-		Data:     deviceData,
+	device := &config.DeviceInstance{
+		Info: "upsAlarmsPresent",
+		Data: deviceData,
 	}
-	statusIntKind.Instances = append(statusIntKind.Instances, device)
+	statusProto.Instances = append(statusProto.Instances, device)
 
-	devices = append(devices, cfg)
 	return
 }

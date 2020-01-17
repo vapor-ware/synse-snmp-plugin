@@ -4,9 +4,10 @@ package devices
 
 import (
 	"fmt"
+
 	"github.com/vapor-ware/synse-sdk/sdk"
-	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
+	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // DumpDeviceConfigs utility function dumps a slice of DeviceConfig to the

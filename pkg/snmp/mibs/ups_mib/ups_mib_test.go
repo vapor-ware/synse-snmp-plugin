@@ -40,7 +40,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	}
 
 	// Create a config.
-	config, err := core.NewDeviceConfig(
+	cfg, err := core.NewDeviceConfig(
 		"v3",        // SNMP v3
 		"127.0.0.1", // Endpoint
 		1024,        // Port
@@ -51,7 +51,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	}
 
 	// Create a client.
-	client, err := core.NewSnmpClient(config)
+	client, err := core.NewSnmpClient(cfg)
 	if err != nil {
 		t.Fatal(err) // Fail the test.
 	}
@@ -59,7 +59,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	// Create SnmpServerBase
 	snmpServer, err := core.NewSnmpServerBase(
 		client,
-		config)
+		cfg)
 	if err != nil {
 		t.Fatal(err) // Fail the test.
 	}
@@ -167,9 +167,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	// Check the number of device instances that were created
 	instanceCount = 0
 	for _, cfg := range devices {
-		for _, kind := range cfg.Devices {
-			instanceCount += len(kind.Instances)
-		}
+		instanceCount += len(cfg.Instances)
 	}
 	if instanceCount != 1 {
 		t.Fatalf("Expected 1 device from the UpsAlarmsHeadersTable, got %d", instanceCount)

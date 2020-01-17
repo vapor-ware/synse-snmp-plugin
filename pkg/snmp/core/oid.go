@@ -95,20 +95,6 @@ func newOidTrieNode(oidSegment uint64) (node *oidTrieNode) {
 	}
 }
 
-// Dump dumps an oidTrieNode to the console.
-func (oidTrieNode *oidTrieNode) Dump() (err error) {
-	if oidTrieNode == nil {
-		return fmt.Errorf("oidTrieNode is nil")
-	}
-	childCount := 0
-	if oidTrieNode.Children != nil {
-		childCount = len(oidTrieNode.Children)
-	}
-	fmt.Printf("oidTrieNode: segment %v, child count %v\n",
-		oidTrieNode.OidSegment, childCount)
-	return nil
-}
-
 // OidTrie is an n-way trie of Oids. Each SNMP OID is stored similarly to words
 // in a trie.
 type OidTrie struct {

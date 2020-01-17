@@ -1,14 +1,15 @@
 package servers
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestPxgmsUps is the first PxgmsUps test.
 func TestPxgmsUps(t *testing.T) {
-	fmt.Printf("TestPxgmUps start\n")
-	fmt.Printf("t: %+v\n", t)
+	t.Log("TestPxgmUps start")
+	t.Logf("t: %+v", t)
 
 	data := make(map[string]interface{})
 	data["contextName"] = "public"
@@ -23,9 +24,8 @@ func TestPxgmsUps(t *testing.T) {
 	data["version"] = "v3"
 
 	pxgmsUps, err := NewPxgmsUps(data)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// TODO: Need to do more with this, but at least excersizes the code for now.
-	fmt.Printf("pxgmsUps: %+v\n", pxgmsUps)
+	assert.NoError(t, err)
+
+	// TODO: Need to do more with this, but at least exercises the code for now.
+	t.Logf("pxgmsUps: %+v", pxgmsUps)
 }

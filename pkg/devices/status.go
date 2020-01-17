@@ -5,7 +5,6 @@ import (
 
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
-	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // SnmpStatusInt is the handler for the SNMP status-int devices.
@@ -138,6 +137,6 @@ func SnmpStatusStringRead(device *sdk.Device) (readings []*sdk.Reading, err erro
 	if err != nil {
 		return nil, err
 	}
-	readings = []*sdk.Reading{reading}
+	readings = []*output.Reading{reading}
 	return readings, nil
 }

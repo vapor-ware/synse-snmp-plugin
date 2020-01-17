@@ -64,30 +64,30 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	testUpsMib, err := mibs.NewUpsMib(snmpServer)
 	assert.NoError(t, err)
 
-	// Enumerate the mib. First few calls are testing bad parameters.
-	_, err = testUpsMib.EnumerateDevices(nil)
-	assert.Error(t, err)
-	assert.Equal(t, "data is nil", err.Error())
-
-	// No rack.
-	_, err = testUpsMib.EnumerateDevices(map[string]interface{}{})
-	assert.Error(t, err)
-	assert.Equal(t, "rack is not in data", err.Error())
-
-	// Rack is not a string.
-	_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": 3})
-	assert.Error(t, err)
-	assert.Equal(t, "rack is not a string, int", err.Error())
-
-	// No board.
-	_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": "test_rack"})
-	assert.Error(t, err)
-	assert.Equal(t, "board is not in data", err.Error())
-
-	// Board is not a string.
-	_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": "test_rack", "board": -1})
-	assert.Error(t, err)
-	assert.Equal(t, "board is not a string, int", err.Error())
+	//// Enumerate the mib. First few calls are testing bad parameters.
+	//_, err = testUpsMib.EnumerateDevices(nil)
+	//assert.Error(t, err)
+	//assert.Equal(t, "data is nil", err.Error())
+	//
+	//// No rack.
+	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{})
+	//assert.Error(t, err)
+	//assert.Equal(t, "rack is not in data", err.Error())
+	//
+	//// Rack is not a string.
+	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": 3})
+	//assert.Error(t, err)
+	//assert.Equal(t, "rack is not a string, int", err.Error())
+	//
+	//// No board.
+	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": "test_rack"})
+	//assert.Error(t, err)
+	//assert.Equal(t, "board is not in data", err.Error())
+	//
+	//// Board is not a string.
+	//_, err = testUpsMib.EnumerateDevices(map[string]interface{}{"rack": "test_rack", "board": -1})
+	//assert.Error(t, err)
+	//assert.Equal(t, "board is not a string, int", err.Error())
 
 	// This call uses valid parameters.
 	snmpDevices, err := testUpsMib.EnumerateDevices(map[string]interface{}{
@@ -97,8 +97,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	assert.NoError(t, err)
 	assert.Len(t, snmpDevices, 8)
 
-	// FIXME (etd): just log these out in the test, don't need to fmt.print..
-	DumpDeviceConfigs(snmpDevices, "Devices from UPS-MIB")
+	// FIXME (etd): just log these out via the test logger, don't need to fmt.print..
+	//DumpDeviceConfigs(snmpDevices, "Devices from UPS-MIB")
 
 	// Get the number of snmp device kinds and instances across all configs
 	protos := map[string]*config.DeviceProto{}
@@ -122,7 +122,7 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 
 	// For each device config, create a device and perform a reading.
 	//var devices []*sdk.Device
-	DumpDeviceConfigs(snmpDevices, "Second device dump:")
+	//DumpDeviceConfigs(snmpDevices, "Second device dump:")
 
 	//for _, proto := range snmpDevices {
 	//	var deviceHandler *sdk.DeviceHandler

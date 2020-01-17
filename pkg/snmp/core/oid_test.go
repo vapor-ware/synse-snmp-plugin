@@ -1,80 +1,73 @@
 package core
 
 import (
-	"fmt"
-	"log"
 	"math/rand"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func CompareStringSlices(t *testing.T, expected []string, actual []string) (equal bool) {
-	if len(expected) != len(actual) {
-		fmt.Printf("Not equal. len(expected) %v != len(actual) %v\n", len(expected), len(actual))
-		return false
+func compareStringSlices(t *testing.T, expected []string, actual []string) {
+	assert.Equal(t, len(expected), len(actual))
+	for i := 0; i < len(expected); i++ {
+		assert.Equal(t, expected[i], actual[i])
+	}
+}
+
+// dump an oidTrieNode to console for the test logger.
+func dumpOidTrieNode(t *testing.T, node *oidTrieNode) {
+	if node == nil {
+		t.Log("oidTrieNode is nil")
+		return
 	}
 
-	for i := 0; i < len(expected); i++ {
-		if expected[i] != actual[i] {
-			fmt.Printf("Not equal expected[%v] %v != actual[%v] %v\n", i, expected[i], i, actual[i])
-			return false
-		}
+	childCount := 0
+	if node.Children != nil {
+		childCount = len(node.Children)
 	}
-	return true
+	t.Logf(
+		"oidTrieNode: segment %v, child count %v\n",
+		node.OidSegment,
+		childCount,
+	)
 }
 
 func TestOid(t *testing.T) { // nolint: gocyclo
 	// Softy test. Create a trie and oid. Traverse.
 	oid, err := NewOid(".1.2.3.4")
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	oidTrie, err := NewOidTrie(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
+
 	err = oidTrie.Insert(oid)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	// Insert a few more.
 	oid, err = NewOid(".1.22.3.4")
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
+
 	err = oidTrie.Insert(oid)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
+
 	oid, err = NewOid(".1.1.3.4")
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
+
 	err = oidTrie.Insert(oid)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
+
 	oid, err = NewOid(".1.3.1.7")
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
+
 	err = oidTrie.Insert(oid)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	// Dump the head for now.
-	err = oidTrie.Head.Dump()
-	if err != nil {
-		log.Fatal(err)
-	}
+	dumpOidTrieNode(t, oidTrie.Head)
 
 	// Traverse / Sort the trie.
 	result, err := oidTrie.Sort()
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	expected := []string{
 		".1.1.3.4",
@@ -86,15 +79,10 @@ func TestOid(t *testing.T) { // nolint: gocyclo
 	var actual []string
 	for i := 0; i < len(result); i++ {
 		actual = append(actual, result[i].ToString)
+		t.Logf("%v", result[i].ToString)
 	}
 
-	for i := 0; i < len(result); i++ {
-		fmt.Printf("%v\n", result[i].ToString)
-	}
-
-	if !CompareStringSlices(t, expected, actual) {
-		log.Fatal("String compare failed.")
-	}
+	compareStringSlices(t, expected, actual)
 }
 
 // Large block of OIDs from an SNMP walk on a UPS.
@@ -805,7 +793,6 @@ var upsOidStrings = []string{
 	".1.3.6.1.4.1.534.8.1.1.2.1.0",
 }
 
-//func testUpsOids1(t *testing.T) {
 func TestUpsOids1(t *testing.T) {
 
 	// Copy and permutate order of upsOidStrings.
@@ -817,14 +804,10 @@ func TestUpsOids1(t *testing.T) {
 
 	// Create an OidTrie and sort it.
 	oidTrie, err := NewOidTrie(&TestupsOidStrings)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	result, err := oidTrie.Sort()
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	// Convert back to strings and compare.
 	var actual []string
@@ -832,7 +815,5 @@ func TestUpsOids1(t *testing.T) {
 		actual = append(actual, result[i].ToString)
 	}
 
-	if !CompareStringSlices(t, upsOidStrings, actual) {
-		log.Fatal("String compare failed.")
-	}
+	compareStringSlices(t, upsOidStrings, actual)
 }

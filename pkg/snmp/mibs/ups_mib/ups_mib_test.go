@@ -1,14 +1,14 @@
 package mibs
 
 import (
-	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
-func FindDeviceInstanceByInfo(devices []*config.DeviceProto, info string) (
+func findDeviceInstanceByInfo(devices []*config.DeviceProto, info string) (
 	*config.DeviceProto, *config.DeviceInstance) {
 
 	for _, proto := range devices {
@@ -29,15 +29,15 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	// In order to create the SNMP server, we need to have an SnmpClient.
 
 	// Create SecurityParameters for the config that should connect to the emulator.
+	// TODO (etd): This setup bit is used in a few places, could create a test util for it.
 	securityParameters, err := core.NewSecurityParameters(
 		"simulator",  // User Name
 		core.SHA,     // Authentication Protocol
 		"auctoritas", // Authentication Passphrase
 		core.AES,     // Privacy Protocol
-		"privatus")   // Privacy Passphrase
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"privatus",   // Privacy Passphrase
+	)
+	assert.NoError(t, err)
 
 	// Create a config.
 	cfg, err := core.NewDeviceConfig(
@@ -45,154 +45,103 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 		"127.0.0.1", // Endpoint
 		1024,        // Port
 		securityParameters,
-		"public") //  Context name
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"public", //  Context name
+	)
+	assert.NoError(t, err)
 
 	// Create a client.
 	client, err := core.NewSnmpClient(cfg)
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+	assert.NoError(t, err)
 
 	// Create SnmpServerBase
-	snmpServer, err := core.NewSnmpServerBase(
-		client,
-		cfg)
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+	snmpServer, err := core.NewSnmpServerBase(client, cfg)
+	assert.NoError(t, err)
 
 	// Create the UpsMib and dump it.
 	testUpsMib, err := NewUpsMib(snmpServer)
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+	assert.NoError(t, err)
+
 	testUpsMib.Dump()
 
 	// We should have 19 tables.
-	tableCount := len(testUpsMib.Tables)
-	if tableCount != 19 {
-		t.Fatalf("testUpsMib: Expected 19 tables, got %d", tableCount)
-	}
+	assert.Len(t, testUpsMib.Tables, 19)
 
 	// Get the ups identity data from the test MIB.
 	upsIdentity := testUpsMib.UpsIdentityTable.UpsIdentity
 
 	// Verify expected ups identity data from the test MIB.
-	if upsIdentity == nil {
-		t.Fatal("upsIdentity is nil")
-	}
-
-	if upsIdentity.Manufacturer != "Eaton Corporation" {
-		t.Fatalf("Expected upsIdentity.Manufacturer [Eaton Corporation], got [%v]",
-			upsIdentity.Manufacturer)
-	}
-
-	if upsIdentity.Model != "PXGMS UPS + EATON 93PM" {
-		t.Fatalf("Expected upsIdentity.Model [PXGMS UPS + EATON 93PM], got [%v]",
-			upsIdentity.Model)
-	}
-
-	if upsIdentity.UpsSoftwareVersion != "INV: 1.44.0000" {
-		t.Fatalf("Expected upsIdentity.UpsSoftwareVersion [INV: 1.44.0000], got [%v]",
-			upsIdentity.UpsSoftwareVersion)
-	}
-
-	if upsIdentity.AgentSoftwareVersion != "2.3.7" {
-		t.Fatalf("Expected upsIdentity.AgentSoftwareVersion [2.3.7], got [%v]",
-			upsIdentity.AgentSoftwareVersion)
-	}
-
-	if upsIdentity.Name != "ID: EM111UXX06, Msg: 9PL15N0000E40R2" {
-		t.Fatalf("Expected upsIdentity.Name [ID: EM111UXX06, Msg: 9PL15N0000E40R2], got [%v]",
-			upsIdentity.Name)
-	}
-
-	if upsIdentity.AttachedDevices != "Attached Devices not set" {
-		t.Fatalf("Expected upsIdentity.AttachedDevices [Attached Devices not set], got [%v]",
-			upsIdentity.AttachedDevices)
-	}
+	assert.NotNil(t, upsIdentity)
+	assert.Equal(t, "Eaton Corporation", upsIdentity.Manufacturer)
+	assert.Equal(t, "PXGMS UPS + EATON 93PM", upsIdentity.Model)
+	assert.Equal(t, "INV: 1.44.0000", upsIdentity.UpsSoftwareVersion)
+	assert.Equal(t, "2.3.7", upsIdentity.AgentSoftwareVersion)
+	assert.Equal(t, "ID: EM111UXX06, Msg: 9PL15N0000E40R2", upsIdentity.Name)
+	assert.Equal(t, "Attached Devices not set", upsIdentity.AttachedDevices)
 
 	// Call the ups battery table device enumerator.
 	upsBatteryTable := testUpsMib.UpsBatteryTable
 	devices, err := upsBatteryTable.SnmpTable.DevEnumerator.DeviceEnumerator(
-		map[string]interface{}{"rack": "my_pet_rack", "board": "my_pet_board"})
+		map[string]interface{}{"rack": "my_pet_rack", "board": "my_pet_board"},
+	)
+	assert.NoError(t, err)
+	assert.Greater(t, len(devices), 0)
 
-	// Ensure devices and no error.
-	if err != nil {
-		t.Fatal(err)
-	}
 	// Check the number of device instances that were created
 	instanceCount := 0
 	for _, proto := range devices {
 		instanceCount += len(proto.Instances)
 	}
-	if instanceCount != 7 {
-		t.Fatalf("Expected 7 devices from the UpsBatteryTable, got %d", instanceCount)
-	}
+	assert.Equal(t, 7, instanceCount, "upsBatteryTable")
 
 	// Enumerate UpsInputTable devices.
 	upsInputTable := testUpsMib.UpsInputTable
 	devices, err = upsInputTable.SnmpTable.DevEnumerator.DeviceEnumerator(
-		map[string]interface{}{"rack": "my_pet_rack", "board": "my_pet_board"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(devices) == 0 {
-		t.Fatalf("Expected devices, got none.\n")
-	}
+		map[string]interface{}{"rack": "my_pet_rack", "board": "my_pet_board"},
+	)
+	assert.NoError(t, err)
+	assert.Greater(t, len(devices), 0)
 
 	// Check the number of device instances that were created
 	instanceCount = 0
 	for _, proto := range devices {
 		instanceCount += len(proto.Instances)
 	}
-	if instanceCount != 12 {
-		t.Fatalf("Expected 12 devices from the UpsInputTable, got %d", instanceCount)
-	}
+	assert.Equal(t, 12, instanceCount, "upsInputTable")
 
 	// Enumerate the UpsAlarmsHeadersTable devices.
 	upsAlarmsHeadersTable := testUpsMib.UpsAlarmsHeadersTable
 	devices, err = upsAlarmsHeadersTable.SnmpTable.DevEnumerator.DeviceEnumerator(
-		map[string]interface{}{"rack": "my_pet_rack", "board": "my_pet_board"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(devices) == 0 {
-		t.Fatalf("Expected devices, got none.\n")
-	}
+		map[string]interface{}{"rack": "my_pet_rack", "board": "my_pet_board"},
+	)
+	assert.NoError(t, err)
+	assert.Greater(t, len(devices), 0)
 
 	// Check the number of device instances that were created
 	instanceCount = 0
 	for _, cfg := range devices {
 		instanceCount += len(cfg.Instances)
 	}
-	if instanceCount != 1 {
-		t.Fatalf("Expected 1 device from the UpsAlarmsHeadersTable, got %d", instanceCount)
-	}
+	assert.Equal(t, 1, instanceCount, "upsAlarmsHeaderTable")
 
 	// Enumerate the mib.
 	// Testing for bad parameters is in TestDevices.
 	devices, err = testUpsMib.EnumerateDevices(
-		map[string]interface{}{"rack": "test_rack", "board": "test_board"})
-	if err != nil {
-		t.Fatal(err)
-	}
+		map[string]interface{}{"rack": "test_rack", "board": "test_board"},
+	)
+	assert.NoError(t, err)
+	assert.Greater(t, len(devices), 0)
+
 	// Check the number of device instances that were created
 	instanceCount = 0
 	for _, proto := range devices {
 		instanceCount += len(proto.Instances)
 	}
-	if instanceCount != 45 {
-		t.Fatalf("Expected 45 devices, got %d", instanceCount)
-	}
+	assert.Equal(t, 45, instanceCount, "devices")
 
-	fmt.Printf("Dumping devices enumerated from UPS-MIB\n")
+	t.Log("Dumping devices enumerated from UPS-MIB")
 	for _, proto := range devices {
 		for _, instance := range proto.Instances {
-			fmt.Printf("UPS-MIB device: %v %v %v %v %v row:%v column:%v\n",
+			t.Logf("UPS-MIB device: %v %v %v %v %v row:%v column:%v",
 				instance.Data["table_name"],
 				proto.Type,
 				instance.Info,
@@ -204,32 +153,19 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 		}
 	}
 
-	manufacturerProto, manufacturerInstance := FindDeviceInstanceByInfo(devices, "upsIdentManufacturer")
-	fmt.Printf("manufacturerDeviceProto: %+v\n", manufacturerProto)
-	fmt.Printf("manufacturerInstance: %+v\n", manufacturerInstance)
+	manufacturerProto, manufacturerInstance := findDeviceInstanceByInfo(devices, "upsIdentManufacturer")
+	t.Logf("manufacturerDeviceProto: %+v", manufacturerProto)
+	t.Logf("manufacturerInstance: %+v", manufacturerInstance)
 
-	if manufacturerInstance.Data["table_name"] != "UPS-MIB-UPS-Identity-Table" {
-		t.Fatalf("Expected TableName == [UPS-MIB-UPS-Identity-Table], got [%v]", manufacturerInstance.Data["table_name"])
-	}
-	if manufacturerProto.Type != "identity" {
-		t.Fatalf("Expected Type == [identity], got [%v]", manufacturerProto.Type)
-	}
-	if manufacturerInstance.Data["oid"] != ".1.3.6.1.2.1.33.1.1.1.0" {
-		t.Fatalf("Expected oid == [.1.3.6.1.2.1.33.1.1.1.0], got [%v]", manufacturerInstance.Data["oid"])
-	}
+	assert.Equal(t, "UPS-MIB-UPS-Identity-Table", manufacturerInstance.Data["table_name"])
+	assert.Equal(t, "identity", manufacturerProto.Type)
+	assert.Equal(t, ".1.3.6.1.2.1.33.1.1.1.0", manufacturerInstance.Data["oid"])
 
-	powerProto, powerInstance := FindDeviceInstanceByInfo(devices, "upsInputTruePower1")
-	fmt.Printf("powerDeviceProto: %+v\n", powerProto)
-	fmt.Printf("powerInstance: %+v\n", powerInstance)
+	powerProto, powerInstance := findDeviceInstanceByInfo(devices, "upsInputTruePower1")
+	t.Logf("powerDeviceProto: %+v", powerProto)
+	t.Logf("powerInstance: %+v", powerInstance)
 
-	if powerInstance.Data["table_name"] != "UPS-MIB-UPS-Input-Table" {
-		t.Fatalf("Expected TableName == [UPS-MIB-UPS-Input-Table], got [%v]", powerInstance.Data["table_name"])
-	}
-	if powerProto.Type != "power" {
-		t.Fatalf("Expected Type == [power], got [%v]", powerProto.Type)
-	}
-	if powerInstance.Data["oid"] != ".1.3.6.1.2.1.33.1.3.3.1.5.2" {
-		t.Fatalf("Expected oid == [.1.3.6.1.2.1.33.1.3.3.1.5.2], got [%v]", powerInstance.Data["oid"])
-	}
-	t.Logf("TestUpsMib end")
+	assert.Equal(t, "UPS-MIB-UPS-Input-Table", powerInstance.Data["table_name"])
+	assert.Equal(t, "power", powerProto.Type)
+	assert.Equal(t, ".1.3.6.1.2.1.33.1.3.3.1.5.2", powerInstance.Data["oid"])
 }

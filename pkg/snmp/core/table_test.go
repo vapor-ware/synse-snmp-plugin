@@ -2,6 +2,8 @@ package core
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestTable
@@ -17,10 +19,9 @@ func TestTable(t *testing.T) {
 		SHA,          // Authentication Protocol
 		"auctoritas", // Authentication Passphrase
 		AES,          // Privacy Protocol
-		"privatus")   // Privacy Passphrase
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"privatus",   // Privacy Passphrase
+	)
+	assert.NoError(t, err)
 
 	// Create a config.
 	config, err := NewDeviceConfig(
@@ -28,24 +29,17 @@ func TestTable(t *testing.T) {
 		"127.0.0.1", // Endpoint
 		1024,        // Port
 		securityParameters,
-		"public") //  Context name
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		"public", //  Context name
+	)
+	assert.NoError(t, err)
 
 	// Create a client.
 	client, err := NewSnmpClient(config)
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+	assert.NoError(t, err)
 
 	// Create SnmpServerBase
-	snmpServer, err := NewSnmpServerBase(
-		client,
-		config)
-	if err != nil {
-		t.Error(err) // Fail the test.
-	}
+	snmpServer, err := NewSnmpServerBase(client, config)
+	assert.NoError(t, err)
 
 	// Create SnmpTable similar to the table for the UPS input power.
 	// The table here has an empty DeviceEnumerator.
@@ -63,23 +57,16 @@ func TestTable(t *testing.T) {
 		"1",        // rowBase
 		"",         // indexColumn
 		"2",        // readableColumn
-		false)      // flattened table
-	if err != nil {
-		t.Fatal(err) // Fail the test.
-	}
+		false,      // flattened table
+	)
+	assert.NoError(t, err)
 
 	testUpsInputTable.Dump()
 
 	// Call DeviceEnumerator for testUpsInputTable.
 	// It is currently the default which does nothing, unlike the real table defined under ups_mib.
 	devices, err := testUpsInputTable.DevEnumerator.DeviceEnumerator(nil)
-	if devices == nil {
-		t.Fatal("devices is nil")
-	}
-	if len(devices) != 0 {
-		t.Fatalf("Should have zero devices enumerated, got %d", len(devices))
-	}
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
+	assert.NotNil(t, devices)
+	assert.Len(t, devices, 0)
 }

@@ -143,8 +143,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 
 	DumpDeviceConfigs(snmpDevices, "Devices from UPS-MIB")
 	// Check the number of snmp device configs
-	if len(snmpDevices) != 6 {
-		t.Fatalf("Expected 6 snmp device configs, got %d.", len(snmpDevices))
+	if len(snmpDevices) != 8 {
+		t.Fatalf("Expected 8 snmp device configs, got %d.", len(snmpDevices))
 	}
 
 	// Get the number of snmp device kinds and instances across all configs
@@ -155,14 +155,14 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		instanceCount += len(proto.Instances)
 	}
 	// Check the total number of unique number of device kinds
-	if len(protos) != 7 {
+	if len(protos) != 9 {
 		t.Logf("found kinds: %v", protos)
-		t.Fatalf("Expected 7 device kinds, got %d", len(protos))
+		t.Fatalf("Expected 9 device kinds, got %d", len(protos))
 	}
 
 	// Check the total number of device instances
-	if instanceCount != 40 {
-		t.Fatalf("Expected 40 instances, got %d", instanceCount)
+	if instanceCount != 45 {
+		t.Fatalf("Expected 45 instances, got %d", instanceCount)
 	}
 
 	// Check the number of power instances

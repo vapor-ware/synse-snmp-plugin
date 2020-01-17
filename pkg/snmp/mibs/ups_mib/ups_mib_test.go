@@ -40,7 +40,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	}
 
 	// Create a config.
-	config, err := core.NewDeviceConfig(
+	cfg, err := core.NewDeviceConfig(
 		"v3",        // SNMP v3
 		"127.0.0.1", // Endpoint
 		1024,        // Port
@@ -51,7 +51,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	}
 
 	// Create a client.
-	client, err := core.NewSnmpClient(config)
+	client, err := core.NewSnmpClient(cfg)
 	if err != nil {
 		t.Fatal(err) // Fail the test.
 	}
@@ -59,7 +59,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	// Create SnmpServerBase
 	snmpServer, err := core.NewSnmpServerBase(
 		client,
-		config)
+		cfg)
 	if err != nil {
 		t.Fatal(err) // Fail the test.
 	}
@@ -153,6 +153,26 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 		t.Fatalf("Expected 12 devices from the UpsInputTable, got %d", instanceCount)
 	}
 
+	// Enumerate the UpsAlarmsHeadersTable devices.
+	upsAlarmsHeadersTable := testUpsMib.UpsAlarmsHeadersTable
+	devices, err = upsAlarmsHeadersTable.SnmpTable.DevEnumerator.DeviceEnumerator(
+		map[string]interface{}{"rack": "my_pet_rack", "board": "my_pet_board"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(devices) == 0 {
+		t.Fatalf("Expected devices, got none.\n")
+	}
+
+	// Check the number of device instances that were created
+	instanceCount = 0
+	for _, cfg := range devices {
+		instanceCount += len(cfg.Instances)
+	}
+	if instanceCount != 1 {
+		t.Fatalf("Expected 1 device from the UpsAlarmsHeadersTable, got %d", instanceCount)
+	}
+
 	// Enumerate the mib.
 	// Testing for bad parameters is in TestDevices.
 	devices, err = testUpsMib.EnumerateDevices(
@@ -165,8 +185,8 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	for _, proto := range devices {
 		instanceCount += len(proto.Instances)
 	}
-	if instanceCount != 40 {
-		t.Fatalf("Expected 40 devices, got %d", instanceCount)
+	if instanceCount != 45 {
+		t.Fatalf("Expected 45 devices, got %d", instanceCount)
 	}
 
 	fmt.Printf("Dumping devices enumerated from UPS-MIB\n")

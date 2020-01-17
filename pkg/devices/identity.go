@@ -6,7 +6,6 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/outputs"
-	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // SnmpIdentity is the handler for the snmp-identity device.
@@ -18,26 +17,8 @@ var SnmpIdentity = sdk.DeviceHandler{
 // SnmpIdentityRead is the read handler function for snmp-identity devices.
 func SnmpIdentityRead(device *sdk.Device) (readings []*output.Reading, err error) {
 
-	// Arg checks.
-	if device == nil {
-		return nil, fmt.Errorf("device is nil")
-	}
-
-	// Get the SNMP device config from the strings in data.
-	data := device.Data
-	snmpConfig, err := core.GetDeviceConfig(data)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create SnmpClient.
-	snmpClient, err := core.NewSnmpClient(snmpConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	// Read the SNMP OID in the device config.
-	result, err := snmpClient.Get(fmt.Sprint(data["oid"]))
+	// Get the raw reading from the SNMP server.
+	result, err := getRawReading(device)
 	if err != nil {
 		return nil, err
 	}

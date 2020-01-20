@@ -22,7 +22,6 @@ func MakePlugin() *sdk.Plugin {
 	err = plugin.RegisterOutputs(
 		&outputs.Identity,
 		&outputs.VAPower,
-		&outputs.WattsPower,
 	)
 	if err != nil {
 		log.Fatal(err)

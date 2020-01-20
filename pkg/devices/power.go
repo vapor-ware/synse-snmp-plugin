@@ -3,7 +3,6 @@ package devices
 import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
-	"github.com/vapor-ware/synse-snmp-plugin/pkg/outputs"
 )
 
 // SnmpPower is the handler for SNMP OIDs that report power.
@@ -30,7 +29,7 @@ func SnmpPowerRead(device *sdk.Device) (readings []*output.Reading, err error) {
 
 	// Create the reading.
 	// FIXME (etd): differentiate between watts/VA
-	reading := outputs.WattsPower.MakeReading(resultFloat)
+	reading := output.Watt.MakeReading(resultFloat)
 
 	readings = []*output.Reading{reading}
 	return readings, nil

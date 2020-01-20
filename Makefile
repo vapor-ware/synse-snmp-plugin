@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 3.0.0
+PLUGIN_VERSION := 3.0.0-alpha.1
 IMAGE_NAME     := vaporio/snmp-plugin
 BIN_NAME       := synse-snmp-plugin
 
@@ -37,6 +37,11 @@ clean:  ## Remove temporary files
 .PHONY: deploy
 deploy:  ## Run a local deployment of the plugin with Synse Server
 	docker-compose -f compose.yml up -d
+
+.PHONY: dep
+dep:  ## Verify and tidy gomod dependencies
+	go mod verify
+	go mod tidy
 
 .PHONY: docker
 docker:  ## Build the docker image

@@ -3,6 +3,7 @@ package mibs
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
@@ -13,13 +14,19 @@ type UpsOutputHeadersTable struct {
 }
 
 // NewUpsOutputHeadersTable constructs the UpsOutputHeadersTable.
-func NewUpsOutputHeadersTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsOutputHeadersTable, err error) {
+func NewUpsOutputHeadersTable(snmpServerBase *core.SnmpServerBase) (table *UpsOutputHeadersTable, err error) {
+	var tableName = "UPS-MIB-UPS-Output-Headers-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.4"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Output-Headers-Table", // Table Name
-		".1.3.6.1.2.1.33.1.4",              // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsOutputSource",
 			"upsOutputFrequency",

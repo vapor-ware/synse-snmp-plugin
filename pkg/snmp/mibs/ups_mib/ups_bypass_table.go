@@ -3,6 +3,7 @@ package mibs
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
@@ -13,13 +14,19 @@ type UpsBypassTable struct {
 }
 
 // NewUpsBypassTable constructs the UpsBypassTable.
-func NewUpsBypassTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsBypassTable, err error) {
+func NewUpsBypassTable(snmpServerBase *core.SnmpServerBase) (table *UpsBypassTable, err error) {
+	var tableName = "UPS-MIB-UPS-Bypass-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.2"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Bypass-Table", // Table Name
-		".1.3.6.1.2.1.33.1.2",      // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsBypassLineIndex",
 			"upsBypassVoltage",

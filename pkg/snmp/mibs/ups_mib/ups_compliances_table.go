@@ -1,6 +1,7 @@
 package mibs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -10,13 +11,19 @@ type UpsCompliancesTable struct {
 }
 
 // NewUpsCompliancesTable constructs the UpsCompliancesTable.
-func NewUpsCompliancesTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsCompliancesTable, err error) {
+func NewUpsCompliancesTable(snmpServerBase *core.SnmpServerBase) (table *UpsCompliancesTable, err error) {
+	var tableName = "UPS-MIB-UPS-Compliances-Table"
+	var walkOid = ".1.3.6.1.2.1.33.3.1"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Compliances-Table", // Table Name
-		".1.3.6.1.2.1.33.3.1",           // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsSubsetCompliance",
 			"upsBasicCompliance",

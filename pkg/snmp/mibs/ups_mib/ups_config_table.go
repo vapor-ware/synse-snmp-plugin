@@ -1,6 +1,7 @@
 package mibs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -10,13 +11,19 @@ type UpsConfigTable struct {
 }
 
 // NewUpsConfigTable constructs the UpsConfigTable.
-func NewUpsConfigTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsConfigTable, err error) {
+func NewUpsConfigTable(snmpServerBase *core.SnmpServerBase) (table *UpsConfigTable, err error) {
+	var tableName = "UPS-MIB-UPS-Config-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.9"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Config-Table", // Table Name
-		".1.3.6.1.2.1.33.1.9",      // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsConfigInputVoltage",             // RMS Volts
 			"upsConfigInputFreq",                // 0.1 Hertz

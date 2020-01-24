@@ -146,6 +146,16 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 	mib := table.Mib.(*UpsMib)
 	model := mib.UpsIdentityTable.UpsIdentity.Model
 
+	// If there are no rows (e.g. the UPS has no identity information), then there
+	// are no devices to create.
+	if len(table.Rows) == 0 {
+		log.WithFields(log.Fields{
+			"table": table.Name,
+			"oid":   table.WalkOid,
+		}).Warn("[snmp] table has no rows, will not create any devices for it")
+		return
+	}
+
 	snmpDeviceConfigMap, err := table.SnmpServerBase.DeviceConfig.ToMap()
 	if err != nil {
 		return nil, err

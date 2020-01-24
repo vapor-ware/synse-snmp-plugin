@@ -48,23 +48,26 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	// Create the SNMP DeviceConfig,
 	snmpDeviceConfig, err := core.GetDeviceConfig(data)
 	if err != nil {
+		log.WithError(err).Error("[snmp] failed to load device config")
 		return nil, err
 	}
-	fmt.Printf("snmpDeviceConfig: %+v\n", snmpDeviceConfig)
+	log.WithField("config", snmpDeviceConfig).Info("[snmp] loaded device config")
 
 	// Create SNMP client.
 	snmpClient, err := core.NewSnmpClient(snmpDeviceConfig)
 	if err != nil {
+		log.WithError(err).Error("[snmp] failed to create new SNMP client")
 		return nil, err
 	}
-	fmt.Printf("snmpClient: %+v\n", snmpClient)
+	log.Debug("[snmp] created new SNMP client")
 
 	// Create SnmpServerBase.
 	snmpServerBase, err := core.NewSnmpServerBase(snmpClient, snmpDeviceConfig)
 	if err != nil {
+		log.WithError(err).Error("[snmp] failed to create SNMP server base")
 		return nil, err
 	}
-	fmt.Printf("snmpServerBase: %+v\n", snmpServerBase)
+	log.Debug("[snmp] created SNMP server base")
 
 	// Create the UpsMib.
 	upsMib, err := mibs.NewUpsMib(snmpServerBase)
@@ -72,18 +75,19 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 		log.WithError(err).Error("failed to create the UPS MIB")
 		return nil, err
 	}
-	fmt.Printf("upsMib: %+v\n", upsMib)
+	log.Debug("[snmp] created new UPS MIB")
 
 	// Enumerate the mib.
-	snmpDevices, err := upsMib.EnumerateDevices(
-		map[string]interface{}{"rack": "site", "board": "ups"})
+	snmpDevices, err := upsMib.EnumerateDevices(map[string]interface{}{"rack": "site", "board": "ups"})
 	if err != nil {
+		log.WithError(err).Error("[snmp] failed to enumerate the UPS MIB")
 		return nil, err
 	}
+	log.WithField("devices", len(snmpDevices)).Debug("[snmp] enumerated the UPS MIB")
 
 	// Output enumerated devices.
-	for i := 0; i < len(snmpDevices); i++ {
-		log.Debugf("snmpDevice[%d]: %+v\n", i, snmpDevices[i])
+	for _, dev := range snmpDevices {
+		log.WithField("device", dev).Debug("[snmp] enumerated device")
 	}
 
 	// Set up the object.

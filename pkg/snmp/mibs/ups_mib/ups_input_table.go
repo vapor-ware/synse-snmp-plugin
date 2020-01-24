@@ -3,6 +3,7 @@ package mibs
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
@@ -13,13 +14,19 @@ type UpsInputTable struct {
 }
 
 // NewUpsInputTable constructs the UpsInputTable.
-func NewUpsInputTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsInputTable, err error) {
+func NewUpsInputTable(snmpServerBase *core.SnmpServerBase) (table *UpsInputTable, err error) {
+	var tableName = "UPS-MIB-UPS-Input-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.3.3"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Input-Table", // Table Name
-		".1.3.6.1.2.1.33.1.3.3",   // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsInputLineIndex", // MIB says not accessable. Have seen it in walks.
 			"upsInputFrequency", // .1 Hertz

@@ -35,11 +35,11 @@ type UpsMib struct {
 
 // NewUpsMib constructs the UpsMib.
 func NewUpsMib(server *core.SnmpServerBase) (upsMib *UpsMib, err error) { // nolint: gocyclo
-	log.Debugf("Initializing UpsMib")
+	log.Debugf("[snmp] initializing UpsMib")
 
 	// Arg checks.
 	if server == nil {
-		return nil, fmt.Errorf("NewUpsMib, server is nil")
+		return nil, fmt.Errorf("unable to create new UpsMib: server is nil")
 	}
 
 	// Initialize Tables.

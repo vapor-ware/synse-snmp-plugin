@@ -154,19 +154,23 @@ func (snmpTable *SnmpTable) Get(baseOid string) *SnmpRow {
 // Load the data from the SNMP Server.
 // Walk the walk_oid on the SNMP server. Translate the data to SnmpRows.
 func (snmpTable *SnmpTable) Load() error {
+	log.WithField("table", snmpTable.Name).Debug("[snmp] loading data from SNMP server")
 	// SNMP Walk the table.
 	rawResults, err := snmpTable.SnmpServerBase.SnmpClient.Walk(snmpTable.WalkOid)
 	if err != nil {
 		return err
 	}
-	err = snmpTable.translate(rawResults)
-	return err
+	log.WithFields(log.Fields{
+		"table": snmpTable.Name,
+		"data":  rawResults,
+	}).Debug("[snmp] got raw walk data")
+	return snmpTable.translate(rawResults)
 }
 
 // Unload cached row data once we're done with it.
 func (snmpTable *SnmpTable) Unload() {
 	snmpTable.Rows = nil
-	log.Debugf("Unloaded SnmpTable %v", snmpTable.Name)
+	log.WithField("table", snmpTable.Name).Debug("[snmp] unloaded SnmpTable")
 }
 
 // Update the table by removing the row with the same base_oid as row,
@@ -263,8 +267,13 @@ func getData(oid string, results []ReadResult) *ReadResult {
 func (snmpTable *SnmpTable) translate(tableData []ReadResult) error {
 	snmpTable.Rows = *new([]SnmpRow)
 	rowIndexes := snmpTable.getRowIndexes(tableData)
+	log.WithFields(log.Fields{
+		"table": snmpTable.Name,
+		"rows":  snmpTable.Rows,
+	}).Debug("[snmp] starting translation of raw walk data into table rows")
 
 	if len(rowIndexes) == 0 {
+		log.Debug("[snmp] no row indexes when translating raw walk data")
 		return nil // No rows.
 	}
 
@@ -304,5 +313,9 @@ func (snmpTable *SnmpTable) translate(tableData []ReadResult) error {
 		snmpTable.Rows = append(snmpTable.Rows, *row)
 	}
 
+	log.WithFields(log.Fields{
+		"table": snmpTable.Name,
+		"rows":  snmpTable.Rows,
+	}).Debug("[snmp] finished translation of raw walk data into table rows")
 	return nil
 }

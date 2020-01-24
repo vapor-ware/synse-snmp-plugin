@@ -36,8 +36,13 @@ func NewUpsOutputHeadersTable(snmpServerBase *core.SnmpServerBase) (table *UpsOu
 		"",             // rowBase
 		"",             // indexColumn
 		"",             // readableColumn
-		true)           // flattened table
+		true,           // flattened table
+	)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"table": tableName,
+		}).Error("[snmp] failed to create table")
 		return nil, err
 	}
 

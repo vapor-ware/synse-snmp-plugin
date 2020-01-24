@@ -69,6 +69,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	// Create the UpsMib.
 	upsMib, err := mibs.NewUpsMib(snmpServerBase)
 	if err != nil {
+		log.WithError(err).Error("failed to create the UPS MIB")
 		return nil, err
 	}
 	fmt.Printf("upsMib: %+v\n", upsMib)

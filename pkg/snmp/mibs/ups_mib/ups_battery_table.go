@@ -3,6 +3,7 @@ package mibs
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
@@ -13,13 +14,19 @@ type UpsBatteryTable struct {
 }
 
 // NewUpsBatteryTable constructs the UpsBatteryTable.
-func NewUpsBatteryTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsBatteryTable, err error) {
+func NewUpsBatteryTable(snmpServerBase *core.SnmpServerBase) (table *UpsBatteryTable, err error) {
+	var tableName = "UPS-MIB-UPS-Battery-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.2"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Battery-Table", // Table Name
-		".1.3.6.1.2.1.33.1.2",       // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsBatteryStatus",
 			"upsSecondsOnBattery", // Zero if not on battery power.

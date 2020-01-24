@@ -1,6 +1,7 @@
 package mibs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -10,13 +11,19 @@ type UpsBypassHeadersTable struct {
 }
 
 // NewUpsBypassHeadersTable constructs the UpsBypassHeadersTable.
-func NewUpsBypassHeadersTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsBypassHeadersTable, err error) {
+func NewUpsBypassHeadersTable(snmpServerBase *core.SnmpServerBase) (table *UpsBypassHeadersTable, err error) {
+	var tableName = "UPS-MIB-UPS-Bypass-Headers-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.5"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Bypass-Headers-Table", // Table Name
-		".1.3.6.1.2.1.33.1.5",              // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsBypassFrequency",
 			"upsBypassNumLines",

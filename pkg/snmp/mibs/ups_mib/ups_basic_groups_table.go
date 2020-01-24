@@ -1,6 +1,7 @@
 package mibs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -11,13 +12,19 @@ type UpsBasicGroupsTable struct {
 }
 
 // NewUpsBasicGroupsTable constructs the UpsBasicGroupsTable.
-func NewUpsBasicGroupsTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsBasicGroupsTable, err error) {
+func NewUpsBasicGroupsTable(snmpServerBase *core.SnmpServerBase) (table *UpsBasicGroupsTable, err error) {
+	var tableName = "UPS-MIB-UPS-Basic-Groups-Table"
+	var walkOid = ".1.3.6.1.2.1.33.3.2.2"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Basic-Groups-Table", // Table Name
-		".1.3.6.1.2.1.33.3.2.2",          // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsBasicIdentGroup",
 			"upsBasicBatteryGroup",

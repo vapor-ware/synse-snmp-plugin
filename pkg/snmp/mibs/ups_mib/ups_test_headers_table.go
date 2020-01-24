@@ -1,6 +1,7 @@
 package mibs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -10,13 +11,19 @@ type UpsTestHeadersTable struct {
 }
 
 // NewUpsTestHeadersTable constructs the UpsTestHeadersTable.
-func NewUpsTestHeadersTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsTestHeadersTable, err error) {
+func NewUpsTestHeadersTable(snmpServerBase *core.SnmpServerBase) (table *UpsTestHeadersTable, err error) {
+	var tableName = "UPS-MIB-UPS-Test-Headers-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.7"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Test-Headers-Table", // Table Name
-		".1.3.6.1.2.1.33.1.7",            // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsTestId",
 			"upsTestSpinLock",

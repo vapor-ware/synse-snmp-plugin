@@ -27,13 +27,19 @@ type UpsIdentityTable struct {
 }
 
 // NewUpsIdentityTable constructs the UpsIdentityTable.
-func NewUpsIdentityTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsIdentityTable, err error) {
+func NewUpsIdentityTable(snmpServerBase *core.SnmpServerBase) (table *UpsIdentityTable, err error) {
+	var tableName = "UPS-MIB-UPS-Identity-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.1"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Identity-Table", // Table Name
-		".1.3.6.1.2.1.33.1.1",        // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsIdentManufacturer",
 			"upsIdentModel",

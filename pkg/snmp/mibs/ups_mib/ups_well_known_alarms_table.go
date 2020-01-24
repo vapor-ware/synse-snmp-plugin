@@ -1,6 +1,7 @@
 package mibs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
@@ -10,13 +11,19 @@ type UpsWellKnownAlarmsTable struct {
 }
 
 // NewUpsWellKnownAlarmsTable constructs the UpsWellKnownAlarmsTable.
-func NewUpsWellKnownAlarmsTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsWellKnownAlarmsTable, err error) {
+func NewUpsWellKnownAlarmsTable(snmpServerBase *core.SnmpServerBase) (table *UpsWellKnownAlarmsTable, err error) {
+	var tableName = "UPS-MIB-UPS-Well-Known-Alarms-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.6.3"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Well-Known-Alarms-Table", // Table Name
-		".1.3.6.1.2.1.33.1.6.3",               // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsAlarmBatteryBad",
 			"upsAlarmOnBattery",

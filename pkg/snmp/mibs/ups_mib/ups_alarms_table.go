@@ -3,6 +3,7 @@ package mibs
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
@@ -15,13 +16,19 @@ type UpsAlarmsTable struct {
 }
 
 // NewUpsAlarmsTable constructs the UpsAlarmsTable.
-func NewUpsAlarmsTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsAlarmsTable, err error) {
+func NewUpsAlarmsTable(snmpServerBase *core.SnmpServerBase) (table *UpsAlarmsTable, err error) {
+	var tableName = "UPS-MIB-UPS-Alarms-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.6.2"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Alarms-Table", // Table Name
-		".1.3.6.1.2.1.33.1.6.2",    // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsAlarmId",
 			"upsAlarmDescr",

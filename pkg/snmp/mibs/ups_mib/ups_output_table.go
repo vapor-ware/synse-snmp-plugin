@@ -3,6 +3,7 @@ package mibs
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
@@ -13,13 +14,19 @@ type UpsOutputTable struct {
 }
 
 // NewUpsOutputTable constructs the UpsOutputTable.
-func NewUpsOutputTable(snmpServerBase *core.SnmpServerBase) (
-	table *UpsOutputTable, err error) {
+func NewUpsOutputTable(snmpServerBase *core.SnmpServerBase) (table *UpsOutputTable, err error) {
+	var tableName = "UPS-MIB-UPS-Output-Table"
+	var walkOid = ".1.3.6.1.2.1.33.1.4.4"
+
+	log.WithFields(log.Fields{
+		"name": tableName,
+		"oid":  walkOid,
+	}).Debug("[snmp] creating new table")
 
 	// Initialize the base.
 	snmpTable, err := core.NewSnmpTable(
-		"UPS-MIB-UPS-Output-Table", // Table Name
-		".1.3.6.1.2.1.33.1.4.4",    // WalkOid
+		tableName,
+		walkOid,
 		[]string{ // Column Names
 			"upsOutputLineIndex", // MIB says not accessible. Have seen it in walks.
 			"upsOutputVoltage",   // RMS Volts

@@ -40,8 +40,13 @@ func NewUpsBasicGroupsTable(snmpServerBase *core.SnmpServerBase) (table *UpsBasi
 		"",             // rowBase
 		"",             // indexColumn
 		"",             // readableColumn
-		false)          // flattened table
+		false,          // flattened table
+	)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"table": tableName,
+		}).Error("[snmp] failed to create table")
 		return nil, err
 	}
 

@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 3.0.0-alpha.3
+PLUGIN_VERSION := 3.0.0-alpha.4
 IMAGE_NAME     := vaporio/snmp-plugin
 BIN_NAME       := synse-snmp-plugin
 

@@ -58,26 +58,29 @@ func deviceIdentifier(data map[string]interface{}) string {
 func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.DeviceProto, err error) {
 	// Load the MIB from the configuration still.
 	// Factory class for initializing servers via config is TODO:
-	log.Info("SNMP Plugin initializing UPS.")
+	log.Info("[snmp] initializing UPS")
 	pxgmsUps, err := servers.NewPxgmsUps(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create NewPxgmUps: %v", err)
+		return nil, err
 	}
-	log.Infof("Initialized PxgmsUps: %+v\n", pxgmsUps)
+	log.Info("[snmp] UPS initialized")
 
 	// First get a map of each OID to each device instance.
 	oidMap, oidList, err := mapOidsToInstances(pxgmsUps.DeviceConfigs)
 	if err != nil {
+		log.WithError(err).Error("[snmp] failed mapping OIDs to instances")
 		return nil, err
 	}
 
 	// Create an OidTrie and sort it.
 	oidTrie, err := core.NewOidTrie(&oidList)
 	if err != nil {
+		log.WithError(err).Error("[snmp] failed to create OID Trie")
 		return nil, err
 	}
 	sorted, err := oidTrie.Sort()
 	if err != nil {
+		log.WithError(err).Error("[snmp] failed to sort OID Trie")
 		return nil, err
 	}
 

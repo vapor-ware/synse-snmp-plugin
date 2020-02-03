@@ -6,5 +6,5 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/soniah/gosnmp v1.22.0
 	github.com/stretchr/testify v1.4.0
-	github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20200117173641-274aae69c3e8
+	github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20200129174706-5981ecb3e8b6
 )

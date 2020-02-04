@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
+	"github.com/vapor-ware/synse-sdk/sdk/utils"
 )
 
 // This file contains utility functions. In the future we could put them in
@@ -22,20 +23,41 @@ func CopyMapStringInterface(m map[string]interface{}) map[string]interface{} {
 // DumpDeviceConfigs to the log.
 func DumpDeviceConfigs(deviceConfigs []*config.DeviceProto) {
 	if deviceConfigs == nil {
-		log.Infof("No Device prototype Configs to dump\n")
+		log.Infof("[snmp] no device prototype configs to dump")
 		return
 	}
-	log.Infof("Found %d device prototype configs.\n", len(deviceConfigs))
-	for i := 0; i < len(deviceConfigs); i++ {
-		log.Infof("deviceProto[%d]: %T: %+v\n", i, deviceConfigs[i], deviceConfigs[i])
-		//logger.Infof("deviceConfig[%d].Devices: %T: %+v", i, deviceConfigs[i].Devices, deviceConfigs[i].Devices)
-		//devices := deviceConfigs[i].Devices
-		instances := deviceConfigs[i].Instances
-		for j := 0; j < len(instances); j++ {
-			log.Infof("deviceProto[%d].Instances[%d]: %T: %+v", i, j,
-				instances[j], instances[j])
 
-			log.Infof("deviceProto[%d].Instances[%d].Output: %+v", i, j, instances[j].Output)
+	log.WithField("count", len(deviceConfigs)).Info("[snmp] found device prototype configs")
+	for i := 0; i < len(deviceConfigs); i++ {
+		proto := deviceConfigs[i]
+		log.WithFields(log.Fields{
+			"idx":           i,
+			"instances":     len(proto.Instances),
+			"transforms":    len(proto.Transforms),
+			"write timeout": proto.WriteTimeout,
+			"handler":       proto.Handler,
+			"tags":          proto.Tags,
+			"type":          proto.Type,
+			"context":       utils.RedactPasswords(proto.Context),
+			"data":          utils.RedactPasswords(proto.Data),
+		}).Info("[snmp] dumping device prototype config")
+
+		for j := 0; j < len(proto.Instances); j++ {
+			instance := proto.Instances[j]
+			log.WithFields(log.Fields{
+				"idx":           j,
+				"prototype idx": i,
+				"write timeout": instance.WriteTimeout,
+				"transforms":    len(instance.Transforms),
+				"type":          instance.Type,
+				"tags":          instance.Tags,
+				"handler":       instance.Handler,
+				"info":          instance.Info,
+				"alias":         instance.Alias,
+				"output":        instance.Output,
+				"context":       utils.RedactPasswords(instance.Context),
+				"data":          utils.RedactPasswords(instance.Data),
+			}).Info("[snmp] dumping device instance config")
 		}
 	}
 }

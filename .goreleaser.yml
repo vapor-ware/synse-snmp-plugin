@@ -52,3 +52,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^wip:'
+      - '^deps:'
+      - '^bump:'
+      - '^typo:'

@@ -1,0 +1,41 @@
+#
+# docker-compose.yml
+#
+# A simple compose file to run an SNMP plugin instance with
+# Synse Server and a SNMP emulator backend.
+#
+# To run:
+#    docker-compose up -d
+#
+
+version: '3'
+services:
+  synse-server:
+    container_name: synse-server
+    image: vaporio/synse-server
+    ports:
+      - '5000:5000'
+    links:
+      - snmp-plugin
+    environment:
+      SYNSE_LOGGING: debug
+      SYNSE_PLUGIN_TCP: snmp-plugin:5001
+
+  snmp-plugin:
+    container_name: snmp-plugin
+    image: vaporio/snmp-plugin
+    command: ['--debug']
+    expose:
+      - '5001'
+    volumes:
+      - ./example/config.yml:/etc/synse/plugin/config/config.yml
+    links:
+      - snmp-emulator
+
+  snmp-emulator:
+    container_name: snmp-emulator
+    build:
+      context: emulator
+      dockerfile: Dockerfile
+    expose:
+      - '1024/udp'

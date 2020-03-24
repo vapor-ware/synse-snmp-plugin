@@ -13,12 +13,13 @@ settings:
     buffer: 1024
 
 # This should allow for dynamic registration of SNMP devices for the PXGMS_UPS.
-# For this example configuration, this is set up against the SNMP emulator.
+# For this example configuration, this is set up against the SNMP emulator
+# (see the docker compose file in the project root).
 dynamicRegistration:
   config:
     - model: PXGMS UPS + EATON 93PM
       version: v3
-      endpoint: 127.0.0.1
+      endpoint: snmp-emulator
       port: 1024
       userName: simulator
       authenticationProtocol: SHA

@@ -13,6 +13,7 @@ func MakePlugin() *sdk.Plugin {
 		sdk.CustomDeviceIdentifier(deviceIdentifier),
 		sdk.CustomDynamicDeviceConfigRegistration(deviceEnumerator),
 		sdk.DeviceConfigOptional(),
+		sdk.PluginConfigRequired(),
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -34,7 +34,7 @@ pipeline {
         //   the needs of this test environment for the new CI setup.
         //stage('Test') {
         //  steps {
-        //    // Critial section to avoid container name collisions.
+        //    // Critical section to avoid container name collisions.
         //    lock('Test') {
         //      script {
         //        // Build the SNMP emulator image.
@@ -73,37 +73,6 @@ pipeline {
         }
       }
     }
-
-    // Run tests on project source code.
-    // These tests run very differently when run from the Makefile and in CI.
-    // From the Makefile we start up the emulator in a container and expose port 1024
-    // on the host. The tests run on the host and connect through port 1024.
-    // Here we start up the emulator in a container and expose port 1024 on the host.
-    // The tests run in a golang container and connect to the exposed port 1024 on the host.
-    // This could cause problems with parallel builds, but it is a place to start.
-    stage('Test') {
-      steps {
-        // Critial section to avoid container name collisions.
-        lock('Test') {
-          script {
-            // Build the SNMP emulator image.
-            sh 'docker build -t emulator_snmp-emulator-ups emulator'
-
-            // Start the SNMP emulator.
-            docker.image('emulator_snmp-emulator-ups:latest').withRun(
-              "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
-              "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
-              ) { se ->
-
-              // Stand up a container to run the tests. Put it on the host network.
-              docker.image('vaporio/golang:1.13').inside("--network=host") { testContainer ->
-                sh 'go test -cover -v ./...'
-              } // end testContainer
-            } // end emulator container
-          } // end script
-        } // end lock
-      } // end steps
-    } // end stage
 
     // Build the image with the 'edge' tag and publish it to DockerHub. This
     // should only be run on the master branch (e.g. PR merge)

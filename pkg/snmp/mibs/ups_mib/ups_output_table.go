@@ -72,18 +72,18 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	// We will have "status-int", "voltage", "current", and "temperature" device kinds.
+	// We will have "status", "voltage", "current", and "temperature" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
-	statusIntProto := &config.DeviceProto{
-		Type: "status-int",
+	statusProto := &config.DeviceProto{
+		Type: "status",
 		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
 	}
 
-	voltageKind := &config.DeviceProto{
+	voltageProto := &config.DeviceProto{
 		Type: "voltage",
 		Context: map[string]string{
 			"model": model,
@@ -91,7 +91,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 		Instances: []*config.DeviceInstance{},
 	}
 
-	currentKind := &config.DeviceProto{
+	currentProto := &config.DeviceProto{
 		Type: "current",
 		Context: map[string]string{
 			"model": model,
@@ -99,7 +99,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 		Instances: []*config.DeviceInstance{},
 	}
 
-	powerKind := &config.DeviceProto{
+	powerProto := &config.DeviceProto{
 		Type: "power",
 		Context: map[string]string{
 			"model": model,
@@ -108,10 +108,10 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	devices = []*config.DeviceProto{
-		statusIntProto,
-		voltageKind,
-		currentKind,
-		powerKind,
+		statusProto,
+		voltageProto,
+		currentProto,
+		powerProto,
 	}
 
 	for i := 0; i < len(table.Rows); i++ {
@@ -135,7 +135,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 			Info: fmt.Sprintf("upsOutputVoltage%d", i),
 			Data: deviceData,
 		}
-		voltageKind.Instances = append(voltageKind.Instances, device)
+		voltageProto.Instances = append(voltageProto.Instances, device)
 
 		// upsOutputCurrent ----------------------------------------------------------
 		deviceData = map[string]interface{}{
@@ -155,7 +155,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 			Info: fmt.Sprintf("upsOutputCurrent%d", i),
 			Data: deviceData,
 		}
-		currentKind.Instances = append(currentKind.Instances, device)
+		currentProto.Instances = append(currentProto.Instances, device)
 
 		// upsOutputPower -------------------------------------------------------------
 		deviceData = map[string]interface{}{
@@ -175,7 +175,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 			Info: fmt.Sprintf("upsOutputPower%d", i),
 			Data: deviceData,
 		}
-		powerKind.Instances = append(powerKind.Instances, device)
+		powerProto.Instances = append(powerProto.Instances, device)
 
 		// upsOutputPercentLoad -------------------------------------------------------
 		deviceData = map[string]interface{}{
@@ -194,7 +194,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 			Info: fmt.Sprintf("upsOutputPercentLoad%d", i),
 			Data: deviceData,
 		}
-		statusIntKind.Instances = append(statusIntKind.Instances, device)
+		statusProto.Instances = append(statusProto.Instances, device)
 	}
 
 	return devices, err

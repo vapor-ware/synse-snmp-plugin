@@ -70,19 +70,11 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	// We will have "status-int", "status-string", and "frequency" device kinds.
+	// We will have "status" and "frequency" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
-	statusIntProto := &config.DeviceProto{
-		Type: "status-int",
-		Context: map[string]string{
-			"model": model,
-		},
-		Instances: []*config.DeviceInstance{},
-	}
-
-	statusStringProto := &config.DeviceProto{
-		Type: "status-string",
+	statusProto := &config.DeviceProto{
+		Type: "status",
 		Context: map[string]string{
 			"model": model,
 		},
@@ -98,8 +90,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	devices = []*config.DeviceProto{
-		statusIntProto,
-		statusStringProto,
+		statusProto,
 		frequencyProto,
 	}
 
@@ -135,7 +126,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsOutputSource",
 		Data: deviceData,
 	}
-	statusStringProto.Instances = append(statusStringProto.Instances, device)
+	statusProto.Instances = append(statusProto.Instances, device)
 
 	// upsOutputFrequency --------------------------------------------------------
 	deviceData = map[string]interface{}{
@@ -174,7 +165,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsOutputNumLines",
 		Data: deviceData,
 	}
-	statusIntProto.Instances = append(statusIntProto.Instances, device)
+	statusProto.Instances = append(statusProto.Instances, device)
 
 	return devices, err
 }

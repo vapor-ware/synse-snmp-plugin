@@ -128,6 +128,15 @@ The SNMP plugin does not currently support writing to any of its device handlers
 
 - [UPS-MIB][ups-mib-rfc]
 
+## Compatibility
+
+Below is a table describing the compatibility of plugin versions with Synse platform versions.
+
+|             | Synse v2 | Synse v3 |
+| ----------- | -------- | -------- |
+| plugin v1.x | ✓        | ✗        |
+| plugin v2.x | ✗        | ✓        |
+
 ## Troubleshooting
 
 ### Debugging

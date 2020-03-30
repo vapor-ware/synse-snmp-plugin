@@ -76,19 +76,11 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	// We will have "status-int", "status-string", "voltage", "current", and "temperature" device kinds.
+	// We will have "status", "voltage", "current", and "temperature" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
-	statusIntProto := &config.DeviceProto{
-		Type: "status-int",
-		Context: map[string]string{
-			"model": model,
-		},
-		Instances: []*config.DeviceInstance{},
-	}
-
-	statusStringProto := &config.DeviceProto{
-		Type: "status-string",
+	statusProto := &config.DeviceProto{
+		Type: "status",
 		Context: map[string]string{
 			"model": model,
 		},
@@ -120,8 +112,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 	}
 
 	devices = []*config.DeviceProto{
-		statusIntProto,
-		statusStringProto,
+		statusProto,
 		voltageProto,
 		currentProto,
 		temperatureProto,
@@ -155,7 +146,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsBatteryStatus",
 		Data: deviceData,
 	}
-	statusStringProto.Instances = append(statusStringProto.Instances, device)
+	statusProto.Instances = append(statusProto.Instances, device)
 
 	// upsSecondsOnBattery --------------------------------------------------------
 	deviceData = map[string]interface{}{
@@ -174,7 +165,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsSecondsOnBattery",
 		Data: deviceData,
 	}
-	statusIntProto.Instances = append(statusIntProto.Instances, device)
+	statusProto.Instances = append(statusProto.Instances, device)
 
 	// upsEstimatedMinutesRemaining -----------------------------------------------
 	deviceData = map[string]interface{}{
@@ -193,7 +184,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsEstimatedMinutesRemaining",
 		Data: deviceData,
 	}
-	statusIntProto.Instances = append(statusIntProto.Instances, device)
+	statusProto.Instances = append(statusProto.Instances, device)
 
 	// upsEstimatedChargeRemaining ------------------------------------------------
 	deviceData = map[string]interface{}{
@@ -212,7 +203,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsEstimatedChargeRemaining",
 		Data: deviceData,
 	}
-	statusIntProto.Instances = append(statusIntProto.Instances, device)
+	statusProto.Instances = append(statusProto.Instances, device)
 
 	// upsBatteryVoltage ----------------------------------------------------------
 	deviceData = map[string]interface{}{

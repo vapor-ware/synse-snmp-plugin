@@ -84,35 +84,6 @@ func (enumerator UpsAlarmsTableDeviceEnumerator) DeviceEnumerator(
 		statusProto,
 	}
 
-	//// We have "status-uint" and "status-string" device kinds.
-	//statusUintKind := &sdk.DeviceKind{
-	//	Name: "status-uint",
-	//	Metadata: map[string]string{
-	//		"model": model,
-	//	},
-	//	Outputs: []*sdk.DeviceOutput{
-	//		{Type: "status-uint"},
-	//	},
-	//	Instances: []*sdk.DeviceInstance{},
-	//}
-	//
-	//statusStringKind := &sdk.DeviceKind{
-	//	Name: "status-string",
-	//	Metadata: map[string]string{
-	//		"model": model,
-	//	},
-	//	Outputs: []*sdk.DeviceOutput{
-	//		{Type: "status-string"},
-	//	},
-	//	Instances: []*sdk.DeviceInstance{},
-	//}
-	//
-	//// This gets the devices in the enumerated output, meaning they show up in a scan.
-	//cfg.Devices = []*sdk.DeviceKind{
-	//	statusUintKind,
-	//	statusStringKind,
-	//}
-
 	for i := 0; i < len(table.Rows); i++ {
 
 		// upsAlarmDescr ---------------------------------------------------------

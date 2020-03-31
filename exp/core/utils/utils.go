@@ -2,14 +2,14 @@ package utils
 
 import (
 	"github.com/pkg/errors"
-	"github.com/soniah/gosnmp"
 	log "github.com/sirupsen/logrus"
+	"github.com/soniah/gosnmp"
 )
 
 var (
 	ErrInvalidAuthProtocol = errors.New("unsupported SNMP auth protocol specified")
 	ErrInvalidPrivProtocol = errors.New("unsupported SNMP privacy protocol specified")
-	ErrInvalidSNMPVersion = errors.New("invalid SNMP version specified")
+	ErrInvalidSNMPVersion  = errors.New("invalid SNMP version specified")
 )
 
 // GetSNMPVersion gets the version of SNMP corresponding to the given string.
@@ -18,7 +18,7 @@ func GetSNMPVersion(s string) (gosnmp.SnmpVersion, error) {
 	case "v1":
 		return gosnmp.Version1, nil
 	case "v2", "v2c":
-		return  gosnmp.Version2c, nil
+		return gosnmp.Version2c, nil
 	case "v3":
 		return gosnmp.Version3, nil
 	default:
@@ -38,7 +38,7 @@ func GetPrivProtocol(s string) (gosnmp.SnmpV3PrivProtocol, error) {
 	case "DES":
 		return gosnmp.DES, nil
 	case "none":
-		return gosnmp.NoPriv,  nil
+		return gosnmp.NoPriv, nil
 	default:
 		log.WithFields(log.Fields{
 			"privacy": s,

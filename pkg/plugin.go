@@ -11,10 +11,10 @@ import (
 // provide identity to the plugin as well as some high level information
 // about it and its source.
 type PluginMetadata struct {
-	Name string
-	Maintainer string
+	Name        string
+	Maintainer  string
 	Description string
-	VCS string
+	VCS         string
 }
 
 // NewSnmpPluginBase creates a new SNMP base plugin.
@@ -48,7 +48,6 @@ func NewSnmpPluginBase(metadata *PluginMetadata) (*sdk.Plugin, error) {
 	//   err = plugin.RegisterOutputs(
 	//       &customOutput,
 	//   )
-
 
 	// TODO (etd): Figure out how to register device handlers. Should there
 	//   just be device handlers for the generic SNMP methods? Should each

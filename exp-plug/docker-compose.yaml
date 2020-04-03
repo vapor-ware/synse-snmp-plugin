@@ -1,0 +1,28 @@
+version: '3'
+services:
+  synse-server:
+    container_name: synse-server
+    image: vaporio/synse-server
+    ports:
+      - '5000:5000'
+    links:
+      - expplugin
+    environment:
+      SYNSE_LOGGING: debug
+      SYNSE_PLUGIN_TCP: expplugin:5001
+
+  expplugin:
+    container_name: expplugin
+    image: etd/expplugin
+    expose:
+      - '5001'
+    links:
+      - snmp-emulator
+
+  snmp-emulator:
+    container_name: snmp-emulator
+    build:
+      context: ../emulator
+      dockerfile: Dockerfile
+    expose:
+      - '1024/udp'

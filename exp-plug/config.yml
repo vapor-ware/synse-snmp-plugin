@@ -1,0 +1,30 @@
+version: 3
+debug: true
+network:
+  type: tcp
+  address: ':5001'
+settings:
+  mode: serial
+  read:
+    interval: 3s
+    buffer: 1024
+  write:
+    interval: 1s
+    buffer: 1024
+
+dynamicRegistration:
+  config:
+  -
+    mib: UPS-MIB
+    version: v3
+    agent: 'udp://snmp-emulator:1024'
+    security:
+      level: authPriv
+      context: public
+      username: simulator
+      authentication:
+        protocol: SHA
+        passphrase: auctoritas
+      privacy:
+        protocol: AES
+        passphrase: privatus

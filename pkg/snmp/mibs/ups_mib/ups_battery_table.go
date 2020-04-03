@@ -240,6 +240,10 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"data": deviceData,
+	}).Debug("UPS BATTERY CURRENT DATA")
+
 	device = &config.DeviceInstance{
 		Info: "upsBatteryCurrent",
 		Data: deviceData,

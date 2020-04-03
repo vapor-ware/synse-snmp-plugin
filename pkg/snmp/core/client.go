@@ -289,7 +289,9 @@ type ReadResult struct {
 
 // Get performs an SNMP get on the given OID.
 func (client *SnmpClient) Get(oid string) (result ReadResult, err error) {
-
+	log.WithFields(log.Fields{
+		"OID": oid,
+	}).Debug("GETTING READING FOR OID")
 	goSnmp, err := client.createGoSNMP()
 	if err != nil {
 		return result, err

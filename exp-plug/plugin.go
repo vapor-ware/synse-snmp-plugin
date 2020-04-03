@@ -1,4 +1,4 @@
-package exp_plug
+package main
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -43,4 +43,11 @@ func MakePlugin() *sdk.Plugin {
 	}
 
 	return plugin
+}
+
+func main() {
+	p := MakePlugin()
+	if err := p.Run(); err != nil {
+		log.Fatal(err)
+	}
 }

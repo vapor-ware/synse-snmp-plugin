@@ -2,6 +2,7 @@ package exp
 
 import (
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-snmp-plugin/exp/handlers"
 )
 
 // PluginMetadata holds metadata for the plugin instance. It is used to
@@ -29,6 +30,7 @@ func NewSnmpBasePlugin(metadata *PluginMetadata) (*sdk.Plugin, error) {
 
 	plugin, err := sdk.NewPlugin(
 		sdk.PluginConfigRequired(),
+		sdk.DynamicConfigRequired(),
 		sdk.DeviceConfigOptional(),
 		sdk.CustomDeviceIdentifier(SnmpDeviceIdentifier),
 		sdk.CustomDynamicDeviceRegistration(SnmpDeviceRegistrar),
@@ -47,12 +49,11 @@ func NewSnmpBasePlugin(metadata *PluginMetadata) (*sdk.Plugin, error) {
 	//       &customOutput,
 	//   )
 
-	// TODO (etd): Figure out how to register device handlers. Should there
-	//   just be device handlers for the generic SNMP methods? Should each
-	//   plugin subclass define their own device handlers? Should device handlers
-	//   be generated from something that the plugin subclass gives this
-	//   base constructor?
-	err = plugin.RegisterDeviceHandlers()
+	err = plugin.RegisterDeviceHandlers(
+		&handlers.ReadOnly,
+		&handlers.ReadWrite,
+		&handlers.WriteOnly,
+	)
 	if err != nil {
 		return nil, err
 	}

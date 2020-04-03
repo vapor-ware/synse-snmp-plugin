@@ -3,7 +3,10 @@ package exp
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-snmp-plugin/exp/core"
+	"github.com/vapor-ware/synse-snmp-plugin/exp/mibs"
 )
 
 // SnmpDeviceIdentifier is the device identifier function used by the SDK
@@ -33,16 +36,12 @@ func SnmpDeviceIdentifier(data map[string]interface{}) string {
 	if !exists {
 		panic("unable to generate device ID: 'mib' not found in device data")
 	}
-	host, exists := data["host"]
+	agent, exists := data["agent"]
 	if !exists {
-		panic("unable to generate device ID: 'host' not found in device data")
-	}
-	port, exists := data["port"]
-	if !exists {
-		panic("unable to generate device ID: 'port' not found in device data")
+		panic("unable to generate device ID: 'agent' not found in device data")
 	}
 
-	return fmt.Sprintf("%s:%v-%s:%s", host, port, mibName, oid)
+	return fmt.Sprintf("%v-%s:%s", agent, mibName, oid)
 }
 
 // SnmpDeviceRegistrar is the dynamic registration function used by the SDK to
@@ -51,12 +50,54 @@ func SnmpDeviceIdentifier(data map[string]interface{}) string {
 // This function is defined for thee base SNMP plugin and is subsequently used
 // by all plugins which use the base.
 func SnmpDeviceRegistrar(data map[string]interface{}) ([]*sdk.Device, error) {
-	// TODO (etd): validate config
+	// Load the data into a configurations struct.
+	config, err := core.LoadTargetConfiguration(data)
+	if err != nil {
+		return nil, err
+	}
 
-	// TODO (etd): implement
-	//  - load data from the `mibs` variable
-	//  - look up the mib name from the current registration block and use that MIB
-	//  - build devices for everything therein
-	//  - return said devices
-	return nil, nil
+	// Verify that the configured agent as a MIB name specified. This is
+	// required, as it determines which devices will be loaded for the agent.
+	if config.MIB == "" {
+		return nil, fmt.Errorf("invalid configuration: no MIB specified for agent %s", config.Agent)
+	}
+
+	// Create a new client for the configured SNMP agent. This client is cached
+	// so devices can re-use the client.
+	client, err := core.NewClient(config)
+	if err != nil {
+		return nil, err
+	}
+	core.CacheClient(client)
+
+	// Get the specified MIB and load its devices for the agent.
+	mib := mibs.Get(config.MIB)
+	d, err := mib.LoadDevices(client)
+	if err != nil {
+		log.WithError(err).Error("[snmp failed to load devices from MIB")
+		return nil, err
+	}
+	return d, nil
+
+	/*
+		Example config could look like:
+
+		dynamicRegistration:
+		-
+		  version: v3
+		  agent: 1.2.3.4:1024
+		  community: public
+		  timeout: 5s
+		  retries: 3
+		  security:  # this is only needed if using SNMP version 3
+		    model: authNoPriv
+		    context: public
+		    username: foobar
+			authentication:
+		      protocol: SHA
+		      passphrase: foobar
+		    privacy:
+		      protocol: AES
+		      passphrase: foobar
+	*/
 }

@@ -2,24 +2,13 @@ package devices
 
 import "github.com/vapor-ware/synse-snmp-plugin/exp/mibs"
 
-// IdentityDevices contains the definitions of all the "upsIdent" objects
-// in the UPS-MIB definition.
+// UPS-MIB "upsIdent" object device definitions.
 //
 // See UPS-MIB 1.3.6.1.2.1.33.1.1
 // http://www.oidview.com/mibs/0/UPS-MIB.html
-var IdentityDevices = []*mibs.SnmpDevice{
-	&UpsIdentManufacturer,
-	&UpsIdentModel,
-	&UpsIdentUPSSoftwareVersion,
-	&UpsIdentAgentSoftwareVersion,
-	&UpsIdentName,
-	&UpsIdentAttachedDevices,
-}
-
-// UPS-MIB upsIdent device definitions.
 var (
 	UpsIdentManufacturer = mibs.SnmpDevice{
-		OID:     "1.3.6.1.2.1.33.1.1.1",
+		OID:     "1.3.6.1.2.1.33.1.1.1.0",
 		Info:    "upsIdentManufacturer",
 		Type:    "identity",
 		Output:  "identity",
@@ -27,7 +16,7 @@ var (
 	}
 
 	UpsIdentModel = mibs.SnmpDevice{
-		OID:     "1.3.6.1.2.1.33.1.1.2",
+		OID:     "1.3.6.1.2.1.33.1.1.2.0",
 		Info:    "upsIdentModel",
 		Type:    "identity",
 		Output:  "identity",
@@ -35,7 +24,7 @@ var (
 	}
 
 	UpsIdentUPSSoftwareVersion = mibs.SnmpDevice{
-		OID:     "1.3.6.1.2.1.33.1.1.3",
+		OID:     "1.3.6.1.2.1.33.1.1.3.0",
 		Info:    "upsIdentUPSSoftwareVersion",
 		Type:    "identity",
 		Output:  "identity",
@@ -43,7 +32,7 @@ var (
 	}
 
 	UpsIdentAgentSoftwareVersion = mibs.SnmpDevice{
-		OID:     "1.3.6.1.2.1.33.1.1.4",
+		OID:     "1.3.6.1.2.1.33.1.1.4.0",
 		Info:    "upsIdentAgentSoftwareVersion",
 		Type:    "identity",
 		Output:  "identity",
@@ -51,7 +40,7 @@ var (
 	}
 
 	UpsIdentName = mibs.SnmpDevice{
-		OID:     "1.3.6.1.2.1.33.1.1.5",
+		OID:     "1.3.6.1.2.1.33.1.1.5.0",
 		Info:    "upsIdentName",
 		Type:    "identity",
 		Output:  "identity",
@@ -59,7 +48,7 @@ var (
 	}
 
 	UpsIdentAttachedDevices = mibs.SnmpDevice{
-		OID:     "1.3.6.1.2.1.33.1.1.6",
+		OID:     "1.3.6.1.2.1.33.1.1.6.0",
 		Info:    "upsIdentAttachedDevices",
 		Type:    "identity",
 		Output:  "identity",

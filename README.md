@@ -90,7 +90,7 @@ Outputs are referenced by name. A single device may have more than one instance
 of an output type. A value of `-` in the table below indicates that there is no value
 set for that field. The *custom* section describes outputs which this plugin defines
 while the *built-in* section describes outputs this plugin uses which are [built-in to
-the SDK](https://github.com/vapor-ware/synse-sdk/blob/v3/staging/sdk/output/builtins.go).
+the SDK](https://synse.readthedocs.io/en/latest/sdk/concepts/reading_outputs/#built-ins).
 
 **Custom**
 
@@ -143,7 +143,7 @@ Below is a table describing the compatibility of plugin versions with Synse plat
 
 The plugin can be run in debug mode for additional logging. This is done by:
 
-- Setting the `debug` option  to `true` in the plugin configuration YAML ([config.yml](config.yml))
+- Setting the `debug` option  to `true` in the plugin configuration YAML
 
   ```yaml
   debug: true
@@ -179,7 +179,7 @@ to the Docker Hub repo may publish manually.
 ## Contributing / Reporting
 
 If you experience a bug, would like to ask a question, or request a feature, open a
-[new issue](https://github.com/vapor-ware/synse-modbus-ip-plugin/issues) and provide as much
+[new issue](https://github.com/vapor-ware/synse-snmp-plugin/issues) and provide as much
 context as possible. All contributions, questions, and feedback are welcomed and appreciated.
 
 ## License
@@ -192,6 +192,6 @@ The Synse SNMP Plugin is licensed under GPLv3. See [LICENSE](LICENSE) for more i
 [synse-cli]: https://github.com/vapor-ware/synse-cli
 [plugin-dockerhub]: https://hub.docker.com/r/vaporio/snmp-plugin
 [plugin-release]: https://github.com/vapor-ware/synse-snmp-plugin/releases
-[sdk-docs]: http://synse-sdk.readthedocs.io/en/latest/user/configuration.html
+[sdk-docs]: https://synse.readthedocs.io/en/latest/sdk/intro/
 [dynamic-reg-example]: https://github.com/vapor-ware/synse-sdk/tree/master/examples/dynamic_registration
 [ups-mib-rfc]: https://tools.ietf.org/html/rfc1628

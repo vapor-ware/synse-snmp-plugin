@@ -11,6 +11,7 @@ import (
 	"github.com/soniah/gosnmp"
 )
 
+// Errors relating to SNMP plugin client creation and usage.
 var (
 	ErrNonV3SecurityParams = errors.New("cannot define security parameters for SNMP versions other than v3")
 )
@@ -26,6 +27,7 @@ type Client struct {
 	isConnected bool
 }
 
+// GetOid gets the value for a specified OID.
 func (c *Client) GetOid(oid string) (*gosnmp.SnmpPDU, error) {
 	if !c.isConnected {
 		if err := c.Connect(); err != nil {
@@ -45,10 +47,18 @@ func (c *Client) GetOid(oid string) (*gosnmp.SnmpPDU, error) {
 	return &data, nil
 }
 
+// GetClient returns the Client for the specified target.
+//
+// If there is no client for the specified target cached, nil is returned.
 func GetClient(target string) *Client {
 	return clientCache[target]
 }
 
+// CacheClient caches an SNMP client. The key a client is cached against is generated
+// from the client configuration values.
+//
+// If a client is already cached with a given key, it will be overwritten with the new
+// client instance.
 func CacheClient(client *Client) {
 	key := fmt.Sprintf("%s://%s:%d", client.Transport, client.Target, client.Port)
 
@@ -60,6 +70,9 @@ func CacheClient(client *Client) {
 	clientCache[key] = client
 }
 
+// NewClient creates a new instance of an SNMP Client for the given SNMP target
+// configuration. The SNMP target configuration is defined in the dynamic configuration
+// block for the plugin.
 func NewClient(cfg *SnmpTargetConfiguration) (*Client, error) {
 	// Verify that the configured version is valid.
 	version, err := GetSNMPVersion(cfg.Version)

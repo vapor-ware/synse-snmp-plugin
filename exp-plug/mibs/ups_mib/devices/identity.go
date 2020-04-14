@@ -2,7 +2,7 @@ package devices
 
 import "github.com/vapor-ware/synse-snmp-plugin/exp/mibs"
 
-// UPS-MIB "upsIdent" object device definitions.
+// Plugin device definitions for UPS-MIB "upsIdent" objects.
 //
 // See UPS-MIB 1.3.6.1.2.1.33.1.1
 // http://www.oidview.com/mibs/0/UPS-MIB.html

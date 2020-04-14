@@ -8,6 +8,7 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/utils"
 )
 
+// SnmpTargetConfiguration
 type SnmpTargetConfiguration struct {
 	MIB       string
 	Version   string
@@ -18,6 +19,7 @@ type SnmpTargetConfiguration struct {
 	Security  *SnmpV3Security
 }
 
+// SnmpV3Security
 type SnmpV3Security struct {
 	Level          string
 	Context        string
@@ -26,16 +28,19 @@ type SnmpV3Security struct {
 	Privacy        *SnmpV3SecurityPrivacy
 }
 
+// SnmpV3SecurityAuthentication
 type SnmpV3SecurityAuthentication struct {
 	Protocol   string
 	Passphrase string
 }
 
+// SnmpV3SecurityPrivacy
 type SnmpV3SecurityPrivacy struct {
 	Protocol   string
 	Passphrase string
 }
 
+// LoadTargetConfiguration
 func LoadTargetConfiguration(raw map[string]interface{}) (*SnmpTargetConfiguration, error) {
 	var cfg SnmpTargetConfiguration
 

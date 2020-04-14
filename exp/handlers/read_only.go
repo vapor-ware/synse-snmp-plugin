@@ -10,6 +10,7 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/exp/core"
 )
 
+// ReadOnly
 var ReadOnly = sdk.DeviceHandler{
 	Name: "read-only",
 	Read: func(device *sdk.Device) ([]*output.Reading, error) {

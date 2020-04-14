@@ -17,7 +17,10 @@ var BatteryDevices = []*mibs.SnmpDevice{
 	&UpsBatteryTemperature,
 }
 
-// UPS-MIB upsBattery device definitions.
+// Plugin device definitions for UPS-MIB "upsBattery" objects.
+//
+// See UPS-MIB 1.3.6.1.2.1.33.1.2
+// http://www.oidview.com/mibs/0/UPS-MIB.html
 var (
 	// TODO (etd): this should be an enumeration of:
 	//   unknown, batteryNormal, batteryLow, batteryDepleted

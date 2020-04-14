@@ -39,6 +39,7 @@ func (device *SnmpDevice) String() string {
 	return fmt.Sprintf("[SnmpDevice %s: %s]", device.OID, device.Info)
 }
 
+// ToDevice converts the plugin-specific SnmpDevice to a Synse SDK Device.
 func (device *SnmpDevice) ToDevice() (*sdk.Device, error) {
 	log.WithFields(log.Fields{
 		"oid":  device.OID,

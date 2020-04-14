@@ -9,6 +9,7 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
+// Errors for utility functions, largely around parsing SNMP configurations.
 var (
 	ErrInvalidAuthProtocol = errors.New("unsupported SNMP auth protocol specified")
 	ErrInvalidPrivProtocol = errors.New("unsupported SNMP privacy protocol specified")

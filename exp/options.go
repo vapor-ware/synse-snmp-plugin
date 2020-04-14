@@ -78,26 +78,4 @@ func SnmpDeviceRegistrar(data map[string]interface{}) ([]*sdk.Device, error) {
 		return nil, err
 	}
 	return d, nil
-
-	/*
-		Example config could look like:
-
-		dynamicRegistration:
-		-
-		  version: v3
-		  agent: 1.2.3.4:1024
-		  community: public
-		  timeout: 5s
-		  retries: 3
-		  security:  # this is only needed if using SNMP version 3
-		    model: authNoPriv
-		    context: public
-		    username: foobar
-			authentication:
-		      protocol: SHA
-		      passphrase: foobar
-		    privacy:
-		      protocol: AES
-		      passphrase: foobar
-	*/
 }

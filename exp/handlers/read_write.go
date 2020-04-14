@@ -5,6 +5,7 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
+// ReadWrite
 var ReadWrite = sdk.DeviceHandler{
 	Name: "read-write",
 	Read: func(device *sdk.Device) ([]*output.Reading, error) {

@@ -10,8 +10,8 @@ import (
 // SNMP plugin base.
 var pluginMibs = map[string]*MIB{}
 
+// Errors for SNMP base plugin MIB operations.
 var (
-	// Errors for SNMP base plugin MIB operations.
 	ErrMibExists = errors.New("MIB already registered")
 	ErrNilMib    = errors.New("MIB cannot be nil")
 )

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	_ "net/http/pprof"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/exp"
@@ -46,6 +49,12 @@ func MakePlugin() *sdk.Plugin {
 }
 
 func main() {
+	go func() {
+		log.Info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+		log.Info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+	}()
+
 	p := MakePlugin()
 	if err := p.Run(); err != nil {
 		log.Fatal(err)

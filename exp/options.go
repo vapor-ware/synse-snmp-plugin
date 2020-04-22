@@ -47,8 +47,12 @@ func SnmpDeviceIdentifier(data map[string]interface{}) string {
 // SnmpDeviceRegistrar is the dynamic registration function used by the SDK to
 // build devices at runtime.
 //
-// This function is defined for thee base SNMP plugin and is subsequently used
+// This function is defined for the base SNMP plugin and is subsequently used
 // by all plugins which use the base.
+//
+// It loads all devices for the specified MIB and caches the SNMP configuration
+// for each device. This allows each device to create a new client on demand using
+// this pre-loaded configuration.
 func SnmpDeviceRegistrar(data map[string]interface{}) ([]*sdk.Device, error) {
 	// Load the data into a configurations struct.
 	config, err := core.LoadTargetConfiguration(data)
@@ -62,17 +66,9 @@ func SnmpDeviceRegistrar(data map[string]interface{}) ([]*sdk.Device, error) {
 		return nil, fmt.Errorf("invalid configuration: no MIB specified for agent %s", config.Agent)
 	}
 
-	// Create a new client for the configured SNMP agent. This client is cached
-	// so devices can re-use the client.
-	client, err := core.NewClient(config)
-	if err != nil {
-		return nil, err
-	}
-	core.CacheClient(client)
-
 	// Get the specified MIB and load its devices for the agent.
-	mib := mibs.Get(config.MIB)
-	d, err := mib.LoadDevices(client)
+	mib := mibs.Get(data["mib"].(string))
+	d, err := mib.LoadDevices(config)
 	if err != nil {
 		log.WithError(err).Error("[snmp failed to load devices from MIB")
 		return nil, err

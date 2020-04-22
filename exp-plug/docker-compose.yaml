@@ -16,6 +16,8 @@ services:
     image: etd/expplugin
     expose:
       - '5001'
+    ports:
+      - '6060:6060'
     links:
       - snmp-emulator
 

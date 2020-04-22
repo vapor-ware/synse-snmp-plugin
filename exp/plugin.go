@@ -1,8 +1,15 @@
 package exp
 
 import (
+	"github.com/pkg/errors"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/exp/handlers"
+)
+
+// Errors for base plugin setup/creation.
+var (
+	ErrNoName       = errors.New("plugin metadata does not specify the required 'Name' field")
+	ErrNoMaintainer = errors.New("plugin metadata does not specify the required 'Maintainer' field")
 )
 
 // PluginMetadata holds metadata for the plugin instance. It is used to
@@ -21,6 +28,13 @@ type PluginMetadata struct {
 // SNMP handling. Plugin implementations need only provide plugin metadata for the
 // "subclassed" plugin and info mapping MIB devices to Synse devices.
 func NewSnmpBasePlugin(metadata *PluginMetadata) (*sdk.Plugin, error) {
+	if metadata.Name == "" {
+		return nil, ErrNoName
+	}
+	if metadata.Maintainer == "" {
+		return nil, ErrNoMaintainer
+	}
+
 	sdk.SetPluginInfo(
 		metadata.Name,
 		metadata.Maintainer,

@@ -3,6 +3,7 @@ package mibs
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/exp/core"
@@ -31,14 +32,17 @@ func (mib *MIB) String() string {
 }
 
 // LoadDevices loads Synse devices from the SNMP devices defined in the MIB.
-func (mib *MIB) LoadDevices(c *core.Client) ([]*sdk.Device, error) {
+func (mib *MIB) LoadDevices(cfg *core.SnmpTargetConfiguration) ([]*sdk.Device, error) {
+	if cfg == nil {
+		return nil, errors.New("cannot load devices with nil SNMP target config")
+	}
+
 	log.WithFields(log.Fields{
 		"mib":     mib.Name,
 		"devices": len(mib.Devices),
 	}).Debug("[snmp] loading devices for MIB")
 
 	var devices []*sdk.Device
-
 	for _, d := range mib.Devices {
 		device, err := d.ToDevice()
 		if err != nil {
@@ -50,7 +54,8 @@ func (mib *MIB) LoadDevices(c *core.Client) ([]*sdk.Device, error) {
 		// the ToDevice call), are required by the plugin to generate a
 		// unique ID for the device.
 		device.Data["mib"] = mib.Name
-		device.Data["agent"] = fmt.Sprintf("%s://%s:%d", c.Transport, c.Target, c.Port)
+		device.Data["agent"] = cfg.Agent
+		device.Data["target_cfg"] = cfg
 
 		devices = append(devices, device)
 	}

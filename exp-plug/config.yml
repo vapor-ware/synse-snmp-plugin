@@ -4,7 +4,7 @@ network:
   type: tcp
   address: ':5001'
 settings:
-  mode: serial
+  mode: parallel
   read:
     interval: 3s
     buffer: 1024

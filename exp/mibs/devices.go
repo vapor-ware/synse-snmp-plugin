@@ -65,6 +65,8 @@ func (device *SnmpDevice) ToDevice() (*sdk.Device, error) {
 	tags := []*sdk.Tag{
 		core.TagOrPanic("protocol/snmp"),
 		core.TagOrPanic(fmt.Sprintf("snmp/oid:%s", device.OID)),
+		// FIXME (etd): Need to add normalization around this since info may
+		//   contain a space, but spaces are not allowed in a tag label.
 		core.TagOrPanic(fmt.Sprintf("snmp/name:%s", device.Info)),
 	}
 	tags = append(tags, device.Tags...)

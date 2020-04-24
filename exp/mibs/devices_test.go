@@ -82,6 +82,40 @@ func TestSnmpDevice_ToDevice(t *testing.T) {
 	tagEquals(t, dev.Tags[3], &sdk.Tag{Namespace: "vaporio", Annotation: "test", Label: "device"})
 }
 
+func TestSnmpDevice_ToDevice2(t *testing.T) {
+	// Same test, different configuration.
+	d := SnmpDevice{
+		OID:     "1.2.3.4",
+		Info:    "info with spaces",
+		Type:    "state",
+		Handler: "state",
+		Output:  "state",
+	}
+
+	dev, err := d.ToDevice()
+	assert.NoError(t, err)
+	assert.NotNil(t, dev)
+
+	assert.Equal(t, "state", dev.Type)
+	assert.Equal(t, "info with spaces", dev.Info)
+	assert.Equal(t, "state", dev.Handler)
+	assert.Equal(t, "", dev.Alias)
+	assert.Equal(t, "state", dev.Output)
+	assert.Equal(t, 0*time.Second, dev.WriteTimeout)
+	assert.Equal(t, []sdk.Transformer(nil), dev.Transforms)
+	assert.Equal(t, map[string]interface{}{
+		"oid": "1.2.3.4",
+	}, dev.Data)
+	assert.Equal(t, map[string]string{
+		"oid": "1.2.3.4",
+	}, dev.Context)
+
+	assert.Len(t, dev.Tags, 3)
+	tagEquals(t, dev.Tags[0], &sdk.Tag{Namespace: "protocol", Annotation: "", Label: "snmp"})
+	tagEquals(t, dev.Tags[1], &sdk.Tag{Namespace: "snmp", Annotation: "oid", Label: "1.2.3.4"})
+	tagEquals(t, dev.Tags[2], &sdk.Tag{Namespace: "snmp", Annotation: "name", Label: "infoWithSpaces"})
+}
+
 func TestSnmpDevice_ToDevice_BadOutput(t *testing.T) {
 	d := SnmpDevice{
 		OID:     "1.2.3.4",

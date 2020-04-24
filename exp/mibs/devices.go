@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/iancoleman/strcase"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
@@ -61,13 +63,15 @@ func (device *SnmpDevice) ToDevice() (*sdk.Device, error) {
 	}
 	context["oid"] = device.OID
 
+	// Ensure that the device info can be made into a tag. Eliminate any spaces
+	// which may be present in the string.
+	normalizedInfo := strcase.ToLowerCamel(device.Info)
+
 	// Create a set of standard tags for the device.
 	tags := []*sdk.Tag{
 		core.TagOrPanic("protocol/snmp"),
 		core.TagOrPanic(fmt.Sprintf("snmp/oid:%s", device.OID)),
-		// FIXME (etd): Need to add normalization around this since info may
-		//   contain a space, but spaces are not allowed in a tag label.
-		core.TagOrPanic(fmt.Sprintf("snmp/name:%s", device.Info)),
+		core.TagOrPanic(fmt.Sprintf("snmp/name:%s", normalizedInfo)),
 	}
 	tags = append(tags, device.Tags...)
 

@@ -50,6 +50,52 @@ func TestNewClient(t *testing.T) {
 	assert.Equal(t, 1, client.Retries)
 }
 
+func TestNewClient2(t *testing.T) {
+	// Same test, different configuration
+	cfg := &SnmpTargetConfiguration{
+		MIB:     "test-mib",
+		Version: "v2",
+		Agent:   "tcp://localhost",
+		Timeout: 1 * time.Second,
+		Retries: 1,
+	}
+
+	client, err := NewClient(cfg)
+	assert.NoError(t, err)
+	assert.NotNil(t, client)
+
+	assert.Equal(t, "localhost", client.Target)
+	assert.Equal(t, uint16(161), client.Port)
+	assert.Equal(t, "tcp", client.Transport)
+	assert.Equal(t, "", client.Community)
+	assert.Equal(t, gosnmp.Version2c, client.Version)
+	assert.Equal(t, 1*time.Second, client.Timeout)
+	assert.Equal(t, 1, client.Retries)
+}
+
+func TestNewClient3(t *testing.T) {
+	// Same test, different configuration
+	cfg := &SnmpTargetConfiguration{
+		MIB:     "test-mib",
+		Version: "v1",
+		Agent:   "localhost:4321",
+		Timeout: 1 * time.Second,
+		Retries: 1,
+	}
+
+	client, err := NewClient(cfg)
+	assert.NoError(t, err)
+	assert.NotNil(t, client)
+
+	assert.Equal(t, "localhost", client.Target)
+	assert.Equal(t, uint16(4321), client.Port)
+	assert.Equal(t, "udp", client.Transport)
+	assert.Equal(t, "", client.Community)
+	assert.Equal(t, gosnmp.Version1, client.Version)
+	assert.Equal(t, 1*time.Second, client.Timeout)
+	assert.Equal(t, 1, client.Retries)
+}
+
 func TestNewClient_NoSecurity(t *testing.T) {
 	cfg := &SnmpTargetConfiguration{
 		MIB:     "test-mib",
@@ -131,6 +177,24 @@ func TestNewClient_BadPort(t *testing.T) {
 		MIB:     "test-mib",
 		Version: "v3",
 		Agent:   "udp://localhost:not-a-port",
+		Timeout: 1 * time.Second,
+		Retries: 1,
+		Security: &SnmpV3Security{
+			Level:   "NoAuthNoPriv",
+			Context: "test",
+		},
+	}
+
+	client, err := NewClient(cfg)
+	assert.Error(t, err)
+	assert.Nil(t, client)
+}
+
+func TestNewClient_BadPort2(t *testing.T) {
+	cfg := &SnmpTargetConfiguration{
+		MIB:     "test-mib",
+		Version: "v3",
+		Agent:   "udp://localhost:999999999999",
 		Timeout: 1 * time.Second,
 		Retries: 1,
 		Security: &SnmpV3Security{

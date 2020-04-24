@@ -1,10 +1,3 @@
-build:
-	GOOS=linux GOARCH=amd64 go build -o expplug .
-	docker build -t etd/expplugin .
-
-run:
-	docker-compose up -d
-
 cover: test
 	go tool cover -html=coverage.out
 

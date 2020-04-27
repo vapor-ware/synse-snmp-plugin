@@ -68,9 +68,15 @@ func SnmpDeviceRegistrar(data map[string]interface{}) ([]*sdk.Device, error) {
 
 	// Get the specified MIB and load its devices for the agent.
 	mib := mibs.Get(data["mib"].(string))
+	if mib == nil {
+		log.WithFields(log.Fields{
+			"mib": data["mib"],
+		}).Error("[snmp] specified MIB is not registered with the plugin")
+		return nil, fmt.Errorf("configured MIB not found")
+	}
 	d, err := mib.LoadDevices(config)
 	if err != nil {
-		log.WithError(err).Error("[snmp failed to load devices from MIB")
+		log.WithError(err).Error("[snmp] failed to load devices from MIB")
 		return nil, err
 	}
 	return d, nil

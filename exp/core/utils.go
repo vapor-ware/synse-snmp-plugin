@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -100,4 +101,25 @@ func GetSecurityFlags(s string) (gosnmp.SnmpV3MsgFlags, error) {
 		}).Error("[snmp] invalid SNMP message flag specified")
 		return 0, ErrInvalidMessageFlag
 	}
+}
+
+// BytesIfaceToASCII converts an interface, which should resolve to a byte array,
+// to a (printable) ASCII string, if possible. This is needed since there is no
+// differentiation between strings and  byte arrays in the SNMP protocol.
+//
+// If a call to this function fails, the caller should just keep the raw byte array.
+//
+// This function makes no attempt to support extended (8-bit) ASCII.
+func BytesIfaceToASCII(b interface{}) (string, error) {
+	bytes, ok := b.([]uint8)
+	if !ok {
+		return "", fmt.Errorf("failed converting data: %v (%T) to byte array", b, b)
+	}
+
+	for i := 0; i < len(bytes); i++ {
+		if !(bytes[i] < 0x80 && bytes[i] > 0x1f) {
+			return "", fmt.Errorf("unabled to convert  %x (%d byte of %x) to ASCII", bytes[i], i, bytes)
+		}
+	}
+	return string(bytes), nil
 }

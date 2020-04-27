@@ -251,3 +251,27 @@ func TestGetSecurityFlags_Error(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, ErrInvalidMessageFlag, err)
 }
+
+func TestBytesIfaceToASCII(t *testing.T) {
+	data := []uint8{0x68, 0x65, 0x6c, 0x6c, 0x6f}
+
+	str, err := BytesIfaceToASCII(data)
+	assert.NoError(t, err)
+	assert.Equal(t, "hello", str)
+}
+
+func TestBytesIfaceToASCII_BadIface(t *testing.T) {
+	data := "not a byte array"
+
+	str, err := BytesIfaceToASCII(data)
+	assert.Error(t, err)
+	assert.Equal(t, "", str)
+}
+
+func TestBytesIfaceToASCII_UnableToConvert(t *testing.T) {
+	data := []uint8{0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00}
+
+	str, err := BytesIfaceToASCII(data)
+	assert.Error(t, err)
+	assert.Equal(t, "", str)
+}

@@ -44,7 +44,16 @@ type SnmpV3SecurityPrivacy struct {
 func LoadTargetConfiguration(raw map[string]interface{}) (*SnmpTargetConfiguration, error) {
 	var cfg SnmpTargetConfiguration
 
-	if err := mapstructure.Decode(raw, &cfg); err != nil {
+	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		DecodeHook: mapstructure.StringToTimeDurationHookFunc(),
+		Result:     &cfg,
+	})
+	if err != nil {
+		log.Error("[snmp] failed to initialize config decoder")
+		return nil, err
+	}
+
+	if err := decoder.Decode(raw); err != nil {
 		log.WithFields(log.Fields{
 			"data": utils.RedactPasswords(raw),
 		}).Error("[snmp] failed decoding SNMP target configuration into struct")

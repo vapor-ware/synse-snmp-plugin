@@ -59,3 +59,11 @@ func GetAll() []*MIB {
 	}
 	return mibs
 }
+
+// Clear removes all data from the global MIB collection.
+//
+// Generally, this should not be used by a plugin implementation, however
+// it is useful for testing.
+func Clear() {
+	pluginMibs = map[string]*MIB{}
+}

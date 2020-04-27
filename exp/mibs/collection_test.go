@@ -97,3 +97,22 @@ func TestGetAll_Empty(t *testing.T) {
 	mibs := GetAll()
 	assert.Empty(t, mibs)
 }
+
+func TestClear(t *testing.T) {
+	defer resetGlobalMibs()
+
+	pluginMibs["foo"] = &MIB{}
+	pluginMibs["boo"] = &MIB{}
+
+	assert.Len(t, pluginMibs, 2)
+	Clear()
+	assert.Len(t, pluginMibs, 0)
+}
+
+func TestClear_Empty(t *testing.T) {
+	defer resetGlobalMibs()
+
+	assert.Len(t, pluginMibs, 0)
+	Clear()
+	assert.Len(t, pluginMibs, 0)
+}

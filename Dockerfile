@@ -1,7 +1,10 @@
 #
 # Builder Image
 #
-FROM vaporio/golang:1.13 as builder
+FROM vaporio/foundation:bionic as builder
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates
 
 #
 # Final Image

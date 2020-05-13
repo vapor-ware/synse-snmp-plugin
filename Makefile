@@ -78,12 +78,15 @@ help:  ## Print usage information
 
 .DEFAULT_GOAL := help
 
+.PHONY: test
+test: ## Run all tests
+	go test -cover ./...
 
 
 # FIXME: try to streamline the below
 
-.PHONY: test
-test:  ## Run all tests
+.PHONY: old-test
+old-test:  ## Run all tests
 	# Start the SNMP emulator in a docker container in the background.
 	# Tests run on the local machine.
 	docker-compose -f ./emulator/test_snmp.yml down || true

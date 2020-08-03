@@ -1,109 +1,44 @@
 #!/usr/bin/env groovy
 
-pipeline {
 
-  agent {
-    label 'golang-alpha'
-  }
+// Include this shared CI repository to load script helpers and libraries.
+library identifier: 'vapor@master', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+  remote: 'https://github.com/vapor-ware/ci-shared.git',
+  credentialsId: 'vio-bot-gh'])
 
-  environment {
-    IMAGE_NAME = 'vaporio/snmp-plugin'
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-
-    stage('Checks') {
-      parallel {
-
-        // Run tests on project source code.
-        // These tests run very differently when run from the Makefile and in CI.
-        // From the Makefile we start up the emulator in a container and expose port 1024
-        // on the host. The tests run on the host and connect through port 1024.
-        // Here we start up the emulator in a container and expose port 1024 on the host.
-        // The tests run in a golang container and connect to the exposed port 1024 on the host.
-        // This could cause problems with parallel builds, but it is a place to start.
-        //
-        // TODO (etd): Disabling this for now. The v3 branch uses a newer CI pattern that runs
-        //   in Kubernetes, so the docker build/networking assumptions here will not work. Will
-        //   need to spend some time thinking through what the best pattern would be to achieve
-        //   the needs of this test environment for the new CI setup.
-        //stage('Test') {
-        //  steps {
-        //    // Critical section to avoid container name collisions.
-        //    lock('Test') {
-        //      script {
-        //        // Build the SNMP emulator image.
-        //        sh 'docker build -t emulator_snmp-emulator-ups emulator'
-
-        //        // Start the SNMP emulator.
-        //        docker.image('emulator_snmp-emulator-ups:latest').withRun(
-        //          "-m 1024MB -p 1024:1024/udp --name snmp-emulator-ups", // args
-        //          "./start_snmp_emulator.sh ./data 1024 snmp-emulator-ups.log" // command
-        //          ) { se ->
-
-        //          // Stand up a container to run the tests. Put it on the host network.
-        //          docker.image('vaporio/golang:1.13').inside("--network=host") { testContainer ->
-        //            sh 'go test -cover -v ./...'
-        //          } // end testContainer
-        //        } // end emulator container
-        //      } // end script
-        //    } // end lock
-        //  } // end steps
-        //} // end stage
-
-        stage('Lint') {
-          steps {
-            container('golang') {
-              sh 'golint -set_exit_status ./pkg/...'
-            }
-          }
-        }
-
-        stage('Snapshot Build') {
-          steps {
-            container('golang') {
-              sh 'goreleaser release --debug --snapshot --skip-publish --rm-dist'
-            }
-          }
-        }
-      }
-    }
-
-    // Build the image with the 'edge' tag and publish it to DockerHub. This
-    // should only be run on the master branch (e.g. PR merge)
-    stage('Publish Latest') {
-      when {
-        branch 'master'
-      }
-      steps {
-        container('golang') {
-          withDockerRegistry(registry: [credentialsId: 'vio-docker-hub']) {
-            sh 'docker push ${IMAGE_NAME}:latest'
-          }
-        }
-      }
-    }
-
-    stage('Tagged Release') {
-      when {
-        buildingTag()
-      }
-      environment {
-        GITHUB_TOKEN = credentials('vio-bot-gh-token')
-      }
-      steps {
-        container('golang') {
-          withDockerRegistry(registry: [credentialsId: 'vio-docker-hub']) {
-            sh 'goreleaser release --debug --rm-dist'
-          }
-        }
-      }
-    }
-
-  }
-}
+golangPipeline([
+  "image": "vaporio/synse-snmp-plugin",
+  "podTemplate": """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    jenkins/job: synse-snmp-plugin
+spec:
+  containers:
+  - name: go
+    image: vaporio/jenkins-agent-golang:latest
+    command:
+    - cat
+    tty: true
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 998
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+    - name: docker-bin
+      mountPath: /usr/bin/docker
+  - name: emulator
+    image: lazypower/snmp-emulator:latest
+    tty: true
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+  - name: docker-bin
+    hostPath:
+      path: /usr/bin/docker
+"""
+])

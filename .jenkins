@@ -34,6 +34,7 @@ golangPipeline([
           mountPath: /usr/bin/docker
       - name: emulator
         image: vaporio/snmp-emulator:latest
+        tty: true
         args:
         - --data-dir=mibs/ups
         - --agent-udpv4-endpoint=0.0.0.0:1024
@@ -42,7 +43,10 @@ golangPipeline([
         - --v3-auth-proto=SHA
         - --v3-priv-key=privatus
         - --v3-priv-proto=AES
-        tty: true
+        ports:
+        - protocol: UDP
+          port: 1024
+          targetPort: 1024
       volumes:
       - name: docker-sock
         hostPath:

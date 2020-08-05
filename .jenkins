@@ -36,7 +36,7 @@ golangPipeline([
         image: vaporio/snmp-emulator:etd-test
         tty: true
         args:
-        - --data-dir=mibs/ups
+        - --data-dir=./mibs/ups
         - --agent-udpv4-endpoint=0.0.0.0:1024
         - --v3-user=simulator
         - --v3-auth-key=auctoritas

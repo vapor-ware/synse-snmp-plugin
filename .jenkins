@@ -33,7 +33,15 @@ golangPipeline([
         - name: docker-bin
           mountPath: /usr/bin/docker
       - name: emulator
-        image: lazypower/snmp-emulator:latest
+        image: vaporio/snmp-emulator:latest
+        command:
+        - --data-dir=mibs/ups
+        - --agent-udpv4-endpoint=0.0.0.0:1024
+        - --v3-user=simulator
+        - --v3-auth-key=auctoritas
+        - --v3-auth-proto=SHA
+        - --v3-priv-key=privatus
+        - --v3-priv-proto=AES
         tty: true
       volumes:
       - name: docker-sock

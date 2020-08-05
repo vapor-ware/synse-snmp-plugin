@@ -33,7 +33,7 @@ golangPipeline([
         - name: docker-bin
           mountPath: /usr/bin/docker
       - name: emulator
-        image: vaporio/snmp-emulator:latest
+        image: vaporio/snmp-emulator:etd-test
         tty: true
         args:
         - --data-dir=mibs/ups

@@ -45,8 +45,7 @@ golangPipeline([
         - --v3-priv-proto=AES
         ports:
         - protocol: UDP
-          port: 1024
-          targetPort: 1024
+          containerPort: 1024
       volumes:
       - name: docker-sock
         hostPath:

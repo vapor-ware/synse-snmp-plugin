@@ -34,7 +34,7 @@ golangPipeline([
           mountPath: /usr/bin/docker
       - name: emulator
         image: vaporio/snmp-emulator:latest
-        command:
+        args:
         - --data-dir=mibs/ups
         - --agent-udpv4-endpoint=0.0.0.0:1024
         - --v3-user=simulator

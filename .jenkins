@@ -35,14 +35,6 @@ golangPipeline([
       - name: emulator
         image: vaporio/snmp-emulator:etd-test
         tty: true
-        args:
-        - --data-dir=./data
-        - --agent-udpv4-endpoint=0.0.0.0:1024
-        - --v3-user=simulator
-        - --v3-auth-key=auctoritas
-        - --v3-auth-proto=SHA
-        - --v3-priv-key=privatus
-        - --v3-priv-proto=AES
       volumes:
       - name: docker-sock
         hostPath:

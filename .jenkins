@@ -34,6 +34,7 @@ golangPipeline([
           mountPath: /usr/bin/docker
       - name: emulator
         image: vaporio/snmp-emulator:etd-test
+        imagePullPolicy: Always
         tty: true
       volumes:
       - name: docker-sock

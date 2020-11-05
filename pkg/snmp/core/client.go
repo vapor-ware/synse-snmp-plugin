@@ -77,6 +77,7 @@ type DeviceConfig struct {
 	Endpoint           string              // Endpoint of the SNMP server to connect to.
 	ContextName        string              // Context name for SNMP V3 messages.
 	Timeout            time.Duration       // Timeout for the SNMP query.
+	Retries            int                 // The number of retries on the connection.
 	SecurityParameters *SecurityParameters // SNMP V3 security parameters.
 	Port               uint16              // UDP port to connect to.
 }
@@ -121,6 +122,7 @@ func NewDeviceConfig(
 		SecurityParameters: securityParameters,
 		ContextName:        contextName,
 		Timeout:            time.Duration(30) * time.Second,
+		Retries:            3,
 	}, nil
 }
 
@@ -410,6 +412,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 			PrivacyPassphrase:        client.DeviceConfig.SecurityParameters.PrivacyPassphrase,
 		},
 		ContextName: client.DeviceConfig.ContextName,
+		Retries:     client.DeviceConfig.Retries,
 	}
 
 	// Connect

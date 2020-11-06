@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk/config"
@@ -61,7 +62,8 @@ func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.Devi
 	log.Info("[snmp] initializing UPS")
 	pxgmsUps, err := servers.NewPxgmsUps(data)
 	if err != nil {
-		return nil, err
+		log.WithError(err).Error("Unable to initialize PxgmsUps")
+		os.Exit(1)
 	}
 	log.Info("[snmp] UPS initialized")
 

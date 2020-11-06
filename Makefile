@@ -78,23 +78,21 @@ help:  ## Print usage information
 
 .DEFAULT_GOAL := help
 
+# This test recipe probably is probably what ci is hooking into now? It's hard to tell.
+# You can't run tests on a dev box like this anymore without standing up the emulator first.
 .PHONY: test
 test: ## Run all tests
-	go test -cover ./...
+	go test -cover ./... || exit
 
 
 # FIXME: try to streamline the below
 
-.PHONY: old-test
-old-test:  ## Run all tests
+.PHONY: test-dev-box
+test-dev-box:  ## Run all tests on a dev box.
 	# Start the SNMP emulator in a docker container in the background.
 	# Tests run on the local machine.
 	docker-compose -f ./emulator/test_snmp.yml down || true
 	docker-compose -f ./emulator/test_snmp.yml build
 	docker-compose -f ./emulator/test_snmp.yml up -d
-	go test -cover ./... || (echo TESTS FAILED $$?; docker-compose -f ./emulator/test_snmp.yml kill; exit 1)
+	go test -cover -v ./... || (echo TESTS FAILED $$?; docker-compose -f ./emulator/test_snmp.yml kill; exit 1)
 	docker-compose -f ./emulator/test_snmp.yml down
-
-.PHONY: test-local
-test-local: ## Test with a local emulator (stand it up yourself)
-	go test -cover -v ./... || exit

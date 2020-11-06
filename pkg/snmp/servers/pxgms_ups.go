@@ -37,7 +37,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	// TODO: File a ticket on this. Checking against the model is ruining SNMP. Any MIB can
 	// now only support one and only one model.
 	// We intend to be able to share SNMP MIBs across models and this won't work at all.
-	// (mhink): The SNMP server level factory is NYI due to other oblications. This will allow sharing MIBs.
+	// (mhink): The SNMP server level factory is NYI due to other obligations. This will allow sharing MIBs.
 	// Ticket is here: https://github.com/vapor-ware/synse-snmp-plugin/issues/10
 	model := data["model"].(string)
 	log.Debugf("model is: [%s]", model)

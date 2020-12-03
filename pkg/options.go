@@ -60,15 +60,15 @@ func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.Devi
 	// Load the MIB from the configuration still.
 	// Factory class for initializing servers via config is TODO:
 	log.Info("[snmp] initializing UPS")
-	pxgmsUps, err := servers.NewPxgmsUps(data)
+	snmpServer, err := servers.CreateSnmpServer(data)
 	if err != nil {
-		log.WithError(err).Error("Unable to initialize PxgmsUps")
+		log.WithError(err).Error("Unable to initialize SnmpServer")
 		os.Exit(1)
 	}
 	log.Info("[snmp] UPS initialized")
 
 	// First get a map of each OID to each device instance.
-	oidMap, oidList, err := mapOidsToInstances(pxgmsUps.DeviceConfigs)
+	oidMap, oidList, err := mapOidsToInstances(snmpServer.DeviceConfigs)
 	if err != nil {
 		log.WithError(err).Error("[snmp] failed mapping OIDs to instances")
 		return nil, err
@@ -92,6 +92,6 @@ func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.Devi
 	}
 
 	// Dump SNMP device configurations.
-	core.DumpDeviceConfigs(pxgmsUps.DeviceConfigs)
-	return pxgmsUps.DeviceConfigs, nil
+	core.DumpDeviceConfigs(snmpServer.DeviceConfigs)
+	return snmpServer.DeviceConfigs, nil
 }

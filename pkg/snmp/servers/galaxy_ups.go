@@ -9,12 +9,12 @@ import (
 	mibs "github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/mibs/ups_mib"
 )
 
-// PxgmsUps represents the PXGMS UPS + EATON 93PM SNMP Server.
-type PxgmsUps struct {
+// GalaxyUps represents the Galaxy VM 180 kVA SNMP Server.
+type GalaxyUps struct {
 	*SnmpServer // base class.
 }
 
-// NewPxgmsUps creates the PxgmsUps structure.
+// NewGalaxyUps creates the GalaxyUps structure.
 // Sample data that works with the emulator:
 // contextName:public
 // endpoint:127.0.0.1
@@ -26,13 +26,13 @@ type PxgmsUps struct {
 // authenticationPassphrase:auctoritas
 // model:PXGMS UPS + EATON 93PM
 // version:v3
-func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // nolint: gocyclo
+func NewGalaxyUps(data map[string]interface{}) (ups *GalaxyUps, err error) { // nolint: gocyclo
 
-	// Parameter check against data["model"]
+	// Parameter check against the data["model"].
 	model := data["model"].(string)
 	log.Debugf("model is: [%s]", model)
-	if !strings.HasPrefix(model, "PXGMS UPS") {
-		return nil, fmt.Errorf("only PXGMS UPS models are currently supported")
+	if !strings.HasPrefix(model, "Galaxy VM") {
+		return nil, fmt.Errorf("only Galaxy UPS models are currently supported")
 	}
 
 	// Create the SNMP DeviceConfig,
@@ -81,7 +81,7 @@ func NewPxgmsUps(data map[string]interface{}) (ups *PxgmsUps, err error) { // no
 	}
 
 	// Set up the object.
-	return &PxgmsUps{
+	return &GalaxyUps{
 		&SnmpServer{
 			SnmpServerBase: snmpServerBase,
 			UpsMib:         upsMib,

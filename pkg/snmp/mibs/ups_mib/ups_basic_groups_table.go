@@ -28,7 +28,7 @@ func NewUpsBasicGroupsTable(snmpServerBase *core.SnmpServerBase) (table *UpsBasi
 		[]string{ // Column Names
 			"upsBasicIdentGroup",
 			"upsBasicBatteryGroup",
-			"upsBasicInpuGroup",
+			"upsBasicInputGroup",
 			"upsBasicOutputGroup",
 			"upsBasicBypassGroup",
 			"upsBasicAlarmGroup",

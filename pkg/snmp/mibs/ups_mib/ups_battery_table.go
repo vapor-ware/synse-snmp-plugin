@@ -34,7 +34,7 @@ func NewUpsBatteryTable(snmpServerBase *core.SnmpServerBase) (table *UpsBatteryT
 			"upsEstimatedChargeRemaining", // Percentage
 			"upsBatteryVoltage",           // Units .1 VDC.
 			"upsBatteryCurrent",           // Units .1 Amp DC.
-			"upsBacontteryTemperature",    // Units degrees C.
+			"upsBatteryTemperature",       // Units degrees C.
 		},
 		snmpServerBase, // snmpServer
 		"",             // rowBase

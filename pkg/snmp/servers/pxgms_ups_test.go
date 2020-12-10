@@ -50,5 +50,5 @@ func TestPxgmsUpsInitializationFailure(t *testing.T) {
 
 	_, err := NewPxgmsUps(data)
 	assert.Error(t, err)
-	assert.Equal(t, "Incoming packet is not authentic, discarding", err.Error())
+	assert.Equal(t, "incoming packet is not authentic, discarding", err.Error())
 }

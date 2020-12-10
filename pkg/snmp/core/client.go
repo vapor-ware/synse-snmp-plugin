@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gosnmp/gosnmp"
 	log "github.com/sirupsen/logrus"
-	"github.com/soniah/gosnmp"
 )
 
 // AuthenticationProtocol enumeration for authentication algorithms.
@@ -286,7 +286,7 @@ func NewSnmpClient(deviceConfig *DeviceConfig) (*SnmpClient, error) {
 // ReadResult is the result structure for any SNMP read.
 type ReadResult struct {
 	Oid  string      // The SNMP OID read.
-	Data interface{} // The data for the OID. See gosnmp decodeValue() https://github.com/soniah/gosnmp/blob/master/helper.go#L67
+	Data interface{} // The data for the OID. See gosnmp decodeValue() https://github.com/gosnmp/gosnmp/blob/6cf8f245c42ae575709cd3e0c880abb7c861595a/helper.go#L59
 }
 
 // Get performs an SNMP get on the given OID.

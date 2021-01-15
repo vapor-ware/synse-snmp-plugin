@@ -21,15 +21,30 @@ func CopyMapStringInterface(m map[string]interface{}) map[string]interface{} {
 }
 
 // DumpDeviceConfigs to the log.
-func DumpDeviceConfigs(deviceConfigs []*config.DeviceProto) {
+func DumpDeviceConfigs(deviceConfigs []*config.DeviceProto) (err error) {
+
+	var redactedContext interface{}
+	var redactedData interface{}
+
 	if deviceConfigs == nil {
 		log.Infof("[snmp] no device prototype configs to dump")
 		return
 	}
 
 	log.WithField("count", len(deviceConfigs)).Info("[snmp] found device prototype configs")
+
 	for i := 0; i < len(deviceConfigs); i++ {
 		proto := deviceConfigs[i]
+
+		redactedContext, err = utils.RedactPasswords(proto.Context)
+		if err != nil {
+			return
+		}
+		redactedData, err = utils.RedactPasswords(proto.Data)
+		if err != nil {
+			return
+		}
+
 		log.WithFields(log.Fields{
 			"idx":           i,
 			"instances":     len(proto.Instances),
@@ -38,12 +53,20 @@ func DumpDeviceConfigs(deviceConfigs []*config.DeviceProto) {
 			"handler":       proto.Handler,
 			"tags":          proto.Tags,
 			"type":          proto.Type,
-			"context":       utils.RedactPasswords(proto.Context),
-			"data":          utils.RedactPasswords(proto.Data),
+			"context":       redactedContext,
+			"data":          redactedData,
 		}).Info("[snmp] dumping device prototype config")
 
 		for j := 0; j < len(proto.Instances); j++ {
 			instance := proto.Instances[j]
+			redactedContext, err = utils.RedactPasswords(instance.Context)
+			if err != nil {
+				return
+			}
+			redactedData, err = utils.RedactPasswords(instance.Data)
+			if err != nil {
+				return
+			}
 			log.WithFields(log.Fields{
 				"idx":           j,
 				"prototype idx": i,
@@ -55,11 +78,12 @@ func DumpDeviceConfigs(deviceConfigs []*config.DeviceProto) {
 				"info":          instance.Info,
 				"alias":         instance.Alias,
 				"output":        instance.Output,
-				"context":       utils.RedactPasswords(instance.Context),
-				"data":          utils.RedactPasswords(instance.Data),
+				"context":       redactedContext,
+				"data":          redactedData,
 			}).Info("[snmp] dumping device instance config")
 		}
 	}
+	return
 }
 
 // MergeMapStringInterface returns a new map with the contents of both maps passed

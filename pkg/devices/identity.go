@@ -24,16 +24,21 @@ func SnmpIdentityRead(device *sdk.Device) (readings []*output.Reading, err error
 	}
 
 	// Should be a string.
-	resultString, ok := result.Data.(string)
+	resultData, ok := result.Data.(string)
 	if !ok {
+		if result.Data == nil {
+			// We got nil, so create a nil reading.
+			reading := outputs.Identity.MakeReading(nil)
+			readings = []*output.Reading{reading}
+			return readings, nil
+		}
 		return nil, fmt.Errorf(
-			"expected int identity reading, got type: %T, value: %v",
+			"expected string identity reading, got type: %T, value: %v",
 			result.Data, result.Data)
 	}
 
 	// Create the reading.
-	reading := outputs.Identity.MakeReading(resultString)
-
+	reading := outputs.Identity.MakeReading(resultData)
 	readings = []*output.Reading{reading}
 	return readings, nil
 }

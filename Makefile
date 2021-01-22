@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 2.0.2
+PLUGIN_VERSION := 2.0.3
 IMAGE_NAME     := vaporio/snmp-plugin
 BIN_NAME       := synse-snmp-plugin
 
@@ -83,6 +83,9 @@ help:  ## Print usage information
 .PHONY: test
 test: ## Run all tests
 	go test -cover ./... || exit
+
+.PHONY: integration-test
+unit-test: test
 
 
 # FIXME: try to streamline the below

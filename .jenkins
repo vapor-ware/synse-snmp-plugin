@@ -12,4 +12,8 @@ library identifier: 'vapor@1.0.3', retriever: modernSCM([
 golangPipeline([
   'image': 'vaporio/snmp-plugin',
   'skipSetup': true,
+  'skipUnitTest': true,
+  'emulators': [
+    'snmp',
+  ],
 ])

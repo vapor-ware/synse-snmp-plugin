@@ -84,7 +84,7 @@ help:  ## Print usage information
 test: ## Run all tests
 	go test -cover ./... || exit
 
-.PHONY: unit-test
+.PHONY: integration-test
 unit-test: test
 
 

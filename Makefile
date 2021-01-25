@@ -84,6 +84,9 @@ help:  ## Print usage information
 test: ## Run all tests
 	go test -cover ./... || exit
 
+.PHONY: integration-test
+unit-test: test
+
 
 # FIXME: try to streamline the below
 

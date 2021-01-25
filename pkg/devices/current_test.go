@@ -26,10 +26,8 @@ func TestCurrentNilReadingValue(t *testing.T) {
 			"version":                  "v3",
 
 			////
-			//"base_oid":   ".1.3.6.1.2.1.33.1.2.%d.0",
 			"base_oid": ".1.3.6.1.2.1.32.1.2.%d.0", // ups mib is at .33, not .32
 			"column":   6,
-			//"oid":        ".1.3.6.1.2.1.33.1.2.6.0",
 			"oid":        ".1.3.6.1.2.1.32.1.2.6.0", // ups mib at .33, not .32
 			"row":        0,
 			"table_name": "UPS-MIB-UPS-Battery-Table",
@@ -41,6 +39,5 @@ func TestCurrentNilReadingValue(t *testing.T) {
 	// Verify we get a nil reading and no error.
 	assert.NoError(t, err)
 	assert.Len(t, readings, 1)
-	t.Logf("*** readings[0]: %#v ", readings[0])
 	assert.Nil(t, readings[0].Value)
 }

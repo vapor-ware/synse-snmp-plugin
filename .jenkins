@@ -2,7 +2,7 @@
 
 
 // Include this shared CI repository to load script helpers and libraries.
-library identifier: 'vapor@master', retriever: modernSCM([
+library identifier: 'vapor@1.0.3', retriever: modernSCM([
   $class: 'GitSCMSource',
   remote: 'https://github.com/vapor-ware/ci-shared.git',
   credentialsId: 'vio-bot-gh',
@@ -11,36 +11,5 @@ library identifier: 'vapor@master', retriever: modernSCM([
 
 golangPipeline([
   'image': 'vaporio/snmp-plugin',
-  'podTemplate': """
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      labels:
-        jenkins/job: synse-snmp-plugin
-    spec:
-      containers:
-      - name: go
-        image: vaporio/jenkins-agent-golang:latest
-        command:
-        - cat
-        tty: true
-        securityContext:
-          runAsUser: 1000
-          runAsGroup: 998
-        volumeMounts:
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
-        - name: docker-bin
-          mountPath: /usr/bin/docker
-      - name: emulator
-        image: lazypower/snmp-emulator:latest
-        tty: true
-      volumes:
-      - name: docker-sock
-        hostPath:
-          path: /var/run/docker.sock
-      - name: docker-bin
-        hostPath:
-          path: /usr/bin/docker
-  """,
+  'skipSetup': true,
 ])

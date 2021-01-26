@@ -20,6 +20,13 @@ func SnmpCurrentRead(device *sdk.Device) (readings []*output.Reading, err error)
 		return nil, err
 	}
 
+	// Check for nil reading.
+	if result.Data == nil {
+		reading := output.ElectricCurrent.MakeReading(nil)
+		readings = []*output.Reading{reading}
+		return readings, nil
+	}
+
 	// Account for a multiplier if any and convert to float.
 	var resultFloat float32
 	resultFloat, err = MultiplyReading(result, device.Data)

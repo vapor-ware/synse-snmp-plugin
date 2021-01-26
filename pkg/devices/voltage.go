@@ -20,6 +20,13 @@ func SnmpVoltageRead(device *sdk.Device) (readings []*output.Reading, err error)
 		return nil, err
 	}
 
+	// Check for nil reading.
+	if result.Data == nil {
+		reading := output.Voltage.MakeReading(nil)
+		readings = []*output.Reading{reading}
+		return readings, nil
+	}
+
 	// Account for a multiplier if any and convert to float.
 	var resultFloat float32
 	resultFloat, err = MultiplyReading(result, device.Data)
@@ -29,7 +36,6 @@ func SnmpVoltageRead(device *sdk.Device) (readings []*output.Reading, err error)
 
 	// Create the reading.
 	reading := output.Voltage.MakeReading(resultFloat)
-
 	readings = []*output.Reading{reading}
 	return readings, nil
 }

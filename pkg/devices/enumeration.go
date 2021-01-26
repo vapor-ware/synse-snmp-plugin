@@ -29,6 +29,9 @@ func TranslateEnumeration(result core.ReadResult, data map[string]interface{}) (
 	// Raw SNMP reading should be an int.
 	resultInt, ok := result.Data.(int)
 	if !ok {
+		if result.Data == nil {
+			return "", nil // Nil reading data. Return empty string.
+		}
 		return "", fmt.Errorf(
 			"expected int reading, got type: %T, value: %v",
 			result.Data, result.Data)

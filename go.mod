@@ -9,7 +9,6 @@ require (
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/prometheus/client_golang v1.9.0 // indirect
-	github.com/prometheus/common v0.15.0 // indirect
 	github.com/prometheus/procfs v0.3.0 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.7.0

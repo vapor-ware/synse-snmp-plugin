@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 2.0.4
+PLUGIN_VERSION := 2.1.0
 IMAGE_NAME     := vaporio/snmp-plugin
 BIN_NAME       := synse-snmp-plugin
 

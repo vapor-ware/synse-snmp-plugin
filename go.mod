@@ -4,7 +4,6 @@ go 1.16
 
 require (
 	github.com/creasty/defaults v1.5.1 // indirect
-	github.com/go-kit/kit v0.10.0 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gosnmp/gosnmp v1.32.0
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -13,9 +12,8 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210413152122-9d6dea743ebb
-	golang.org/x/sys v0.0.0-20210603125802-9665404d3644 // indirect
-	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
-	google.golang.org/genproto v0.0.0-20210607140030-00d4fb20b1ae // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
+	golang.org/x/time v0.0.0-20210608053304-ed9ce3a009e4 // indirect
+	google.golang.org/genproto v0.0.0-20210608205507-b6d2f5bf0d7d // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

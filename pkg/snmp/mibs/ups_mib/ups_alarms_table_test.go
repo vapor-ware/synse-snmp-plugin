@@ -13,7 +13,7 @@ import (
 func TestUpsAlarmsInfo(t *testing.T) {
 
 	var expected = []string{
-		"upsAlarmBateryBad",
+		"upsAlarmBatteryBad",
 		"upsAlarmOnBattery",
 		"upsAlarmLowBattery",
 		"upsAlarmDepletedBattery",

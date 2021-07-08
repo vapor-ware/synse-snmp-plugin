@@ -8,6 +8,35 @@ import (
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
+// upsAlarmsInfo is what the device info will be under SNMP OID
+// .1.3.6.1.2.1.33.1.6.3 view it in a MIB browser to see the names.
+var upsAlarmsInfo = []string{
+	"upsAlarmBateryBad",
+	"upsAlarmOnBattery",
+	"upsAlarmLowBattery",
+	"upsAlarmDepletedBattery",
+	"upsAlarmTempBad",
+	"upsAlarmInputBad",
+	"upsAlarmOutputBad",
+	"upsAlarmOutputOverload",
+	"upsAlarmOnBypass",
+	"upsAlarmBypassBad",
+	"upsAlarmOutputOffAsRequested",
+	"upsAlarmUpsOffAsRequested",
+	"upsAlarmChargerFailed",
+	"upsAlarmUpsOutputOff",
+	"upsAlarmUpsSystemOff",
+	"upsAlarmFanFailure",
+	"upsAlarmFuseFailure",
+	"upsAlarmGeneralFault",
+	"upsAlarmDiagnosticTestFailed",
+	"upsAlarmCommunicationsLost",
+	"upsAlarmAwaitingPower",
+	"upsAlarmShutdownPending",
+	"upsAlarmShutdownImminent",
+	"upsAlarmTestInProgress",
+}
+
 // UpsAlarmsTable represents SNMP OID .1.3.6.1.2.1.33.1.6.2
 // There are no rows in this table when no alarms are present.
 // We have no real data for this row at this time (5/16/2018)
@@ -100,7 +129,7 @@ func (enumerator UpsAlarmsTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device := &config.DeviceInstance{
-			Info: fmt.Sprintf("upsAlarm%d", i),
+			Info: upsAlarmsInfo[i],
 			Data: deviceData,
 		}
 		statusProto.Instances = append(statusProto.Instances, device)

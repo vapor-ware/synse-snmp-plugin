@@ -11,7 +11,7 @@ import (
 // upsAlarmsInfo is what the device info will be under SNMP OID
 // .1.3.6.1.2.1.33.1.6.3 view it in a MIB browser to see the names.
 var upsAlarmsInfo = []string{
-	"upsAlarmBateryBad",
+	"upsAlarmBatteryBad",
 	"upsAlarmOnBattery",
 	"upsAlarmLowBattery",
 	"upsAlarmDepletedBattery",
@@ -148,7 +148,7 @@ func (enumerator UpsAlarmsTableDeviceEnumerator) DeviceEnumerator(
 		}
 
 		device = &config.DeviceInstance{
-			Info: fmt.Sprintf("upsAlarmTime%d", i),
+			Info: fmt.Sprintf("%sTime", upsAlarmsInfo[i]),
 			Data: deviceData,
 		}
 		statusProto.Instances = append(statusProto.Instances, device)

@@ -76,9 +76,10 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		return nil, err
 	}
 
-	// We will have "status", "voltage", "current", and "temperature" device kinds.
+	// We will have "status", "voltage", "current", "temperature", "percentage", "minutes", and "seconds" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
+	// The code below is hooking up the DeviceHandler via the Type string to the Output Type string.
 	statusProto := &config.DeviceProto{
 		Type: "status",
 		Context: map[string]string{
@@ -111,11 +112,38 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Instances: []*config.DeviceInstance{},
 	}
 
+	percentageProto := &config.DeviceProto{
+		Type: "percentage",
+		Context: map[string]string{
+			"model": model,
+		},
+		Instances: []*config.DeviceInstance{},
+	}
+
+	minutesProto := &config.DeviceProto{
+		Type: "minutes",
+		Context: map[string]string{
+			"model": model,
+		},
+		Instances: []*config.DeviceInstance{},
+	}
+
+	secondsProto := &config.DeviceProto{
+		Type: "seconds",
+		Context: map[string]string{
+			"model": model,
+		},
+		Instances: []*config.DeviceInstance{},
+	}
+
 	devices = []*config.DeviceProto{
 		statusProto,
 		voltageProto,
 		currentProto,
 		temperatureProto,
+		percentageProto,
+		minutesProto,
+		secondsProto,
 	}
 
 	// This is always a single row table.
@@ -130,6 +158,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		"column":     "1",
 		"oid":        fmt.Sprintf(table.Rows[0].BaseOid, 1), // base_oid and integer column.
 		// This is an enumeration. We need to translate the integer we read to a string.
+		"enumeration": "true", // Defines that this is an enumeration.
 		// Enumeration data. For now we have map[string]string to work with so the
 		// key is fmt.Sprintf("enumeration%d", reading).
 		"enumeration1": "unknown",
@@ -165,7 +194,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsSecondsOnBattery",
 		Data: deviceData,
 	}
-	statusProto.Instances = append(statusProto.Instances, device)
+	secondsProto.Instances = append(secondsProto.Instances, device)
 
 	// upsEstimatedMinutesRemaining -----------------------------------------------
 	deviceData = map[string]interface{}{
@@ -184,7 +213,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsEstimatedMinutesRemaining",
 		Data: deviceData,
 	}
-	statusProto.Instances = append(statusProto.Instances, device)
+	minutesProto.Instances = append(minutesProto.Instances, device)
 
 	// upsEstimatedChargeRemaining ------------------------------------------------
 	deviceData = map[string]interface{}{
@@ -203,11 +232,10 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 		Info: "upsEstimatedChargeRemaining",
 		Data: deviceData,
 	}
-	statusProto.Instances = append(statusProto.Instances, device)
+	percentageProto.Instances = append(percentageProto.Instances, device)
 
 	// upsBatteryVoltage ----------------------------------------------------------
 	deviceData = map[string]interface{}{
-		//"info":       "upsBatteryVoltage",
 		"base_oid":   table.Rows[0].BaseOid,
 		"table_name": table.Name,
 		"row":        "0",

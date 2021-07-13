@@ -107,11 +107,20 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 		Instances: []*config.DeviceInstance{},
 	}
 
+	percentageProto := &config.DeviceProto{
+		Type: "percentage",
+		Context: map[string]string{
+			"model": model,
+		},
+		Instances: []*config.DeviceInstance{},
+	}
+
 	devices = []*config.DeviceProto{
 		statusProto,
 		voltageProto,
 		currentProto,
 		powerProto,
+		percentageProto,
 	}
 
 	for i := 0; i < len(table.Rows); i++ {
@@ -194,7 +203,7 @@ func (enumerator UpsOutputTableDeviceEnumerator) DeviceEnumerator(
 			Info: fmt.Sprintf("upsOutputPercentLoad%d", i),
 			Data: deviceData,
 		}
-		statusProto.Instances = append(statusProto.Instances, device)
+		percentageProto.Instances = append(percentageProto.Instances, device)
 	}
 
 	return devices, err

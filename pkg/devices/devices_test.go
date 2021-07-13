@@ -109,7 +109,7 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	//  by location
 	snmpDevices, err := testUpsMib.EnumerateDevices(map[string]interface{}{})
 	assert.NoError(t, err)
-	assert.Len(t, snmpDevices, 20) // all DeviceProtos from all tables.
+	assert.Len(t, snmpDevices, 24) // all DeviceProtos from all tables.
 
 	logDeviceProtos(t, snmpDevices, "Devices from UPS-MIB")
 
@@ -130,7 +130,7 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		}
 	}
 	// Check the total number of unique number of device proto types
-	assert.Len(t, protos, 7, protos)
+	assert.Len(t, protos, 10, protos)
 	// Check the total number of device instances
 	assert.Equal(t, 45, instanceCount)
 
@@ -138,11 +138,14 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	t.Logf("device prototype map: %#v", protos)
 	assert.Equal(t, 6, protos["power"])
 	assert.Equal(t, 6, protos["identity"])
-	assert.Equal(t, 14, protos["status"])
+	assert.Equal(t, 8, protos["status"])
 	assert.Equal(t, 7, protos["voltage"])
 	assert.Equal(t, 7, protos["current"])
 	assert.Equal(t, 1, protos["temperature"])
 	assert.Equal(t, 4, protos["frequency"])
+	assert.Equal(t, 4, protos["percentage"])
+	assert.Equal(t, 1, protos["minutes"])
+	assert.Equal(t, 1, protos["seconds"])
 
 	logDeviceProtos(t, snmpDevices, "Second device dump:")
 

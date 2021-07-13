@@ -119,6 +119,9 @@ Device Handlers are referenced by name.
 | identity  | A handler for OIDs which report SNMP identity. | `identity`         | ✓     | ✗     | ✗         | ✗      |
 | power     | A handler for OIDs which report power.         | `watt`             | ✓     | ✗     | ✗         | ✗      |
 | status    | A handler for OIDs which report status.        | `status`           | ✓     | ✗     | ✗         | ✗      |
+| percentage| A handler for OIDs which report percentage.    | `percentage`       | ✓     | ✗     | ✗         | ✗      |
+| minutes   | A handler for OIDs which report minutes.       | `minutes`          | ✓     | ✗     | ✗         | ✗      |
+| seconds   | A handler for OIDs which report seconds.       | `seconds`          | ✓     | ✗     | ✗         | ✗      |
 
 ### Write Values
 

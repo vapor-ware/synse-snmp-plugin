@@ -132,15 +132,15 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 	// Check the total number of unique number of device proto types
 	assert.Len(t, protos, 10, protos)
 	// Check the total number of device instances
-	assert.Equal(t, 45, instanceCount)
+	assert.Equal(t, 54, instanceCount)
 
 	// Check the number of device instances for each device prototype.
 	t.Logf("device prototype map: %#v", protos)
-	assert.Equal(t, 6, protos["power"])
+	assert.Equal(t, 9, protos["power"])
 	assert.Equal(t, 6, protos["identity"])
 	assert.Equal(t, 8, protos["status"])
-	assert.Equal(t, 7, protos["voltage"])
-	assert.Equal(t, 7, protos["current"])
+	assert.Equal(t, 10, protos["voltage"])
+	assert.Equal(t, 10, protos["current"])
 	assert.Equal(t, 1, protos["temperature"])
 	assert.Equal(t, 4, protos["frequency"])
 	assert.Equal(t, 4, protos["percentage"])

@@ -16,7 +16,7 @@ type UpsBypassTable struct {
 // NewUpsBypassTable constructs the UpsBypassTable.
 func NewUpsBypassTable(snmpServerBase *core.SnmpServerBase) (table *UpsBypassTable, err error) {
 	var tableName = "UPS-MIB-UPS-Bypass-Table"
-	var walkOid = ".1.3.6.1.2.1.33.1.2"
+	var walkOid = ".1.3.6.1.2.1.33.1.5.3"
 
 	log.WithFields(log.Fields{
 		"name": tableName,

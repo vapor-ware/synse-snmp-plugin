@@ -136,7 +136,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 	for _, proto := range devices {
 		instanceCount += len(proto.Instances)
 	}
-	assert.Equal(t, 45, instanceCount, "devices")
+	assert.Equal(t, 54, instanceCount, "devices")
 
 	t.Log("Dumping devices enumerated from UPS-MIB")
 	for _, proto := range devices {

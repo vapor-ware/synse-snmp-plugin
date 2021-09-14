@@ -175,6 +175,7 @@ func (enumerator UpsIdentityTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	devices = []*config.DeviceProto{

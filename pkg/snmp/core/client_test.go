@@ -25,7 +25,8 @@ func TestClient(t *testing.T) {
 		"127.0.0.1", // Endpoint
 		1024,        // Port
 		securityParameters,
-		"public", //  Context name
+		"public",   //  Context name
+		[]string{}, // tags (none)
 	)
 	assert.NoError(t, err)
 
@@ -283,7 +284,8 @@ func TestDeviceConfigSerialization(t *testing.T) {
 		"127.0.0.1", // Endpoint
 		1024,        // Port
 		securityParameters,
-		"public", //  Context name
+		"public",   //  Context name
+		[]string{}, // tags (none)
 	)
 	assert.NoError(t, err)
 

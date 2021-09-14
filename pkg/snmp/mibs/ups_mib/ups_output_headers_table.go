@@ -79,6 +79,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	frequencyProto := &config.DeviceProto{
@@ -87,6 +88,7 @@ func (enumerator UpsOutputHeadersTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	devices = []*config.DeviceProto{

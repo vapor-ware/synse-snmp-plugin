@@ -72,6 +72,7 @@ func NewSecurityParameters(
 }
 
 // DeviceConfig is a thin wrapper around the configuration for gosnmp using SNMP V3.
+// Tags are included here to expose on a Synse scan.
 type DeviceConfig struct {
 	Version            string              // SNMP protocol version. Currently only SNMP V3 is supported.
 	Endpoint           string              // Endpoint of the SNMP server to connect to.
@@ -80,6 +81,7 @@ type DeviceConfig struct {
 	Retries            int                 // The number of retries on the connection.
 	SecurityParameters *SecurityParameters // SNMP V3 security parameters.
 	Port               uint16              // UDP port to connect to.
+	Tags               []string            // List of synse device tags.
 }
 
 // checkForEmptyString checks for an empty string variable and fails with an
@@ -91,13 +93,14 @@ func checkForEmptyString(variable string, variableName string) (err error) {
 	return nil
 }
 
-// NewDeviceConfig creates an DeviceConfig.
+// NewDeviceConfig creates a DeviceConfig.
 func NewDeviceConfig(
 	version string,
 	endpoint string,
 	port uint16,
 	securityParameters *SecurityParameters,
-	contextName string) (*DeviceConfig, error) {
+	contextName string,
+	tags []string) (*DeviceConfig, error) {
 
 	// Check parameters.
 	versionUpper := strings.ToUpper(version)
@@ -123,6 +126,7 @@ func NewDeviceConfig(
 		ContextName:        contextName,
 		Timeout:            time.Duration(30) * time.Second,
 		Retries:            3,
+		Tags:               tags,
 	}, nil
 }
 
@@ -228,13 +232,19 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 		return nil, err
 	}
 
+	tags, ok := instanceData["deviceTags"].([]string)
+	if !ok {
+		tags = []string{}
+	}
+
 	// Create the config.
 	return NewDeviceConfig(
 		version,
 		endpoint,
 		port,
 		securityParameters,
-		contextName)
+		contextName,
+		tags)
 }
 
 // ToMap serializes DeviceConfig to map[string]interface{}.
@@ -249,6 +259,7 @@ func (deviceConfig *DeviceConfig) ToMap() (m map[string]interface{}, err error) 
 	m["endpoint"] = deviceConfig.Endpoint
 	m["port"] = deviceConfig.Port
 	m["contextName"] = deviceConfig.ContextName
+	m["deviceTags"] = deviceConfig.Tags
 
 	securityParameters := deviceConfig.SecurityParameters
 	m["userName"] = securityParameters.UserName

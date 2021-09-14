@@ -67,6 +67,11 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 	mib := table.Mib.(*UpsMib)
 	model := mib.UpsIdentityTable.UpsIdentity.Model
 
+	snmpDeviceConfigMap, err := table.SnmpServerBase.DeviceConfig.ToMap()
+	if err != nil {
+		return nil, err
+	}
+
 	// We will have "voltage", "current", and "power" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
@@ -76,6 +81,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	currentProto := &config.DeviceProto{
@@ -84,6 +90,7 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	powerProto := &config.DeviceProto{
@@ -92,17 +99,13 @@ func (enumerator UpsBypassTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	devices = []*config.DeviceProto{
 		voltageProto,
 		currentProto,
 		powerProto,
-	}
-
-	snmpDeviceConfigMap, err := table.SnmpServerBase.DeviceConfig.ToMap()
-	if err != nil {
-		return nil, err
 	}
 
 	for i := 0; i < len(table.Rows); i++ {

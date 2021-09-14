@@ -57,8 +57,7 @@ func deviceIdentifier(data map[string]interface{}) string {
 
 // deviceEnumerator allows the sdk to enumerate devices.
 func deviceEnumerator(data map[string]interface{}) (deviceConfigs []*config.DeviceProto, err error) {
-	// Load the MIB from the configuration still.
-	// Factory class for initializing servers via config is TODO:
+	// Load the MIB from the configuration.
 	log.Info("[snmp] initializing UPS")
 	snmpServer, err := servers.CreateSnmpServer(data)
 	if err != nil {

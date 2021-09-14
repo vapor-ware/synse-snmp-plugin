@@ -9,12 +9,12 @@ import (
 	mibs "github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/mibs/ups_mib"
 )
 
-// GalaxyUps represents the Schneider APC Galaxy VM SNMP Server.
-type GalaxyUps struct {
+// TrippliteUps represents the Tripplite SU10000RT3UPM SNMP Server.
+type TrippliteUps struct {
 	*SnmpServer // base class.
 }
 
-// NewGalaxyUps creates the GalaxyUps structure.
+// NewTrippliteUps creates the TrippliteUps structure.
 // Sample data that works with the emulator:
 // contextName:public
 // endpoint:127.0.0.1
@@ -24,15 +24,15 @@ type GalaxyUps struct {
 // port:1024
 // authenticationProtocol:SHA
 // authenticationPassphrase:auctoritas
-// model:PXGMS UPS + EATON 93PM
+// model: SU10000RT3UPM
 // version:v3
-func NewGalaxyUps(data map[string]interface{}) (ups *GalaxyUps, err error) { // nolint: gocyclo
+func NewTrippliteUps(data map[string]interface{}) (ups *TrippliteUps, err error) { // nolint: gocyclo
 
 	// Parameter check against the data["model"].
 	model := data["model"].(string)
 	log.Debugf("model is: [%s]", model)
-	if !strings.HasPrefix(model, "Galaxy VM") {
-		return nil, fmt.Errorf("only Galaxy UPS models are currently supported")
+	if !strings.HasPrefix(model, "SU10000RT3UPM") {
+		return nil, fmt.Errorf("only Tripplite SU10000RT3UPM UPS models are currently supported")
 	}
 
 	// Create the SNMP DeviceConfig,
@@ -81,7 +81,7 @@ func NewGalaxyUps(data map[string]interface{}) (ups *GalaxyUps, err error) { // 
 	}
 
 	// Set up the object.
-	return &GalaxyUps{
+	return &TrippliteUps{
 		&SnmpServer{
 			SnmpServerBase: snmpServerBase,
 			UpsMib:         upsMib,

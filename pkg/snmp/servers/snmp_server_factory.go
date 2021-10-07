@@ -29,6 +29,13 @@ func CreateSnmpServer(data map[string]interface{}) (server *SnmpServer, err erro
 		return
 	}
 
+	if model == "SU10000RT3UPM" {
+		var galaxyups *GalaxyUps
+		galaxyups, err = NewGalaxyUps(data)
+		server = galaxyups.SnmpServer
+		return
+	}
+
 	err = fmt.Errorf("Unkown snmp server model: %v", model)
 	return
 }

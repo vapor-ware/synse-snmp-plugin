@@ -75,12 +75,14 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 	// We will have "frequency", "voltage", "current", and "power" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
+	// TODO: Shim in the tags here.
 	frequencyProto := &config.DeviceProto{
 		Type: "frequency",
 		Context: map[string]string{
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	voltageProto := &config.DeviceProto{
@@ -89,6 +91,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	currentProto := &config.DeviceProto{
@@ -97,6 +100,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	powerProto := &config.DeviceProto{
@@ -105,6 +109,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	devices = []*config.DeviceProto{

@@ -86,6 +86,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	voltageProto := &config.DeviceProto{
@@ -94,6 +95,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	currentProto := &config.DeviceProto{
@@ -102,6 +104,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	temperatureProto := &config.DeviceProto{
@@ -110,6 +113,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	percentageProto := &config.DeviceProto{
@@ -118,6 +122,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	minutesProto := &config.DeviceProto{
@@ -126,6 +131,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	secondsProto := &config.DeviceProto{
@@ -134,6 +140,7 @@ func (enumerator UpsBatteryTableDeviceEnumerator) DeviceEnumerator(
 			"model": model,
 		},
 		Instances: []*config.DeviceInstance{},
+		Tags:      snmpDeviceConfigMap["deviceTags"].([]string),
 	}
 
 	devices = []*config.DeviceProto{

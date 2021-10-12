@@ -43,7 +43,7 @@ func logDeviceProtos(t *testing.T, protos []*config.DeviceProto, header string) 
 	for _, proto := range protos {
 		t.Logf(".. [proto: %s] Count device instances: %d", proto.Type, len(proto.Instances))
 		for _, instance := range proto.Instances {
-			t.Logf("     device: %v %v %v %v %v row:%v column:%v\n",
+			t.Logf("     device: %v %v %v %v %v row:%v column:%v, tags: %v\n",
 				instance.Data["table_name"],
 				proto.Type,
 				instance.Info,
@@ -51,6 +51,7 @@ func logDeviceProtos(t *testing.T, protos []*config.DeviceProto, header string) 
 				instance.Data["base_oid"],
 				instance.Data["row"],
 				instance.Data["column"],
+				proto.Tags,
 			)
 		}
 
@@ -77,7 +78,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		"127.0.0.1", // Endpoint
 		1024,        // Port
 		securityParameters,
-		"public", //  Context name
+		"public",                           //  Context name
+		[]string{"serverName:customerUps"}, // tags
 	)
 	assert.NoError(t, err)
 
@@ -163,7 +165,7 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		t.Logf("device[%d]: %+v", i, devices[i])
 	}
 
-	// Read each device
+	// Read each device. Check device tags.
 	t.Logf("Reading each device.")
 	for i := 0; i < len(devices); i++ {
 		context, err := devices[i].Read() // Call Read through the device's function pointer.
@@ -175,6 +177,12 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		for j := 0; j < len(readings); j++ {
 			t.Logf("Reading[%d][%d]: %T, %+v", i, j, readings[j], readings[j])
 		}
+
+		// Check device tags.
+		assert.Len(t, devices[i].Tags, 1)
+		assert.Equal(t, "default", devices[i].Tags[0].Namespace)
+		assert.Equal(t, "serverName", devices[i].Tags[0].Annotation)
+		assert.Equal(t, "customerUps", devices[i].Tags[0].Label)
 	}
 	t.Log("Finished reading each device.")
 }

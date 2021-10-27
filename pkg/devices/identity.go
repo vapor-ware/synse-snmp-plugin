@@ -6,6 +6,7 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/outputs"
+	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // SnmpIdentity is the handler for the snmp-identity device.
@@ -18,17 +19,22 @@ var SnmpIdentity = sdk.DeviceHandler{
 func SnmpIdentityRead(device *sdk.Device) (readings []*output.Reading, err error) {
 
 	// Get the raw reading from the SNMP server.
-	result, err := getRawReading(device)
+	var result core.ReadResult
+	result, err = getRawReading(device)
 	if err != nil {
 		return nil, err
 	}
 
 	// Should be a string.
+	var reading *output.Reading
 	resultData, ok := result.Data.(string)
 	if !ok {
 		if result.Data == nil {
 			// We got nil, so create a nil reading.
-			reading := outputs.Identity.MakeReading(nil)
+			reading, err = outputs.Identity.MakeReading(nil)
+			if err != nil {
+				return nil, err
+			}
 			readings = []*output.Reading{reading}
 			return readings, nil
 		}
@@ -38,7 +44,10 @@ func SnmpIdentityRead(device *sdk.Device) (readings []*output.Reading, err error
 	}
 
 	// Create the reading.
-	reading := outputs.Identity.MakeReading(resultData)
+	reading, err = outputs.Identity.MakeReading(resultData)
+	if err != nil {
+		return nil, err
+	}
 	readings = []*output.Reading{reading}
 	return readings, nil
 }

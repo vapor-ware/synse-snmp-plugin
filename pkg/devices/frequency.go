@@ -3,6 +3,7 @@ package devices
 import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
+	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // SnmpFrequency is the handler for the SNMP OIDs that report frequency.
@@ -15,14 +16,19 @@ var SnmpFrequency = sdk.DeviceHandler{
 func SnmpFrequencyRead(device *sdk.Device) (readings []*output.Reading, err error) {
 
 	// Get the raw reading from the SNMP server.
-	result, err := getRawReading(device)
+	var result core.ReadResult
+	result, err = getRawReading(device)
 	if err != nil {
 		return nil, err
 	}
 
 	// Check for nil reading.
+	var reading *output.Reading
 	if result.Data == nil {
-		reading := output.Frequency.MakeReading(nil)
+		reading, err = output.Frequency.MakeReading(nil)
+		if err != nil {
+			return nil, err
+		}
 		readings = []*output.Reading{reading}
 		return readings, nil
 	}
@@ -35,7 +41,10 @@ func SnmpFrequencyRead(device *sdk.Device) (readings []*output.Reading, err erro
 	}
 
 	// Create the reading.
-	reading := output.Frequency.MakeReading(resultFloat)
+	reading, err = output.Frequency.MakeReading(resultFloat)
+	if err != nil {
+		return nil, err
+	}
 
 	readings = []*output.Reading{reading}
 	return readings, nil

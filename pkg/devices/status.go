@@ -3,6 +3,7 @@ package devices
 import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
+	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // SnmpStatus is the handler for the snmp-status device.
@@ -15,7 +16,8 @@ var SnmpStatus = sdk.DeviceHandler{
 func SnmpStatusRead(device *sdk.Device) (readings []*output.Reading, err error) { // nolint: gocyclo
 
 	// Get the raw reading from the SNMP server.
-	result, err := getRawReading(device)
+	var result core.ReadResult
+	result, err = getRawReading(device)
 	if err != nil {
 		return nil, err
 	}
@@ -29,6 +31,7 @@ func SnmpStatusRead(device *sdk.Device) (readings []*output.Reading, err error) 
 	// and if so, translate the enumeration. Otherwise, we return whatever the raw
 	// reading is.
 	var value interface{}
+	var reading *output.Reading
 	if result.Data != nil {
 		if IsEnumeration(device.Data) {
 			value, err = TranslateEnumeration(result, device.Data)
@@ -40,7 +43,9 @@ func SnmpStatusRead(device *sdk.Device) (readings []*output.Reading, err error) 
 		}
 	}
 
-	return []*output.Reading{
-		output.Status.MakeReading(value),
-	}, nil
+	reading, err = output.Status.MakeReading(value)
+	if err != nil {
+		return nil, err
+	}
+	return []*output.Reading{reading}, nil
 }

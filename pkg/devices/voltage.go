@@ -3,6 +3,7 @@ package devices
 import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
+	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
 )
 
 // SnmpVoltage is the handler for the SNMP OIDs that report voltage.
@@ -15,14 +16,19 @@ var SnmpVoltage = sdk.DeviceHandler{
 func SnmpVoltageRead(device *sdk.Device) (readings []*output.Reading, err error) {
 
 	// Get the raw reading from the SNMP server.
-	result, err := getRawReading(device)
+	var result core.ReadResult
+	result, err = getRawReading(device)
 	if err != nil {
 		return nil, err
 	}
 
 	// Check for nil reading.
+	var reading *output.Reading
 	if result.Data == nil {
-		reading := output.Voltage.MakeReading(nil)
+		reading, err := output.Voltage.MakeReading(nil)
+		if err != nil {
+			return nil, err
+		}
 		readings = []*output.Reading{reading}
 		return readings, nil
 	}
@@ -35,7 +41,10 @@ func SnmpVoltageRead(device *sdk.Device) (readings []*output.Reading, err error)
 	}
 
 	// Create the reading.
-	reading := output.Voltage.MakeReading(resultFloat)
+	reading, err = output.Voltage.MakeReading(resultFloat)
+	if err != nil {
+		return nil, err
+	}
 	readings = []*output.Reading{reading}
 	return readings, nil
 }

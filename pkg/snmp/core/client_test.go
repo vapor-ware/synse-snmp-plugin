@@ -7,8 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestClient is the initial positive test against the emulator.
-func TestClient(t *testing.T) {
+// TestClientShaAes is positive test against the emulator.
+// Uses SHA / AES.
+func TestClientShaAes(t *testing.T) {
 	// Create SecurityParameters for the config that should connect to the emulator.
 	securityParameters, err := NewSecurityParameters(
 		"simulator",  // User Name
@@ -42,6 +43,48 @@ func TestClient(t *testing.T) {
 	for i, result := range results {
 		t.Logf("%d: OID: %v, Data: %v", i, result.Oid, result.Data)
 	}
+	// Assert result set size.
+	assert.Equal(t, 709, len(results))
+}
+
+// TestClient is a positive test against the emulator.
+// Uses MD5 / DES.
+func TestClientMd5Des(t *testing.T) {
+	// Create SecurityParameters for the config that should connect to the emulator.
+	securityParameters, err := NewSecurityParameters(
+		"simulator",  // User Name
+		MD5,          // Authentication Protocol
+		"auctoritas", // Authentication Passphrase
+		DES,          // Privacy Protocol
+		"privatus",   // Privacy Passphrase
+	)
+	assert.NoError(t, err)
+
+	// Create a config.
+	config, err := NewDeviceConfig(
+		"v3",        // SNMP v3
+		"127.0.0.1", // Endpoint
+		1024,        // Port
+		securityParameters,
+		"public",   //  Context name
+		[]string{}, // tags (none)
+	)
+	assert.NoError(t, err)
+
+	// Create a client.
+	client, err := NewSnmpClient(config)
+	assert.NoError(t, err)
+
+	// Walk OID "1.3.6.1" and print results.
+	results, err := client.Walk("1.3.6.1")
+	assert.NoError(t, err)
+
+	// Log output.
+	for i, result := range results {
+		t.Logf("%d: OID: %v, Data: %v", i, result.Oid, result.Data)
+	}
+	// Assert result set size.
+	assert.Equal(t, 709, len(results))
 }
 
 // getExpectedConfigShaAes gets an expected valid device configuration.
@@ -62,7 +105,7 @@ func getExpectedConfigShaAes() *DeviceConfig {
 	}
 }
 
-// getExpectedConfigShaAes gets an expected valid device configuration.
+// getExpectedConfigMd5Des gets an expected valid device configuration.
 func getExpectedConfigMd5Des() *DeviceConfig {
 	return &DeviceConfig{
 		Version:     "V3",

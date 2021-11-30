@@ -53,7 +53,7 @@ func NewSecurityParameters(
 	// For now, require authorization and privacy.
 	// Empty user/passwords are okay.
 	if !(authenticationProtocol == MD5 || authenticationProtocol == SHA) {
-		return nil, fmt.Errorf("unsupported authentication protocol [%v]",
+		return nil, fmt.Errorf("(1) unsupported authentication protocol [%v]",
 			authenticationProtocol)
 	}
 
@@ -206,7 +206,7 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 	case "SHA":
 		authenticationProtocol = SHA
 	default:
-		return nil, fmt.Errorf("unsupported authentication protocol [%v]", authProtocolString)
+		return nil, fmt.Errorf("(2) unsupported authentication protocol [%v]", authProtocolString)
 	}
 
 	// Only DES and AES are currently supported.
@@ -397,7 +397,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 	} else if securityParameters.AuthenticationProtocol == SHA {
 		authProtocol = gosnmp.SHA
 	} else {
-		return nil, fmt.Errorf("unsupported authentication protocol [%v]", securityParameters.AuthenticationProtocol)
+		return nil, fmt.Errorf("(3) unsupported authentication protocol [%v]", securityParameters.AuthenticationProtocol)
 	}
 
 	if securityParameters.PrivacyProtocol == DES {

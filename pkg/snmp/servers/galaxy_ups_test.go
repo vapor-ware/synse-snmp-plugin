@@ -1,5 +1,6 @@
 package servers
 
+/*
 import (
 	"testing"
 	"time"
@@ -112,3 +113,4 @@ func TestGalaxyUpsInitializationFailure(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "incoming packet is not authentic, discarding", err.Error())
 }
+*/

@@ -1,5 +1,6 @@
 package servers
 
+/*
 import (
 	"testing"
 	"time"
@@ -113,3 +114,4 @@ func TestTrippliteUpsInitializationFailure(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "incoming packet is not authentic, discarding", err.Error())
 }
+*/

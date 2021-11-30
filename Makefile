@@ -2,7 +2,6 @@
 # Synse SNMP Plugin
 #
 
-
 PLUGIN_NAME    := snmp
 PLUGIN_VERSION := 2.2.2
 IMAGE_NAME     := vaporio/snmp-plugin

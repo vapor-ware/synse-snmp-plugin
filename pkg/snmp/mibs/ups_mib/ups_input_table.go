@@ -75,7 +75,7 @@ func (enumerator UpsInputTableDeviceEnumerator) DeviceEnumerator(
 	// We will have "frequency", "voltage", "current", and "power" device kinds.
 	// There is probably a better way of doing this, but this just gets things to
 	// where they need to be for now.
-	// TODO: Shim in the tags here.
+	// Shimmed in the synse scan tags here.
 	frequencyProto := &config.DeviceProto{
 		Type: "frequency",
 		Context: map[string]string{

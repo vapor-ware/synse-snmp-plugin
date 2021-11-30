@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 2.2.2
+PLUGIN_VERSION := 2.2.3
 IMAGE_NAME     := vaporio/snmp-plugin
 BIN_NAME       := synse-snmp-plugin
 
@@ -78,24 +78,31 @@ help:  ## Print usage information
 
 .DEFAULT_GOAL := help
 
-# This test recipe probably is probably what ci is hooking into now? It's hard to tell.
-# You can't run tests on a dev box like this anymore without standing up the emulator first.
-.PHONY: test
-test: ## Run all tests
-	go test -cover ./... || exit
-
 .PHONY: integration-test
 unit-test: test
 
-
-# FIXME: try to streamline the below
-
-.PHONY: test-dev-box
-test-dev-box:  ## Run all tests on a dev box.
-	# Start the SNMP emulator in a docker container in the background.
+.PHONY: start-snmp-emulators
+start-snmp-emulators: ## Start emulators for functional tests.
+	# Start the SNMP emulator for the pxgmsups (Eaton UPS) in a docker container in the background.
 	# Tests run on the local machine.
-	docker-compose -f ./emulator/test_snmp.yml down || true
-	docker-compose -f ./emulator/test_snmp.yml build
-	docker-compose -f ./emulator/test_snmp.yml up -d
-	go test -cover -v ./... || (echo TESTS FAILED $$?; docker-compose -f ./emulator/test_snmp.yml kill; exit 1)
-	docker-compose -f ./emulator/test_snmp.yml down
+	docker-compose -f ./emulator/ups/pxgms_ups/test_snmp.yml down || true
+	docker-compose -f ./emulator/ups/pxgms_ups/test_snmp.yml build
+	docker-compose -f ./emulator/ups/pxgms_ups/test_snmp.yml up -d
+	# Start the SNMP emulator for the pxgmsups (Eaton UPS) in a docker container in the background.
+	# Tests run on the local machine.
+	docker-compose -f ./emulator/ups/tripplite_ups/test_snmp.yml down || true
+	docker-compose -f ./emulator/ups/tripplite_ups/test_snmp.yml build
+	docker-compose -f ./emulator/ups/tripplite_ups/test_snmp.yml up -d
+
+.PHONY: stop-snmp-emulators
+stop-snmp-emulators: ## Shutdown the emulators.
+	docker-compose -f ./emulator/ups/tripplite_ups/test_snmp.yml down
+	docker-compose -f ./emulator/ups/pxgms_ups/test_snmp.yml down
+
+.PHONY: run-tests
+run-tests:
+	# Run the tests. Requires the emulators.
+	go test -cover -v ./... || (echo TESTS FAILED $$?; docker-compose -f ./emulator/ups/pxgms_ups/test_snmp.yml kill; exit 1)
+
+.PHONY: test
+test: start-snmp-emulators run-tests stop-snmp-emulators  ## Start emulators, run all tests, stop emulators.

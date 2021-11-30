@@ -1,0 +1,10 @@
+# This is the container running the PXGMS (Eaton) UPS SNMP emulator to test against.
+# This emulator runs on port 1024.
+snmp-emulator-pxgms-ups:
+  container_name: snmp-emulator-pxgms-ups
+  build: .
+  dockerfile: Dockerfile
+  # This command will override what is in the dockerfile.
+  command: ./start_snmp_emulator.sh ./data 1024 snmp-emulator-pxgms-ups.log V3
+  ports:
+    - 1024:1024/udp

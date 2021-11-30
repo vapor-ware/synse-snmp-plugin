@@ -7,8 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestClient is the initial positive test against the emulator.
-func TestClient(t *testing.T) {
+// TestClientPxgmsUps is the initial positive test against the emulator.
+// Uses SNMPv3 with SHA/AES.
+func TestClientPxgmsUps(t *testing.T) {
 	// Create SecurityParameters for the config that should connect to the emulator.
 	securityParameters, err := NewSecurityParameters(
 		"simulator",  // User Name
@@ -34,7 +35,7 @@ func TestClient(t *testing.T) {
 	client, err := NewSnmpClient(config)
 	assert.NoError(t, err)
 
-	// Walk OID "1.3.6.1" and print results.
+	// Walk SNMP OID "1.3.6.1" and print results.
 	results, err := client.Walk("1.3.6.1")
 	assert.NoError(t, err)
 
@@ -42,6 +43,8 @@ func TestClient(t *testing.T) {
 	for i, result := range results {
 		t.Logf("%d: OID: %v, Data: %v", i, result.Oid, result.Data)
 	}
+	// Assert result set size.
+	assert.Equal(t, 709, len(results))
 }
 
 // getExpectedConfigShaAes gets an expected valid device configuration.
@@ -299,4 +302,45 @@ func TestDeviceConfigSerialization(t *testing.T) {
 
 	// Compare. config is the expected (original), deserialized is actual.
 	verifyConfig(t, config, deserialized)
+}
+
+// TestClientTrippliteUps is the initial positive test against the emulator.
+// Uses SNMPv3 with MD5/DES.
+func TestClientTrippliteUps(t *testing.T) {
+	// Create SecurityParameters for the config that should connect to the emulator.
+	securityParameters, err := NewSecurityParameters(
+		"simulator",  // User Name
+		MD5,          // Authentication Protocol
+		"auctoritas", // Authentication Passphrase
+		DES,          // Privacy Protocol
+		"privatus",   // Privacy Passphrase
+	)
+	assert.NoError(t, err)
+
+	// Create a config.
+	config, err := NewDeviceConfig(
+		"v3",        // SNMP v3
+		"127.0.0.1", // Endpoint
+		1025,        // Port
+		securityParameters,
+		"public",   //  Context name
+		[]string{}, // tags (none)
+	)
+	assert.NoError(t, err)
+
+	// Create a client.
+	client, err := NewSnmpClient(config)
+	assert.NoError(t, err)
+
+	// Walk SNMP OID "1.3.6.1" and print results.
+	results, err := client.Walk("1.3.6.1")
+	assert.NoError(t, err)
+
+	// Log output.
+	for i, result := range results {
+		t.Logf("%d: OID: %v, Data: %v", i, result.Oid, result.Data)
+	}
+	// Assert result set size.
+	// This will be different from the PxgmsUps because the data are different.
+	assert.Equal(t, 347, len(results))
 }

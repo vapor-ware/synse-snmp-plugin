@@ -9,6 +9,7 @@ import (
 )
 
 // TestTrippliteUps is the first TrippliteUps test.
+// This UPS only supports MD5/DES and not SHA/AES. This test verfies that MD5/DES works.
 func TestTrippliteUps(t *testing.T) {
 	t.Log("TestTrippliteUps start")
 	t.Logf("t: %+v", t)
@@ -17,10 +18,10 @@ func TestTrippliteUps(t *testing.T) {
 	data["contextName"] = "public"
 	data["endpoint"] = "127.0.0.1"
 	data["userName"] = "simulator"
-	data["privacyProtocol"] = "AES"
+	data["privacyProtocol"] = "DES"
 	data["privacyPassphrase"] = "privatus"
-	data["port"] = 1024
-	data["authenticationProtocol"] = "SHA"
+	data["port"] = 1025
+	data["authenticationProtocol"] = "MD5"
 	data["authenticationPassphrase"] = "auctoritas"
 	data["model"] = "SU10000RT3UPM"
 	data["version"] = "v3"
@@ -40,12 +41,12 @@ func TestTrippliteUps(t *testing.T) {
 	thirtySeconds, _ := time.ParseDuration("30s")
 	assert.Equal(t, clientDeviceConfig.Timeout, thirtySeconds)
 	assert.NotNil(t, clientDeviceConfig.SecurityParameters)
-	assert.Equal(t, clientDeviceConfig.SecurityParameters.AuthenticationProtocol, core.AuthenticationProtocol(3))
-	assert.Equal(t, clientDeviceConfig.SecurityParameters.PrivacyProtocol, core.PrivacyProtocol(3))
+	assert.Equal(t, clientDeviceConfig.SecurityParameters.AuthenticationProtocol, core.AuthenticationProtocol(2))
+	assert.Equal(t, clientDeviceConfig.SecurityParameters.PrivacyProtocol, core.PrivacyProtocol(2))
 	assert.Equal(t, clientDeviceConfig.SecurityParameters.UserName, "simulator")
 	assert.Equal(t, clientDeviceConfig.SecurityParameters.AuthenticationPassphrase, "auctoritas")
 	assert.Equal(t, clientDeviceConfig.SecurityParameters.PrivacyPassphrase, "privatus")
-	assert.Equal(t, clientDeviceConfig.Port, uint16(1024))
+	assert.Equal(t, clientDeviceConfig.Port, uint16(1025))
 
 	assert.NotNil(t, trippliteUps.SnmpServer.SnmpServerBase.DeviceConfig)
 	serverDeviceConfig := trippliteUps.SnmpServer.SnmpServerBase.SnmpClient.DeviceConfig
@@ -54,16 +55,12 @@ func TestTrippliteUps(t *testing.T) {
 	assert.Equal(t, serverDeviceConfig.ContextName, "public")
 	assert.Equal(t, serverDeviceConfig.Timeout, thirtySeconds)
 	assert.NotNil(t, serverDeviceConfig.SecurityParameters)
-	assert.Equal(t, serverDeviceConfig.SecurityParameters.AuthenticationProtocol, core.AuthenticationProtocol(3))
-	assert.Equal(t, serverDeviceConfig.SecurityParameters.PrivacyProtocol, core.PrivacyProtocol(3))
+	assert.Equal(t, serverDeviceConfig.SecurityParameters.AuthenticationProtocol, core.AuthenticationProtocol(2))
+	assert.Equal(t, serverDeviceConfig.SecurityParameters.PrivacyProtocol, core.PrivacyProtocol(2))
 	assert.Equal(t, serverDeviceConfig.SecurityParameters.UserName, "simulator")
 	assert.Equal(t, serverDeviceConfig.SecurityParameters.AuthenticationPassphrase, "auctoritas")
 	assert.Equal(t, serverDeviceConfig.SecurityParameters.PrivacyPassphrase, "privatus")
-	assert.Equal(t, serverDeviceConfig.Port, uint16(1024))
-
-	// The verification here is done with emulator data from a different type of UPS.
-	// In the future we can use data from other UPSes and get different results,
-	// that just hasn't happened yet.
+	assert.Equal(t, serverDeviceConfig.Port, uint16(1025))
 
 	// Verify device handlers by type.
 	deviceHandlersByType := map[string]int{}
@@ -101,7 +98,7 @@ func TestTrippliteUpsInitializationFailure(t *testing.T) {
 	data["contextName"] = "public"
 	data["endpoint"] = "127.0.0.1"
 	data["userName"] = "simulator"
-	data["privacyProtocol"] = "AES"
+	data["privacyProtocol"] = "DES"
 	data["privacyPassphrase"] = "incorrect_password"
 	data["port"] = 1024
 	data["authenticationProtocol"] = "SHA"

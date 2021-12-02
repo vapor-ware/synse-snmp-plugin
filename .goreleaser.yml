@@ -31,6 +31,7 @@ release:
   name_template: "{{ .Version }}"
 dockers:
   -
+    use: podman
     goos: linux
     goarch: amd64
     binaries:

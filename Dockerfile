@@ -1,7 +1,7 @@
 #
 # Builder Image
 #
-FROM vaporio/foundation:bionic as builder
+FROM docker.io/vaporio/foundation:bionic as builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates
@@ -9,7 +9,7 @@ RUN apt-get update \
 #
 # Final Image
 #
-FROM vaporio/scratch-ish:1.0.0
+FROM docker.io/vaporio/scratch-ish:1.0.0
 
 LABEL org.label-schema.schema-version="1.0" \
       org.label-schema.name="vaporio/snmp-plugin" \

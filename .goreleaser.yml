@@ -41,6 +41,7 @@ dockers:
       - docker.io/vaporio/snmp-plugin:{{ .Major }}.{{ .Minor }}
       - docker.io/vaporio/snmp-plugin:latest
     build_flag_templates:
+      - "--format docker"
       - "--label=org.label-schema.version={{ .Version }}"
       - "--label=org.label-schema.build-date={{ .Date }}"
       - "--label=org.label-schema.vcs-ref={{ .ShortCommit }}"

@@ -36,10 +36,10 @@ dockers:
     binaries:
       - synse-snmp-plugin
     image_templates:
-      - vaporio/snmp-plugin:{{ .Tag }}
-      - vaporio/snmp-plugin:{{ .Major }}
-      - vaporio/snmp-plugin:{{ .Major }}.{{ .Minor }}
-      - vaporio/snmp-plugin:latest
+      - docker.io/vaporio/snmp-plugin:{{ .Tag }}
+      - docker.io/vaporio/snmp-plugin:{{ .Major }}
+      - docker.io/vaporio/snmp-plugin:{{ .Major }}.{{ .Minor }}
+      - docker.io/vaporio/snmp-plugin:latest
     build_flag_templates:
       - "--label=org.label-schema.version={{ .Version }}"
       - "--label=org.label-schema.build-date={{ .Date }}"

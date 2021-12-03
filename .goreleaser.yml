@@ -31,7 +31,8 @@ release:
   name_template: "{{ .Version }}"
 dockers:
   -
-    use: podman
+    # Need to use goreleaser Pro to get podman support
+    #use: podman
     goos: linux
     goarch: amd64
     image_templates:
@@ -40,7 +41,8 @@ dockers:
       - docker.io/vaporio/snmp-plugin:{{ .Major }}.{{ .Minor }}
       - docker.io/vaporio/snmp-plugin:latest
     build_flag_templates:
-      - "--format docker"
+      # Need to use goreleaser Pro to get podman support
+      #- "--format docker"
       - "--label=org.label-schema.version={{ .Version }}"
       - "--label=org.label-schema.build-date={{ .Date }}"
       - "--label=org.label-schema.vcs-ref={{ .ShortCommit }}"

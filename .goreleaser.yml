@@ -34,8 +34,6 @@ dockers:
     use: podman
     goos: linux
     goarch: amd64
-    binaries:
-      - synse-snmp-plugin
     image_templates:
       - docker.io/vaporio/snmp-plugin:{{ .Tag }}
       - docker.io/vaporio/snmp-plugin:{{ .Major }}

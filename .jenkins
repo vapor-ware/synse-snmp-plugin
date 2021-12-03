@@ -2,7 +2,7 @@
 
 
 // Include this shared CI repository to load script helpers and libraries.
-library identifier: 'vapor@1.19.7', retriever: modernSCM([
+library identifier: 'vapor@craig/VIO-1911', retriever: modernSCM([
   $class: 'GitSCMSource',
   remote: 'https://github.com/vapor-ware/ci-shared.git',
   credentialsId: 'vio-bot-gh',
@@ -10,7 +10,7 @@ library identifier: 'vapor@1.19.7', retriever: modernSCM([
 
 
 golangPipeline([
-  'image': 'vaporio/snmp-plugin',
+  'image': 'docker.io/vaporio/snmp-plugin',
   'skipSetup': true,
   'skipUnitTest': true,
   'emulators': [

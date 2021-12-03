@@ -31,16 +31,18 @@ release:
   name_template: "{{ .Version }}"
 dockers:
   -
+    # Need to use goreleaser Pro to get podman support
+    #use: podman
     goos: linux
     goarch: amd64
-    binaries:
-      - synse-snmp-plugin
     image_templates:
-      - vaporio/snmp-plugin:{{ .Tag }}
-      - vaporio/snmp-plugin:{{ .Major }}
-      - vaporio/snmp-plugin:{{ .Major }}.{{ .Minor }}
-      - vaporio/snmp-plugin:latest
+      - docker.io/vaporio/snmp-plugin:{{ .Tag }}
+      - docker.io/vaporio/snmp-plugin:{{ .Major }}
+      - docker.io/vaporio/snmp-plugin:{{ .Major }}.{{ .Minor }}
+      - docker.io/vaporio/snmp-plugin:latest
     build_flag_templates:
+      # Need to use goreleaser Pro to get podman support
+      #- "--format docker"
       - "--label=org.label-schema.version={{ .Version }}"
       - "--label=org.label-schema.build-date={{ .Date }}"
       - "--label=org.label-schema.vcs-ref={{ .ShortCommit }}"

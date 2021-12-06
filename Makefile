@@ -78,8 +78,11 @@ help:  ## Print usage information
 
 .DEFAULT_GOAL := help
 
-.PHONY: integration-test
+.PHONY: unit-test
 unit-test: test
+
+.PHONY: integration-test
+integration-test: test
 
 .PHONY: start-snmp-emulators
 start-snmp-emulators: ## Start emulators for functional tests.

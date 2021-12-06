@@ -100,9 +100,11 @@ stop-snmp-emulators: ## Shutdown the emulators.
 	docker-compose -f ./emulator/ups/pxgms_ups/test_snmp.yml down
 
 .PHONY: run-tests
-run-tests:
-	# Run the tests. Requires the emulators.
+run-tests: ## Run the tests. Requires the emulators to be up.
 	go test -cover -v ./... || (echo TESTS FAILED $$?; docker-compose -f ./emulator/ups/pxgms_ups/test_snmp.yml kill; exit 1)
 
+.PHONY: test-dev-box ## Start the emulators on your dev box, run tests, stop the emulators.
+test-dev-box: start-snmp-emulators run-tests stop-snmp-emulators  ## Start emulators, run all tests, stop emulators.
+
 .PHONY: test
-test: start-snmp-emulators run-tests stop-snmp-emulators  ## Start emulators, run all tests, stop emulators.
+test: run-tests ## CI hooks into this. CI starts its own emulators.

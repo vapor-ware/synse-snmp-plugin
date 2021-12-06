@@ -107,5 +107,5 @@ run-tests: ## Run the tests. Requires the emulators to be up.
 test-dev-box: start-snmp-emulators run-tests stop-snmp-emulators  ## Start emulators, run all tests, stop emulators.
 
 .PHONY: test
-test: ## CI hooks into this. CI starts its own emulators.
-	go test -cover -v ./...
+test: ## CI hooks into this. CI starts its own emulators externally to this. This just runs all tests.
+	go test -cover ./... || exit

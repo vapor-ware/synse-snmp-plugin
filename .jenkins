@@ -8,7 +8,6 @@ library identifier: 'vapor@mhink-fix-snmp', retriever: modernSCM([
   credentialsId: 'vio-bot-gh',
 ])
 
-
 golangPipeline([
   'image': 'docker.io/vaporio/snmp-plugin',
   'skipSetup': true,

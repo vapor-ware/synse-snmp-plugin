@@ -1,4 +1,5 @@
-# Ths dockerfile starts the SNMP emulator in a container for testing.
+# Ths dockerfile starts the SNMP emulator for the tripplite ups in a container for testing.
+# This emulator runs on port 1025.
 FROM vaporio/vapor-endpoint-base-x64:1.0
 
 RUN pip install -I \
@@ -7,6 +8,7 @@ RUN pip install -I \
     pyasn1
 
 # The emulator will not start as root, so we need to add a user.
+# As root, the Error message is the following:
 # snmp-emulator    | ERROR: cant drop priveleges: Must drop priveleges to a non-priveleged user&group (sic)
 # Create the user and ${HOME}
 RUN groupadd -r docker && useradd -r -g docker snmp
@@ -29,8 +31,8 @@ WORKDIR /home/snmp
 # Default emulator port is 1024. Expose it.
 EXPOSE 1024/udp
 
-# Args are:
 # data directory (typically /home/snmp/data)
-# port (normally using 11011 for single emulator)
+# port (typically 1024 and up)
 # log file name (trying to keep these names unique)
-CMD ["./start_snmp_emulator.sh","./data","1024","snmp-emulator-ups.log"]
+# SNMP version (V3)
+CMD ["./start_snmp_emulator.sh","./data","1025","snmp-emulator-tripplite-ups.log", "V3"]

@@ -1,0 +1,10 @@
+# This is the container running the Tripplite UPS SNMP emulator to test against.
+# This emulator runs on port 1025.
+snmp-emulator-tripplite-ups:
+  container_name: snmp-emulator-tripplite-ups
+  build: .
+  dockerfile: Dockerfile
+  # This command will override what is in the dockerfile.
+  command: ./start_snmp_emulator.sh ./data 1025 snmp-emulator-triplite-ups.log V3 authPriv MD5 DES
+  ports:
+    - 1025:1025/udp

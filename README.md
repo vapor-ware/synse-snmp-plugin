@@ -191,6 +191,7 @@ The Synse SNMP Plugin is licensed under GPLv3. See [LICENSE](LICENSE) for more i
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin?ref=badge_large)
 
+
 [synse-server]: https://github.com/vapor-ware/synse-server
 [synse-cli]: https://github.com/vapor-ware/synse-cli
 [plugin-dockerhub]: https://hub.docker.com/r/vaporio/snmp-plugin

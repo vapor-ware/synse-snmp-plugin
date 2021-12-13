@@ -1,5 +1,5 @@
 # Ths dockerfile starts the PXGMS UPS (Eaton UPS) SNMP emulator in a container for testing.
-FROM vaporio/vapor-endpoint-base-x64:1.0
+FROM docker.io/vaporio/vapor-endpoint-base-x64:1.0
 
 RUN pip install -I \
     snmpsim \

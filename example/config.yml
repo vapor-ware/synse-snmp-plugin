@@ -27,3 +27,4 @@ dynamicRegistration:
       privacyProtocol: AES
       privacyPassphrase: privatus
       contextName: public
+

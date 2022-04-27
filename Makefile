@@ -6,7 +6,7 @@
 # make clean build fmt lint test-dev-box ; echo $?
 
 PLUGIN_NAME    := snmp
-PLUGIN_VERSION := 2.2.3
+PLUGIN_VERSION := 2.2.4
 IMAGE_NAME     := vaporio/snmp-plugin
 BIN_NAME       := synse-snmp-plugin
 

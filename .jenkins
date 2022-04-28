@@ -12,6 +12,7 @@ golangPipeline([
   'image': 'docker.io/vaporio/snmp-plugin',
   'skipSetup': true,
   'skipUnitTest': true,
+  'skipClair': true,
   'emulators': [
     'snmp',
   ],

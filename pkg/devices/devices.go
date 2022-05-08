@@ -4,6 +4,7 @@ package devices
 
 import (
 	"fmt"
+	"github.com/gosnmp/gosnmp"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-snmp-plugin/pkg/snmp/core"
@@ -37,6 +38,15 @@ func getRawReading(device *sdk.Device) (result core.ReadResult, err error) {
 	snmpConfig, err := core.GetDeviceConfig(data)
 	if err != nil {
 		return result, err
+	}
+
+	if err := snmpConfig.CheckPrivacyAndAuthFromData(data); err != nil {
+		return result, err
+	}
+
+	if snmpConfig.Endpoint == "ups" {
+		// Set MsgFlag based on device type
+		snmpConfig.MsgFlag = gosnmp.AuthNoPriv
 	}
 
 	// Create SnmpClient.

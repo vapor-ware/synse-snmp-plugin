@@ -36,7 +36,6 @@ func TestCurrentNilReadingValue(t *testing.T) {
 	}
 	// Call SnmpCurrentRead.
 	readings, err := SnmpCurrentRead(&device)
-	// Verify we get a nil reading and no error.
 	assert.NoError(t, err)
 	assert.Len(t, readings, 1)
 	assert.Nil(t, readings[0].Value)

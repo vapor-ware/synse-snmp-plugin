@@ -25,5 +25,5 @@ synse-snmp-plugin
 dist/
 
 #Local config for debugging real devices
-config.yaml
+config.yml
 

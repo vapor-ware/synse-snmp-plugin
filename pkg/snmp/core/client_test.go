@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/gosnmp/gosnmp"
 	"testing"
 	"time"
 
@@ -30,6 +31,8 @@ func TestClientPxgmsUps(t *testing.T) {
 		[]string{}, // tags (none)
 	)
 	assert.NoError(t, err)
+
+	config.MsgFlag = gosnmp.AuthPriv
 
 	// Create a client.
 	client, err := NewSnmpClient(config)
@@ -327,6 +330,8 @@ func TestClientTrippliteUps(t *testing.T) {
 		[]string{}, // tags (none)
 	)
 	assert.NoError(t, err)
+
+	config.MsgFlag = gosnmp.AuthPriv
 
 	// Create a client.
 	client, err := NewSnmpClient(config)

@@ -43,6 +43,10 @@ func NewTrippliteUps(data map[string]interface{}) (ups *TrippliteUps, err error)
 	}
 	log.WithField("config", snmpDeviceConfig).Info("[snmp] loaded device config")
 
+	if err := snmpDeviceConfig.CheckPrivacyAndAuthFromData(data); err != nil {
+		return nil, err
+	}
+
 	// Create SNMP client.
 	snmpClient, err := core.NewSnmpClient(snmpDeviceConfig)
 	if err != nil {

@@ -1,6 +1,7 @@
 package mibs
 
 import (
+	"github.com/gosnmp/gosnmp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,6 +50,7 @@ func TestUpsMib(t *testing.T) { // nolint: gocyclo
 		[]string{}, // tags (none)
 	)
 	assert.NoError(t, err)
+	cfg.MsgFlag = gosnmp.AuthPriv
 
 	// Create a client.
 	client, err := core.NewSnmpClient(cfg)

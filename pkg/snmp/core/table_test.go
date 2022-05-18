@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/gosnmp/gosnmp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -33,6 +34,8 @@ func TestTable(t *testing.T) {
 		[]string{}, // tags (none)
 	)
 	assert.NoError(t, err)
+
+	config.MsgFlag = gosnmp.AuthPriv
 
 	// Create a client.
 	client, err := NewSnmpClient(config)

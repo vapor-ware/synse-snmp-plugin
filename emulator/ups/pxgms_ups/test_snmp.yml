@@ -4,11 +4,12 @@
 # would have its own emulator as well.
 #
 # This emulator runs on port 1024.
-snmp-emulator-pxgms-ups:
-  container_name: snmp-emulator-pxgms-ups
-  build: .
-  dockerfile: Dockerfile
-  # This command will override what is in the dockerfile.
-  command: ./start_snmp_emulator.sh ./data 1024 snmp-emulator-pxgms-ups.log V3 authPriv SHA AES
-  ports:
-    - 1024:1024/udp
+version: "3"
+services:
+  snmp-emulator-pxgms-ups:
+    container_name: snmp-emulator-pxgms-ups
+    build: .
+    # This command will override what is in the dockerfile.
+    command: ./start_snmp_emulator.sh ./data 1024 snmp-emulator-pxgms-ups.log V3 authPriv SHA AES
+    ports:
+      - 1024:1024/udp

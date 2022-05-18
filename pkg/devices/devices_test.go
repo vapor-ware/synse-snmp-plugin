@@ -1,6 +1,7 @@
 package devices
 
 import (
+	"github.com/gosnmp/gosnmp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -82,6 +83,8 @@ func TestDevices(t *testing.T) { // nolint: gocyclo
 		[]string{"serverName:customerUps"}, // tags
 	)
 	assert.NoError(t, err)
+
+	snmpConfig.MsgFlag = gosnmp.AuthPriv
 
 	// Create a client.
 	client, err := core.NewSnmpClient(snmpConfig)

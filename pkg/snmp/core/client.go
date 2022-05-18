@@ -52,12 +52,12 @@ func NewSecurityParameters(
 
 	// For now, require authorization and privacy.
 	// Empty user/passwords are okay.
-	if !(authenticationProtocol == MD5 || authenticationProtocol == SHA) {
+	if !(authenticationProtocol == MD5 || authenticationProtocol == SHA || authenticationProtocol == NoAuthentication) {
 		return nil, fmt.Errorf("unsupported authentication protocol [%v]",
 			authenticationProtocol)
 	}
 
-	if !(privacyProtocol == DES || privacyProtocol == AES) {
+	if !(privacyProtocol == DES || privacyProtocol == AES || privacyProtocol == NoPrivacy) {
 		return nil, fmt.Errorf("unsupported privacy protocol [%v]",
 			privacyProtocol)
 	}
@@ -74,14 +74,15 @@ func NewSecurityParameters(
 // DeviceConfig is a thin wrapper around the configuration for gosnmp using SNMP V3.
 // Tags are included here to expose on a Synse scan.
 type DeviceConfig struct {
-	Version            string              // SNMP protocol version. Currently only SNMP V3 is supported.
-	Endpoint           string              // Endpoint of the SNMP server to connect to.
-	ContextName        string              // Context name for SNMP V3 messages.
-	Timeout            time.Duration       // Timeout for the SNMP query.
-	Retries            int                 // The number of retries on the connection.
-	SecurityParameters *SecurityParameters // SNMP V3 security parameters.
-	Port               uint16              // UDP port to connect to.
-	Tags               []string            // List of synse device tags.
+	Version            string                // SNMP protocol version. Currently only SNMP V3 is supported.
+	Endpoint           string                // Endpoint of the SNMP server to connect to.
+	ContextName        string                // Context name for SNMP V3 messages.
+	Timeout            time.Duration         // Timeout for the SNMP query.
+	Retries            int                   // The number of retries on the connection.
+	SecurityParameters *SecurityParameters   // SNMP V3 security parameters.
+	Port               uint16                // UDP port to connect to.
+	Tags               []string              // List of synse device tags.
+	MsgFlag            gosnmp.SnmpV3MsgFlags // Security level
 }
 
 // checkForEmptyString checks for an empty string variable and fails with an
@@ -113,8 +114,7 @@ func NewDeviceConfig(
 	}
 
 	// Check strings for emptyness. Version is already checked.
-	err := checkForEmptyString(endpoint, "endpoint")
-	if err != nil {
+	if err := checkForEmptyString(endpoint, "endpoint"); err != nil {
 		return nil, err
 	}
 
@@ -205,6 +205,8 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 		authenticationProtocol = MD5
 	case "SHA":
 		authenticationProtocol = SHA
+	case "None":
+		authenticationProtocol = NoAuthentication
 	default:
 		return nil, fmt.Errorf("unsupported authentication protocol [%v]", authProtocolString)
 	}
@@ -216,6 +218,8 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 		privacyProtocol = DES
 	case "AES":
 		privacyProtocol = AES
+	case "NONE":
+		privacyProtocol = NoPrivacy
 	default:
 		return nil, fmt.Errorf("unsupported privacy protocol [%v]", privProtocolString)
 	}
@@ -248,20 +252,20 @@ func GetDeviceConfig(instanceData map[string]interface{}) (*DeviceConfig, error)
 }
 
 // ToMap serializes DeviceConfig to map[string]interface{}.
-func (deviceConfig *DeviceConfig) ToMap() (m map[string]interface{}, err error) {
+func (d *DeviceConfig) ToMap() (m map[string]interface{}, err error) {
 
-	if deviceConfig.SecurityParameters == nil {
+	if d.SecurityParameters == nil {
 		return nil, fmt.Errorf("no security parameters")
 	}
 
 	m = make(map[string]interface{})
-	m["version"] = deviceConfig.Version
-	m["endpoint"] = deviceConfig.Endpoint
-	m["port"] = deviceConfig.Port
-	m["contextName"] = deviceConfig.ContextName
-	m["deviceTags"] = deviceConfig.Tags
+	m["version"] = d.Version
+	m["endpoint"] = d.Endpoint
+	m["port"] = d.Port
+	m["contextName"] = d.ContextName
+	m["deviceTags"] = d.Tags
 
-	securityParameters := deviceConfig.SecurityParameters
+	securityParameters := d.SecurityParameters
 	m["userName"] = securityParameters.UserName
 	if securityParameters.AuthenticationProtocol == MD5 {
 		m["authenticationProtocol"] = "MD5"
@@ -308,17 +312,13 @@ func (client *SnmpClient) Get(oid string) (result ReadResult, err error) {
 		return result, err
 	}
 
-	oids := []string{oid}
-	snmpPacket, err := goSnmp.Get(oids)
-	err2 := goSnmp.Conn.Close() // Do not leak connection.
-
-	// Return first error.
+	snmpPacket, err := goSnmp.Get([]string{oid})
 	if err != nil {
 		return result, err
 	}
-	if err2 != nil {
-		return result, err2
-	}
+	defer func() {
+		err = goSnmp.Conn.Close()
+	}()
 
 	data := snmpPacket.Variables[0]
 
@@ -335,7 +335,7 @@ func (client *SnmpClient) Get(oid string) (result ReadResult, err error) {
 	return ReadResult{
 		Oid:  data.Name,
 		Data: data.Value,
-	}, nil
+	}, err
 }
 
 // Walk performs an SNMP bulk walk on the given OID.
@@ -347,15 +347,13 @@ func (client *SnmpClient) Walk(rootOid string) (results []ReadResult, err error)
 	}
 
 	resultSet, err := goSnmp.BulkWalkAll(rootOid)
-	err2 := goSnmp.Conn.Close() // Do not leak connection.
-
-	// Return first error.
 	if err != nil {
 		return nil, err
 	}
-	if err2 != nil {
-		return nil, err2
-	}
+
+	defer func() {
+		err = goSnmp.Conn.Close()
+	}()
 
 	// Package results.
 	for _, snmpPdu := range resultSet {
@@ -375,7 +373,7 @@ func (client *SnmpClient) Walk(rootOid string) (results []ReadResult, err error)
 			Data: snmpPdu.Value,
 		})
 	}
-	return results, nil
+	return results, err
 }
 
 // createGoSNMP is a helper to create gosnmp.GoSNMP from SnmpClient.
@@ -396,6 +394,8 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 		authProtocol = gosnmp.MD5
 	} else if securityParameters.AuthenticationProtocol == SHA {
 		authProtocol = gosnmp.SHA
+	} else if securityParameters.AuthenticationProtocol == NoAuthentication {
+		authProtocol = gosnmp.NoAuth
 	} else {
 		return nil, fmt.Errorf("unsupported authentication protocol [%v]", securityParameters.AuthenticationProtocol)
 	}
@@ -404,6 +404,8 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 		privProtocol = gosnmp.DES
 	} else if securityParameters.PrivacyProtocol == AES {
 		privProtocol = gosnmp.AES
+	} else if securityParameters.PrivacyProtocol == NoPrivacy {
+		privProtocol = gosnmp.NoPriv
 	} else {
 		return nil, fmt.Errorf("unsupported privacy protocol [%v]", securityParameters.PrivacyProtocol)
 	}
@@ -414,7 +416,7 @@ func (client *SnmpClient) createGoSNMP() (*gosnmp.GoSNMP, error) {
 		Version:       gosnmp.Version3,
 		Timeout:       client.DeviceConfig.Timeout,
 		SecurityModel: gosnmp.UserSecurityModel,
-		MsgFlags:      gosnmp.AuthPriv,
+		MsgFlags:      client.DeviceConfig.MsgFlag,
 		SecurityParameters: &gosnmp.UsmSecurityParameters{
 			UserName:                 client.DeviceConfig.SecurityParameters.UserName,
 			AuthenticationProtocol:   authProtocol,

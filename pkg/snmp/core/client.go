@@ -285,6 +285,7 @@ func (d *DeviceConfig) ToMap() (m map[string]interface{}, err error) {
 // SnmpClient is a thin wrapper around gosnmp.
 type SnmpClient struct {
 	DeviceConfig *DeviceConfig
+	SupportBulk  bool
 }
 
 // NewSnmpClient constructs SnmpClient.
@@ -295,6 +296,7 @@ func NewSnmpClient(deviceConfig *DeviceConfig) (*SnmpClient, error) {
 
 	return &SnmpClient{
 		DeviceConfig: deviceConfig,
+		SupportBulk:  true,
 	}, nil
 }
 
@@ -346,9 +348,18 @@ func (client *SnmpClient) Walk(rootOid string) (results []ReadResult, err error)
 		return nil, err
 	}
 
-	resultSet, err := goSnmp.BulkWalkAll(rootOid)
-	if err != nil {
-		return nil, err
+	var resultSet []gosnmp.SnmpPDU
+
+	if client.SupportBulk {
+		resultSet, err = goSnmp.BulkWalkAll(rootOid)
+		if err != nil {
+			client.SupportBulk = false
+		}
+	} else {
+		resultSet, err = goSnmp.WalkAll(rootOid)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	defer func() {

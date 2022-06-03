@@ -2,8 +2,8 @@ package servers
 
 import (
 	"fmt"
-	"strings"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 // CreateSnmpServer creates a SnmpServer from the configuration data model string.
@@ -39,7 +39,7 @@ func CreateSnmpServer(data map[string]interface{}) (server *SnmpServer, err erro
 	if model == "SU10000RT3UPM" {
 		var trippliteups *TrippliteUps
 		trippliteups, err = NewTrippliteUps(data)
-		log.Debugf("Error is: [%s]", err)
+		log.Errorf("Error is: [%s]", err)
 		if err == nil {
 			server = trippliteups.SnmpServer
 			return

@@ -36,6 +36,6 @@ services:
     container_name: snmp-emulator
     build:
       context: emulator
-      dockerfile: Dockerfile
+      dockerfile: ../Dockerfile
     expose:
       - '1024/udp'

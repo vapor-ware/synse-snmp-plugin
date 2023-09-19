@@ -18,11 +18,12 @@ LABEL org.label-schema.schema-version="1.0" \
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
+WORKDIR /plugin
 # NOTE
 #  Plugin and device configurations are not built into the
 #  image. They should be supplied on a per-deployment basis.
 
 # Copy the executable.
-COPY synse-snmp-plugin ./plugin
+COPY /synse-snmp-plugin .
 
-ENTRYPOINT ["./plugin"]
+ENTRYPOINT ["/plugin/synse-snmp-plugin"]

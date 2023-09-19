@@ -1,12 +1,14 @@
-[![Build Status](https://build.vio.sh/buildStatus/icon?job=vapor-ware/synse-snmp-plugin/master)](https://build.vio.sh/blue/organizations/jenkins/vapor-ware%2Fsynse-snmp-plugin/activity)
+[![Build Status](https://build.vio.sh/buildStatus/icon?job=vapor-ware/synse-snmp-plugin/master)](https://build.vio.sh/job/vapor-ware/job/synse-snmp-plugin/job/master)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-snmp-plugin?ref=badge_shield)
 ![GitHub release](https://img.shields.io/github/release/vapor-ware/synse-snmp-plugin.svg)
 
-# Synse SNMP Plugin
+# Synse SNMP Plugin - Deprecated
 
 An SNMP plugin for [Synse Server][synse-server].
 
-> Note: While there are plans to make this plugin more general-purposed in
+> Note: Deprecated as of Sept 2023 current working image is at vaporio/snmp-plugin@2.2.5
+
+> While there are plans to make this plugin more general-purposed in
 > the future, it is currently limited in scope for what it supports. See the
 > [Supported MIBs](#supported-mibs) section below.
 
